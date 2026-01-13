@@ -11,13 +11,4 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="src\api\" />
-      <Folder Include="src\core\" />
-      <Folder Include="src\models\" />
-      <Folder Include="src\schemas\" />
-      <Folder Include="tests\" />
-      <Folder Include="utils\" />
-    </ItemGroup>
-
 </Project>
