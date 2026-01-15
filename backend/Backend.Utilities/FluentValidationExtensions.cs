@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Backend.Utilities;
 
-namespace Backend.Utilities
+internal class FluentValidationExtensions
 {
-    internal class FluentValidationExtensions
-    {
-    }
 }
