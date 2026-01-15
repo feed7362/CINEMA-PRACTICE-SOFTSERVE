@@ -1,66 +1,41 @@
-using backend.api;
-
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi(options =>
-{
-    options.AddDocumentTransformer((document, context, ct) =>
-    {
-        document.Info = new()
-        {
-            Title = "My API",
-            Version = "v1",
-            Description = "Clean Minimal API",
-            Contact = new()
-            {
-                Name = "Your Name",
-                Email = "you@email.com"
-            },
-            License = new()
-            {
-                Name = "MIT"
-            }
-        };
-
-        return Task.CompletedTask;
-    });
-});
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("Default", p =>
-    {
-        p.WithOrigins("https://localhost:5122")
-            .WithMethods("GET", "POST")
-            .WithHeaders("Content-Type", "Authorization");
-    });
-});
-
+// Add services to the container.
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-app.Lifetime.ApplicationStarted.Register(() =>
-{
-    Console.WriteLine("Application started");
-});
-
-app.Lifetime.ApplicationStopping.Register(() =>
-{
-    Console.WriteLine("Application stopping");
-});
-
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/openapi/v1.json", "My API v1");
-        options.RoutePrefix = "swagger";
-        options.DocumentTitle = "My API Docs";
-    });
 }
 
-app.MapWeatherEndpoints();
+// app.UseHttpsRedirection();
+
+var summaries = new[]
+{
+    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+};
+
+app.MapGet("/weatherforecast", () =>
+    {
+        var forecast = Enumerable.Range(1, 5).Select(index =>
+                new WeatherForecast
+                (
+                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                    Random.Shared.Next(-20, 55),
+                    summaries[Random.Shared.Next(summaries.Length)]
+                ))
+            .ToArray();
+        return forecast;
+    })
+    .WithName("GetWeatherForecast");
 
 app.Run();
+
+record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+{
+    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+}
