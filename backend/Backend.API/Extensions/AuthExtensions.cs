@@ -1,6 +1,5 @@
-﻿namespace Backend.API.Extensions
+﻿namespace Backend.API.Extensions;
+
+public class AuthExtensions
 {
-    public class AuthExtensions
-    {
-    }
 }

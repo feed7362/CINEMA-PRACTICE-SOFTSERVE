@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Backend.Data;
 
-namespace Backend.Data
+internal class ApplicationContext
 {
-    internal class ApplicationContext
-    {
-    }
 }

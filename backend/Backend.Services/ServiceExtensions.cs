@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Backend.Services;
 
-namespace Backend.Services
+internal class ServiceExtensions
 {
-    internal class ServiceExtensions
-    {
-    }
 }
