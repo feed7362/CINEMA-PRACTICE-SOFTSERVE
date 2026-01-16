@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -7,40 +7,23 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="Controllers\api\**" />
-      <Compile Remove="Controllers\core\**" />
-      <Compile Remove="Controllers\models\**" />
-      <Compile Remove="Controllers\schemas\**" />
-      <Compile Remove="tests\**" />
-      <Compile Remove="utils\**" />
-      <Content Remove="Controllers\api\**" />
-      <Content Remove="Controllers\core\**" />
-      <Content Remove="Controllers\models\**" />
-      <Content Remove="Controllers\schemas\**" />
-      <Content Remove="tests\**" />
-      <Content Remove="utils\**" />
-      <EmbeddedResource Remove="Controllers\api\**" />
-      <EmbeddedResource Remove="Controllers\core\**" />
-      <EmbeddedResource Remove="Controllers\models\**" />
-      <EmbeddedResource Remove="Controllers\schemas\**" />
-      <EmbeddedResource Remove="tests\**" />
-      <EmbeddedResource Remove="utils\**" />
-      <None Remove="Controllers\api\**" />
-      <None Remove="Controllers\core\**" />
-      <None Remove="Controllers\models\**" />
-      <None Remove="Controllers\schemas\**" />
-      <None Remove="tests\**" />
-      <None Remove="utils\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Controllers\" />
       <Folder Include="Models\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Backend.Domain\Backend.Domain.csproj" />
+      <ProjectReference Include="..\Backend.Services\Backend.Services.csproj" />
+      <ProjectReference Include="..\Backend.Utilities\Backend.Utilities.csproj" />
     </ItemGroup>
 
 </Project>
