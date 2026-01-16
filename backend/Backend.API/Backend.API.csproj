@@ -7,35 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Remove="Controllers\api\**"/>
-        <Compile Remove="Controllers\core\**"/>
-        <Compile Remove="Controllers\models\**"/>
-        <Compile Remove="Controllers\schemas\**"/>
-        <Compile Remove="tests\**"/>
-        <Compile Remove="utils\**"/>
-        <Content Remove="Controllers\api\**"/>
-        <Content Remove="Controllers\core\**"/>
-        <Content Remove="Controllers\models\**"/>
-        <Content Remove="Controllers\schemas\**"/>
-        <Content Remove="tests\**"/>
-        <Content Remove="utils\**"/>
-        <EmbeddedResource Remove="Controllers\api\**"/>
-        <EmbeddedResource Remove="Controllers\core\**"/>
-        <EmbeddedResource Remove="Controllers\models\**"/>
-        <EmbeddedResource Remove="Controllers\schemas\**"/>
-        <EmbeddedResource Remove="tests\**"/>
-        <EmbeddedResource Remove="utils\**"/>
-        <None Remove="Controllers\api\**"/>
-        <None Remove="Controllers\core\**"/>
-        <None Remove="Controllers\models\**"/>
-        <None Remove="Controllers\schemas\**"/>
-        <None Remove="tests\**"/>
-        <None Remove="utils\**"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2"/>
     </ItemGroup>
 
     <ItemGroup>
