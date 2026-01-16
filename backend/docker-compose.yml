@@ -2,7 +2,6 @@ services:
   db:
     image: postgres:latest
     container_name: cinema_db
-    restart: always
     environment:
       POSTGRES_PASSWORD: Admino_nymous228
       POSTGRES_DB: cinema_booking_db
@@ -11,6 +10,13 @@ services:
       - "5432:5432"
     volumes:
       - cinema_db_data:/var/lib/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d ${POSTGRES_DB}" ]
+      interval: 1m30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
 
 volumes:
   cinema_db_data:
