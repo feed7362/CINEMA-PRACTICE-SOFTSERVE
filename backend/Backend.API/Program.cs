@@ -1,10 +1,11 @@
 using Backend.API.Extensions;
+using Backend.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
 builder.Services.AddDatabaseServices(builder.Configuration);
-
+builder.Services.AddIdentityServices();
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 

@@ -12,7 +12,8 @@ public class Booking
 
     public string Status { get; set; } = "PENDING";
 
-    public User User { get; set; } = null!;
+    public int ApplicationUserId { get; set; }
+
     public Session Session { get; set; } = null!;
 
     public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();

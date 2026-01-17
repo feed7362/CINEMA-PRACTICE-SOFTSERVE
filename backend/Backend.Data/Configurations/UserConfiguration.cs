@@ -1,22 +1,13 @@
 ﻿using Backend.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Backend.Data.Configurations;
 
-public class UserConfiguration : IEntityTypeConfiguration<User>
+public class ApplicationUser : IdentityUser<int>
 {
-    public void Configure(EntityTypeBuilder<User> builder)
-    {
-        builder.HasKey(x => x.Id);
-
-        builder.Property(x => x.Email)
-            .IsRequired()
-            .HasMaxLength(256);
-
-        builder.HasMany(x => x.Bookings)
-            .WithOne(x => x.User)
-            .HasForeignKey(x => x.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-    }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public string? ProfilePictureUrl { get; set; }
+    public ICollection<Booking> Bookings { get; set; } = [];
 }
