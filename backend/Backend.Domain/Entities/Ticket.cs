@@ -1,6 +1,8 @@
-﻿namespace Backend.Domain.Entities;
+﻿using Backend.Domain.Interfaces;
 
-public class Ticket
+namespace Backend.Domain.Entities;
+
+public class Ticket : IEntity
 {
     public long Id { get; set; }
 

@@ -1,6 +1,8 @@
-﻿namespace Backend.Domain.Entities;
+﻿using Backend.Domain.Interfaces;
 
-public class Discount
+namespace Backend.Domain.Entities;
+
+public class Discount : IEntity
 {
     public long Id { get; set; }
 

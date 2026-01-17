@@ -1,6 +1,8 @@
-﻿namespace Backend.Domain.Entities;
+﻿using Backend.Domain.Interfaces;
 
-public class Format
+namespace Backend.Domain.Entities;
+
+public class Format : IEntity
 {
     public long Id { get; set; }
 

@@ -1,6 +1,8 @@
-﻿namespace Backend.Domain.Entities;
+﻿using Backend.Domain.Interfaces;
 
-public class Actor
+namespace Backend.Domain.Entities;
+
+public class Actor : IEntity
 {
     public long Id { get; set; }
 
