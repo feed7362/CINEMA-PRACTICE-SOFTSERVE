@@ -1,6 +1,8 @@
-﻿namespace Backend.Domain.Entities;
+﻿using Backend.Domain.Interfaces;
 
-public class Seat
+namespace Backend.Domain.Entities;
+
+public class Seat : IEntity
 {
     public long Id { get; set; }
 
