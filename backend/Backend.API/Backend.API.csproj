@@ -7,17 +7,23 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Controllers\"/>
-        <Folder Include="Models\"/>
+        <Folder Include="Controllers\" />
+        <Folder Include="Models\" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Backend.Data\Backend.Data.csproj" />
       <ProjectReference Include="..\Backend.Domain\Backend.Domain.csproj" />
+      <ProjectReference Include="..\Backend.Data\Backend.Data.csproj" />
       <ProjectReference Include="..\Backend.Services\Backend.Services.csproj" />
       <ProjectReference Include="..\Backend.Utilities\Backend.Utilities.csproj" />
     </ItemGroup>
