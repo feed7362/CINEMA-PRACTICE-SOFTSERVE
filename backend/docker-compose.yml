@@ -11,7 +11,7 @@ services:
     volumes:
       - cinema_db_data:/var/lib/postgresql
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d ${POSTGRES_DB}" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d cinema_booking_db" ]
       interval: 1m30s
       timeout: 5s
       retries: 5
