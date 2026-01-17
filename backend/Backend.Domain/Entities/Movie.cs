@@ -1,6 +1,8 @@
-﻿namespace Backend.Domain.Entities;
+﻿using Backend.Domain.Interfaces;
 
-public class Movie
+namespace Backend.Domain.Entities;
+
+public class Movie : IEntity
 {
     public long Id { get; set; }
 

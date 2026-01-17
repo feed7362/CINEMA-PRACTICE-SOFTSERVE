@@ -1,6 +1,8 @@
-﻿namespace Backend.Domain.Entities;
+﻿using Backend.Domain.Interfaces;
 
-public class Booking
+namespace Backend.Domain.Entities;
+
+public class Booking : IEntity
 {
     public long Id { get; set; }
 
