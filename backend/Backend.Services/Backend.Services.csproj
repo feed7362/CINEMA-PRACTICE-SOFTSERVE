@@ -6,10 +6,6 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-        <Folder Include="Services\"/>
-    </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
   </ItemGroup>
