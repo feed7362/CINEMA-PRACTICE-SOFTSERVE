@@ -97,15 +97,16 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Actor", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ActorName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
@@ -114,11 +115,11 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Booking", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ApplicationUserId")
                         .HasColumnType("integer");
@@ -129,15 +130,11 @@ namespace Backend.Data.Migrations
                     b.Property<DateTime>("ExpirationTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("SessionId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("SessionId")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
+                    b.Property<short>("Status")
+                        .HasColumnType("smallint");
 
                     b.HasKey("Id");
 
@@ -150,15 +147,11 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Discount", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("DiscountName")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -166,39 +159,26 @@ namespace Backend.Data.Migrations
                     b.Property<int>("Percentage")
                         .HasColumnType("integer");
 
+                    b.Property<short>("Type")
+                        .HasColumnType("smallint");
+
                     b.HasKey("Id");
 
                     b.ToTable("Discount");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Entities.Format", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("FormatName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Format");
-                });
-
             modelBuilder.Entity("Backend.Domain.Entities.Genre", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("GenreName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.HasKey("Id");
 
@@ -207,80 +187,85 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Hall", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Capacity")
                         .HasColumnType("integer");
 
-                    b.Property<long>("FormatId")
-                        .HasColumnType("bigint");
+                    b.Property<short>("Format")
+                        .HasColumnType("smallint");
 
                     b.Property<string>("HallName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FormatId");
 
                     b.ToTable("Halls");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Movie", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("AgeRating")
                         .HasColumnType("integer");
 
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<short>("AgeRating")
+                        .HasColumnType("smallint");
+
                     b.Property<string>("Country")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
                     b.Property<string>("Director")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<int>("Duration")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("FinishDate")
+                    b.Property<DateTime>("FinishDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal?>("IMDBRating")
-                        .HasColumnType("numeric");
+                        .HasColumnType("decimal(3,1)");
 
                     b.Property<string>("ImageURL")
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
 
                     b.Property<string>("MovieTitleORG")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
 
                     b.Property<string>("MovieTitleUKR")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
 
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("StudioId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("StudioId")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("Subtitles")
                         .HasColumnType("boolean");
 
                     b.Property<string>("TrailerURL")
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
 
                     b.HasKey("Id");
 
@@ -291,11 +276,17 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.MovieActor", b =>
                 {
-                    b.Property<long>("MovieId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("MovieId")
+                        .HasColumnType("integer");
 
-                    b.Property<long>("ActorId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.HasKey("MovieId", "ActorId");
 
@@ -306,11 +297,17 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.MovieGenre", b =>
                 {
-                    b.Property<long>("MovieId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("MovieId")
+                        .HasColumnType("integer");
 
-                    b.Property<long>("GenreId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("GenreId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.HasKey("MovieId", "GenreId");
 
@@ -321,24 +318,22 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Price", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<long>("SeatTypeId")
-                        .HasColumnType("bigint");
+                    b.Property<short>("SeatType")
+                        .HasColumnType("smallint");
 
-                    b.Property<long>("SessionId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("SessionId")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Value")
-                        .HasColumnType("numeric");
+                        .HasColumnType("decimal(5,2)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SeatTypeId");
 
                     b.HasIndex("SessionId");
 
@@ -347,14 +342,14 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Seat", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<long>("HallId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("HallId")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsReserved")
                         .ValueGeneratedOnAdd()
@@ -367,12 +362,10 @@ namespace Backend.Data.Migrations
                     b.Property<int>("SeatNumber")
                         .HasColumnType("integer");
 
-                    b.Property<long>("SeatTypeId")
-                        .HasColumnType("bigint");
+                    b.Property<short>("SeatType")
+                        .HasColumnType("smallint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SeatTypeId");
 
                     b.HasIndex("HallId", "RowNumber", "SeatNumber")
                         .IsUnique();
@@ -380,39 +373,22 @@ namespace Backend.Data.Migrations
                     b.ToTable("Seats", (string)null);
                 });
 
-            modelBuilder.Entity("Backend.Domain.Entities.SeatType", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("SeatTypeName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SeatType");
-                });
-
             modelBuilder.Entity("Backend.Domain.Entities.Session", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("HallId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("HallId")
+                        .HasColumnType("integer");
 
-                    b.Property<long>("MovieId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("MovieId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
@@ -428,15 +404,16 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Studio", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("StudioName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
 
                     b.HasKey("Id");
 
@@ -445,29 +422,29 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Ticket", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<long>("BookingId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("BookingId")
+                        .HasColumnType("integer");
 
-                    b.Property<long?>("DiscountId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("DiscountId")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("FinalPrice")
-                        .HasColumnType("numeric");
+                        .HasColumnType("decimal(10,2)");
 
-                    b.Property<long>("PriceId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("PriceId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("PurchaseTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("SeatId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("SeatId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -631,17 +608,6 @@ namespace Backend.Data.Migrations
                     b.Navigation("Session");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Entities.Hall", b =>
-                {
-                    b.HasOne("Backend.Domain.Entities.Format", "Format")
-                        .WithMany("Halls")
-                        .HasForeignKey("FormatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Format");
-                });
-
             modelBuilder.Entity("Backend.Domain.Entities.Movie", b =>
                 {
                     b.HasOne("Backend.Domain.Entities.Studio", "Studio")
@@ -693,19 +659,11 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Price", b =>
                 {
-                    b.HasOne("Backend.Domain.Entities.SeatType", "SeatType")
-                        .WithMany()
-                        .HasForeignKey("SeatTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Backend.Domain.Entities.Session", "Session")
                         .WithMany("Prices")
                         .HasForeignKey("SessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("SeatType");
 
                     b.Navigation("Session");
                 });
@@ -718,15 +676,7 @@ namespace Backend.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Backend.Domain.Entities.SeatType", "SeatType")
-                        .WithMany("Seats")
-                        .HasForeignKey("SeatTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Hall");
-
-                    b.Navigation("SeatType");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Session", b =>
@@ -847,11 +797,6 @@ namespace Backend.Data.Migrations
                     b.Navigation("Tickets");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Entities.Format", b =>
-                {
-                    b.Navigation("Halls");
-                });
-
             modelBuilder.Entity("Backend.Domain.Entities.Genre", b =>
                 {
                     b.Navigation("MovieGenres");
@@ -869,11 +814,6 @@ namespace Backend.Data.Migrations
                     b.Navigation("MovieGenres");
 
                     b.Navigation("Sessions");
-                });
-
-            modelBuilder.Entity("Backend.Domain.Entities.SeatType", b =>
-                {
-                    b.Navigation("Seats");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Session", b =>

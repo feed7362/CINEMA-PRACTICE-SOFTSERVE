@@ -19,7 +19,7 @@ public class Booking : IEntity
     public int Id { get; set; }
 
     [Required]
-    public int UserId { get; set; }
+    public int ApplicationUserId { get; set; }
     
     [Required]
     public int SessionId { get; set; }
