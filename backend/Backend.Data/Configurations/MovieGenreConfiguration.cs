@@ -8,14 +8,28 @@ public class MovieGenreConfiguration : IEntityTypeConfiguration<MovieGenre>
 {
     public void Configure(EntityTypeBuilder<MovieGenre> builder)
     {
-        builder.HasKey(x => new { x.MovieId, x.GenreId });
+        builder.HasKey(mg => mg.Id);
 
-        builder.HasOne(x => x.Movie)
-            .WithMany(x => x.MovieGenres)
-            .HasForeignKey(x => x.MovieId);
+        builder.Property(mg => mg.Id)
+            .ValueGeneratedOnAdd();
 
-        builder.HasOne(x => x.Genre)
-            .WithMany(x => x.MovieGenres)
-            .HasForeignKey(x => x.GenreId);
+        builder.Property(mg => mg.MovieId)
+            .IsRequired();
+
+        builder.Property(mg => mg.GenreId)
+            .IsRequired();
+
+        builder.HasOne(mg => mg.Movie)
+            .WithMany(m => m.MovieGenres)
+            .HasForeignKey(mg => mg.MovieId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(mg => mg.Genre)
+            .WithMany(g => g.MovieGenres)
+            .HasForeignKey(mg => mg.GenreId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(mg => new { mg.MovieId, mg.GenreId })
+            .IsUnique();
     }
 }

@@ -4,7 +4,7 @@ namespace Backend.Domain.Entities;
 
 public class Actor : IEntity
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
 
     public string ActorName { get; set; } = null!;
 

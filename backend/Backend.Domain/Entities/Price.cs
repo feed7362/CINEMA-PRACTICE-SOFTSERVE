@@ -4,13 +4,13 @@ namespace Backend.Domain.Entities;
 
 public class Price : IEntity
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
 
-    public long SessionId { get; set; }
-    public long SeatTypeId { get; set; }
+    public int SessionId { get; set; }
+
+    public SeatType SeatType { get; set; } = SeatType.REGULAR;
 
     public decimal Value { get; set; }
 
     public Session Session { get; set; } = null!;
-    public SeatType SeatType { get; set; } = null!;
 }

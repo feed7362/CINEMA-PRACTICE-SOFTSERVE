@@ -2,15 +2,24 @@
 
 namespace Backend.Domain.Entities;
 
+public enum HallFormat : short
+{
+    REGULAR = 0,
+    IMAX = 1,
+    _3D = 2
+}
+
 public class Hall : IEntity
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
 
-    public long FormatId { get; set; }
+    public HallFormat Format { get; set; } = HallFormat.REGULAR;
 
-    public string HallName { get; set; } = null!;
+    public string Name { get; set; } = null!;
+
     public int Capacity { get; set; }
 
-    public Format Format { get; set; } = null!;
     public ICollection<Seat> Seats { get; set; } = new List<Seat>();
+    public ICollection<Session> Sessions { get; set; } = new List<Session>();
+
 }

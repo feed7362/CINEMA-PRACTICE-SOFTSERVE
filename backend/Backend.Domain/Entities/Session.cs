@@ -4,12 +4,14 @@ namespace Backend.Domain.Entities;
 
 public class Session : IEntity
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
 
-    public long MovieId { get; set; }
-    public long HallId { get; set; }
+    public int MovieId { get; set; }
 
-    public DateTime StartTime { get; set; }
+    public int HallId { get; set; }
+
+    public DateTime StartTime { get; set; } = DateTime.UtcNow;
+
     public DateTime EndTime { get; set; }
 
     public Movie Movie { get; set; } = null!;

@@ -8,19 +8,49 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
 {
     public void Configure(EntityTypeBuilder<Ticket> builder)
     {
-        builder.HasKey(x => x.Id);
+        builder.HasKey(t => t.Id);
 
-        builder.HasOne(x => x.Seat)
-            .WithMany()
-            .HasForeignKey(x => x.SeatId);
+        builder.Property(t => t.Id)
+            .ValueGeneratedOnAdd();
 
-        builder.HasOne(x => x.Price)
-            .WithMany()
-            .HasForeignKey(x => x.PriceId);
+        builder.Property(t => t.SeatId)
+            .IsRequired();
 
-        builder.HasOne(x => x.Discount)
+        builder.Property(t => t.BookingId)
+            .IsRequired();
+
+        builder.Property(t => t.PriceId)
+            .IsRequired();
+
+        builder.Property(t => t.DiscountId)
+            .IsRequired();
+
+        builder.Property(t => t.PurchaseTime)
+            .IsRequired()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
+
+        builder.Property(t => t.FinalPrice)
+            .IsRequired()
+            .HasColumnType("decimal(10,2)");
+
+        builder.HasOne(t => t.Seat)
             .WithMany()
-            .HasForeignKey(x => x.DiscountId)
-            .IsRequired(false);
+            .HasForeignKey(t => t.SeatId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(t => t.Booking)
+            .WithMany(b => b.Tickets)
+            .HasForeignKey(t => t.BookingId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(t => t.Price)
+            .WithMany()
+            .HasForeignKey(t => t.PriceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(t => t.Discount)
+            .WithMany()
+            .HasForeignKey(t => t.DiscountId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

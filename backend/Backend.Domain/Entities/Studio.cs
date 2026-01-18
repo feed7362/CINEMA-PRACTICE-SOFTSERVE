@@ -4,7 +4,7 @@ namespace Backend.Domain.Entities;
 
 public class Studio : IEntity
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
 
     public string StudioName { get; set; } = null!;
 

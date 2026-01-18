@@ -2,11 +2,19 @@
 
 namespace Backend.Domain.Entities;
 
+public enum DiscountType : short
+{
+    STUDENT = 0,
+    MILITARY = 1,
+    PROMOCODE = 2
+}
+
 public class Discount : IEntity
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
 
-    public string DiscountName { get; set; } = null!;
+    public DiscountType Type { get; set; }
+
     public int Percentage { get; set; }
 
     public bool IsActive { get; set; }

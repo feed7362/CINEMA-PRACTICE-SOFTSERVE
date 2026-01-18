@@ -8,10 +8,27 @@ public class PriceConfiguration : IEntityTypeConfiguration<Price>
 {
     public void Configure(EntityTypeBuilder<Price> builder)
     {
-        builder.HasKey(x => x.Id);
+        builder.HasKey(p => p.Id);
 
-        builder.HasOne(x => x.SeatType)
-            .WithMany()
-            .HasForeignKey(x => x.SeatTypeId);
+        builder.Property(p => p.Id)
+            .ValueGeneratedOnAdd();
+
+        builder.Property(p => p.SessionId)
+            .IsRequired();
+
+        builder.Property(p => p.SeatType)
+            .HasConversion<short>()
+            .HasColumnType("smallint")
+            .IsRequired()
+            .HasDefaultValue(SeatType.REGULAR);
+
+        builder.Property(p => p.Value)
+            .HasColumnType("decimal(5,2)")
+            .IsRequired();
+
+        builder.HasOne(p => p.Session)
+            .WithMany(s => s.Prices)
+            .HasForeignKey(p => p.SessionId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

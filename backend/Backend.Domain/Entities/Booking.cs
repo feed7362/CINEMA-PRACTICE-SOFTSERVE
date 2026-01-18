@@ -2,19 +2,27 @@
 
 namespace Backend.Domain.Entities;
 
+public enum BookingStatus : short
+{
+    PENDING = 0,
+    CONFIRMED = 1,
+    CANCELED = 2
+}
+
+
 public class Booking : IEntity
 {
-    public long Id { get; set; }
-
-    public long UserId { get; set; }
-    public long SessionId { get; set; }
-
-    public DateTime BookingTime { get; set; }
-    public DateTime ExpirationTime { get; set; }
-
-    public string Status { get; set; } = "PENDING";
+    public int Id { get; set; }
 
     public int ApplicationUserId { get; set; }
+
+    public int SessionId { get; set; }
+
+    public DateTime BookingTime { get; set; }
+
+    public DateTime ExpirationTime { get; set; }
+
+    public BookingStatus Status { get; set; } = BookingStatus.PENDING;
 
     public Session Session { get; set; } = null!;
 
