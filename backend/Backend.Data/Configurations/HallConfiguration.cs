@@ -19,7 +19,7 @@ public class HallConfiguration : IEntityTypeConfiguration<Hall>
             .IsRequired()
             .HasDefaultValue(HallFormat.REGULAR);
 
-        builder.Property(h => h.HallName)
+        builder.Property(h => h.Name)
             .IsRequired()
             .HasMaxLength(50)
             .HasColumnType("varchar(50)");

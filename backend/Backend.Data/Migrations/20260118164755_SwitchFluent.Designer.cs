@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20260118123559_SwitchFluent")]
+    [Migration("20260118164755_SwitchFluent")]
     partial class SwitchFluent
     {
         /// <inheritdoc />
@@ -208,7 +208,7 @@ namespace Backend.Data.Migrations
                         .HasColumnType("smallint")
                         .HasDefaultValue((short)0);
 
-                    b.Property<string>("HallName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");

@@ -15,7 +15,7 @@ public class Hall : IEntity
 
     public HallFormat Format { get; set; } = HallFormat.REGULAR;
 
-    public string HallName { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
     public int Capacity { get; set; }
 
