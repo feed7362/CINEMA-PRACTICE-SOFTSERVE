@@ -13,9 +13,5 @@ public class HallConfiguration : IEntityTypeConfiguration<Hall>
         builder.HasMany(x => x.Seats)
             .WithOne(x => x.Hall)
             .HasForeignKey(x => x.HallId);
-
-        builder.HasOne(x => x.Format)
-            .WithMany(x => x.Halls)
-            .HasForeignKey(x => x.FormatId);
     }
 }

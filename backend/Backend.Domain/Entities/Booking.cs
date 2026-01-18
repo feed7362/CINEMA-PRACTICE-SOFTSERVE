@@ -1,20 +1,40 @@
-﻿using Backend.Domain.Interfaces;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Backend.Domain.Interfaces;
 
 namespace Backend.Domain.Entities;
 
+public enum BookingStatus : short
+{
+    PENDING = 0,
+    CONFIRMED = 1,
+    CANCELED = 2
+}
+
+
 public class Booking : IEntity
 {
-    public long Id { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
 
-    public long UserId { get; set; }
-    public long SessionId { get; set; }
+    [Required]
+    public int UserId { get; set; }
+    
+    [Required]
+    public int SessionId { get; set; }
 
+    [Required]
     public DateTime BookingTime { get; set; }
+    
+    [Required]
     public DateTime ExpirationTime { get; set; }
 
-    public string Status { get; set; } = "PENDING";
+    [Required]
+    [Column(TypeName = "smallint")]
+    public BookingStatus Status { get; set; } = BookingStatus.PENDING;
 
-    public User User { get; set; } = null!;
+
     public Session Session { get; set; } = null!;
 
     public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();

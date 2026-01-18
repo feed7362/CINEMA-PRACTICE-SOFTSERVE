@@ -9,9 +9,5 @@ public class PriceConfiguration : IEntityTypeConfiguration<Price>
     public void Configure(EntityTypeBuilder<Price> builder)
     {
         builder.HasKey(x => x.Id);
-
-        builder.HasOne(x => x.SeatType)
-            .WithMany()
-            .HasForeignKey(x => x.SeatTypeId);
     }
 }

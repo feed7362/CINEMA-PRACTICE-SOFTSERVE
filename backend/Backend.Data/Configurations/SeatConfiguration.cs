@@ -27,12 +27,6 @@ public class SeatConfiguration : IEntityTypeConfiguration<Seat>
             .HasForeignKey(x => x.HallId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // -------- SeatType relationship --------
-        builder.HasOne(x => x.SeatType)
-            .WithMany(x => x.Seats)
-            .HasForeignKey(x => x.SeatTypeId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         // -------- Unique constraint --------
         builder.HasIndex(x => new { x.HallId, x.RowNumber, x.SeatNumber })
             .IsUnique();

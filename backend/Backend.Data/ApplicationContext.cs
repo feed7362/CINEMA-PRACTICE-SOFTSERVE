@@ -6,7 +6,6 @@ namespace Backend.Data
 {
     public class ApplicationContext(DbContextOptions<ApplicationContext> options) : DbContext(options)
     {
-        public DbSet<User> Users { get; set; } = null!;
         public DbSet<Booking> Bookings { get; set; } = null!;
         public DbSet<Hall> Halls { get; set; } = null!;
         public DbSet<Session> Sessions { get; set; } = null!;
@@ -22,7 +21,6 @@ namespace Backend.Data
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationContext).Assembly);
             base.OnModelCreating(modelBuilder);
             
-            modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new BookingConfiguration());
             modelBuilder.ApplyConfiguration(new HallConfiguration());
             modelBuilder.ApplyConfiguration(new SessionConfiguration());
