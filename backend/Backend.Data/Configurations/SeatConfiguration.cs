@@ -8,27 +8,36 @@ public class SeatConfiguration : IEntityTypeConfiguration<Seat>
 {
     public void Configure(EntityTypeBuilder<Seat> builder)
     {
-        builder.ToTable("Seats");
+        builder.HasKey(s => s.Id);
 
-        builder.HasKey(x => x.Id);
+        builder.Property(s => s.Id)
+            .ValueGeneratedOnAdd();
 
-        builder.Property(x => x.RowNumber)
+        builder.Property(s => s.HallId)
             .IsRequired();
 
-        builder.Property(x => x.SeatNumber)
+        builder.Property(s => s.SeatType)
+            .HasConversion<short>()
+            .HasColumnType("smallint")
+            .IsRequired()
+            .HasDefaultValue(SeatType.REGULAR);
+
+        builder.Property(s => s.SeatNumber)
             .IsRequired();
 
-        builder.Property(x => x.IsReserved)
-            .HasDefaultValue(false);
+        builder.Property(s => s.RowNumber)
+            .IsRequired();
 
-        // -------- Hall relationship --------
-        builder.HasOne(x => x.Hall)
-            .WithMany(x => x.Seats)
-            .HasForeignKey(x => x.HallId)
+        builder.Property(s => s.IsReserved)
+            .IsRequired();
+
+        builder.HasOne(s => s.Hall)
+            .WithMany(h => h.Seats)
+            .HasForeignKey(s => s.HallId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // -------- Unique constraint --------
-        builder.HasIndex(x => new { x.HallId, x.RowNumber, x.SeatNumber })
-            .IsUnique();
+        builder.HasCheckConstraint("CK_Seat_RowNumber", "\"RowNumber\" >= 1 AND \"RowNumber\" <= 100");
+        builder.HasCheckConstraint("CK_Seat_SeatNumber", "\"SeatNumber\" >= 1 AND \"SeatNumber\" <= 100");
+
     }
 }

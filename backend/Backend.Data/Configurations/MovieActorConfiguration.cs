@@ -8,14 +8,28 @@ public class MovieActorConfiguration : IEntityTypeConfiguration<MovieActor>
 {
     public void Configure(EntityTypeBuilder<MovieActor> builder)
     {
-        builder.HasKey(x => new { x.MovieId, x.ActorId });
+        builder.HasKey(ma => ma.Id);
 
-        builder.HasOne(x => x.Movie)
-            .WithMany(x => x.MovieActors)
-            .HasForeignKey(x => x.MovieId);
+        builder.Property(ma => ma.Id)
+            .ValueGeneratedOnAdd();
 
-        builder.HasOne(x => x.Actor)
-            .WithMany(x => x.MovieActors)
-            .HasForeignKey(x => x.ActorId);
+        builder.Property(ma => ma.MovieId)
+            .IsRequired();
+
+        builder.Property(ma => ma.ActorId)
+            .IsRequired();
+
+        builder.HasOne(ma => ma.Movie)
+            .WithMany(m => m.MovieActors)
+            .HasForeignKey(ma => ma.MovieId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(ma => ma.Actor)
+            .WithMany(a => a.MovieActors)
+            .HasForeignKey(ma => ma.ActorId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(ma => new { ma.MovieId, ma.ActorId })
+            .IsUnique();
     }
 }
