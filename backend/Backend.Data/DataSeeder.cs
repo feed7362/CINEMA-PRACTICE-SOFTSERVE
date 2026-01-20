@@ -231,6 +231,9 @@ public static class DataSeeder
 
     private static async Task SeedMovieRelationships(ApplicationContext context, List<Movie> movies)
     {
+        if (await context.MovieGenres.AnyAsync() || await context.MovieActors.AnyAsync())
+            return;
+
         var genres = await context.Set<Genre>().ToListAsync();
         var actors = await context.Set<Actor>().ToListAsync();
 
