@@ -35,14 +35,18 @@ internal static class HallEndpoints
                     ? Results.NotFound()
                     : Results.Ok(hall);
             })
-            .WithName("GetHallById");
+            .WithName("GetHallById")
+            .WithSummary("Get Hall by Id");
+
 
         group.MapGet("/get_all", async (IHallService hallService) =>
             {
                 var halls = await hallService.GetAllHallsAsync();
                 return Results.Ok(halls);
             })
-            .WithName("GetAllHalls");
+            .WithName("GetAllHalls")
+            .WithSummary("Get all Halls");
+
 
         group.MapPut("/update", async (
                 UpdateHallDto dto,
@@ -51,9 +55,9 @@ internal static class HallEndpoints
                 var hall = await hallService.UpdateHallAsync(dto);
                 return Results.Ok(hall);
             })
-            .AddEndpointFilter<ValidationFilter<UpdateHallDto>>()
-            .RequireAuthorization(p => p.RequireRole("Admin"))
-            .WithName("UpdateHall");
+            .WithName("UpdateHall")
+            .WithSummary("Update hall by Id");
+
 
         group.MapDelete("/delete{id:int}", async (
                 int id,
@@ -62,7 +66,8 @@ internal static class HallEndpoints
                 await hallService.DeleteHallAsync(id);
                 return Results.NoContent();
             })
-            .RequireAuthorization(p => p.RequireRole("Admin"))
-            .WithName("DeleteHall");
+            .WithName("DeleteHall")
+            .WithSummary("Delete hall by Id");
+
     }
 }
