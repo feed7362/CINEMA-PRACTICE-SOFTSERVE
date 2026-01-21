@@ -32,14 +32,16 @@ internal static class SessionEndpoints
                     ? Results.NotFound()
                     : Results.Ok(session);
             })
-            .WithName("GetSessionById");
+            .WithName("GetSessionById")
+            .WithSummary("Get Session by Id");
 
         group.MapGet("/get_all", async (ISessionService sessionService) =>
             {
                 var sessions = await sessionService.GetAllSessionsAsync();
                 return Results.Ok(sessions);
             })
-            .WithName("GetAllSessions");
+            .WithName("GetAllSessions")
+            .WithSummary("Get all Sessions");
 
         group.MapPut("/update", async (
                 UpdateSessionDto dto,
@@ -48,7 +50,8 @@ internal static class SessionEndpoints
                 var session = await sessionService.UpdateSessionAsync(dto);
                 return Results.Ok(session);
             })
-            .WithName("UpdateSession");
+            .WithName("UpdateSession")
+            .WithSummary("Update session by Id");
 
         group.MapDelete("/delete{id:int}", async (
                 int id,
@@ -57,6 +60,7 @@ internal static class SessionEndpoints
                 await sessionService.DeleteSessionAsync(id);
                 return Results.NoContent();
             })
-            .WithName("DeleteSession");
+            .WithName("DeleteSession")
+            .WithSummary("Delete session by Id");
     }
 }
