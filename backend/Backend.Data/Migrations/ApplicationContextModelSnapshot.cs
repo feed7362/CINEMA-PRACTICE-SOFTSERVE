@@ -22,7 +22,25 @@ namespace Backend.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Backend.Data.Configurations.ApplicationUser", b =>
+            modelBuilder.Entity("Backend.Domain.Entities.Actor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActorName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Actor");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -93,24 +111,6 @@ namespace Backend.Data.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("Backend.Domain.Entities.Actor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ActorName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Actor");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Booking", b =>
@@ -622,7 +622,7 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Booking", b =>
                 {
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany("Bookings")
                         .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -773,7 +773,7 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -782,7 +782,7 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -797,7 +797,7 @@ namespace Backend.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -806,21 +806,21 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Backend.Data.Configurations.ApplicationUser", b =>
-                {
-                    b.Navigation("Bookings");
-                });
-
             modelBuilder.Entity("Backend.Domain.Entities.Actor", b =>
                 {
                     b.Navigation("MovieActors");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("Bookings");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Booking", b =>

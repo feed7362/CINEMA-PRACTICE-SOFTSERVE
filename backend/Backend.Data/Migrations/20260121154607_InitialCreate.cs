@@ -75,7 +75,7 @@ namespace Backend.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Type = table.Column<short>(type: "smallint", nullable: false),
-                    Percentage = table.Column<int>(type: "integer", nullable: false),
+                    Percentage = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
@@ -102,8 +102,8 @@ namespace Backend.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Format = table.Column<short>(type: "smallint", nullable: false),
-                    HallName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    Format = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
+                    Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     Capacity = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -237,14 +237,16 @@ namespace Backend.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     HallId = table.Column<int>(type: "integer", nullable: false),
-                    SeatType = table.Column<short>(type: "smallint", nullable: false),
+                    SeatType = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
                     SeatNumber = table.Column<int>(type: "integer", nullable: false),
                     RowNumber = table.Column<int>(type: "integer", nullable: false),
-                    IsReserved = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
+                    IsReserved = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Seats", x => x.Id);
+                    table.CheckConstraint("CK_Seat_RowNumber", "\"RowNumber\" >= 1 AND \"RowNumber\" <= 100");
+                    table.CheckConstraint("CK_Seat_SeatNumber", "\"SeatNumber\" >= 1 AND \"SeatNumber\" <= 100");
                     table.ForeignKey(
                         name: "FK_Seats_Halls_HallId",
                         column: x => x.HallId,
@@ -266,7 +268,7 @@ namespace Backend.Data.Migrations
                     Duration = table.Column<int>(type: "integer", nullable: false),
                     ReleaseDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     FinishDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    AgeRating = table.Column<short>(type: "smallint", nullable: false),
+                    AgeRating = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
                     IMDBRating = table.Column<decimal>(type: "numeric(3,1)", nullable: true),
                     Director = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     Country = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
@@ -277,6 +279,8 @@ namespace Backend.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Movies", x => x.Id);
+                    table.CheckConstraint("CK_Movie_Duration", "\"Duration\" >= 1 AND \"Duration\" <= 600");
+                    table.CheckConstraint("CK_Movie_IMDBRating", "\"IMDBRating\" >= 0 AND \"IMDBRating\" <= 10");
                     table.ForeignKey(
                         name: "FK_Movies_Studio_StudioId",
                         column: x => x.StudioId,
@@ -289,14 +293,14 @@ namespace Backend.Data.Migrations
                 name: "MovieActors",
                 columns: table => new
                 {
-                    MovieId = table.Column<int>(type: "integer", nullable: false),
-                    ActorId = table.Column<int>(type: "integer", nullable: false),
                     Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MovieId = table.Column<int>(type: "integer", nullable: false),
+                    ActorId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MovieActors", x => new { x.MovieId, x.ActorId });
+                    table.PrimaryKey("PK_MovieActors", x => x.Id);
                     table.ForeignKey(
                         name: "FK_MovieActors_Actor_ActorId",
                         column: x => x.ActorId,
@@ -315,14 +319,14 @@ namespace Backend.Data.Migrations
                 name: "MovieGenres",
                 columns: table => new
                 {
-                    MovieId = table.Column<int>(type: "integer", nullable: false),
-                    GenreId = table.Column<int>(type: "integer", nullable: false),
                     Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MovieId = table.Column<int>(type: "integer", nullable: false),
+                    GenreId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MovieGenres", x => new { x.MovieId, x.GenreId });
+                    table.PrimaryKey("PK_MovieGenres", x => x.Id);
                     table.ForeignKey(
                         name: "FK_MovieGenres_Genre_GenreId",
                         column: x => x.GenreId,
@@ -345,7 +349,7 @@ namespace Backend.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     MovieId = table.Column<int>(type: "integer", nullable: false),
                     HallId = table.Column<int>(type: "integer", nullable: false),
-                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP AT TIME ZONE 'UTC'"),
                     EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -375,7 +379,7 @@ namespace Backend.Data.Migrations
                     SessionId = table.Column<int>(type: "integer", nullable: false),
                     BookingTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ExpirationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Status = table.Column<short>(type: "smallint", nullable: false)
+                    Status = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0)
                 },
                 constraints: table =>
                 {
@@ -401,7 +405,7 @@ namespace Backend.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     SessionId = table.Column<int>(type: "integer", nullable: false),
-                    SeatType = table.Column<short>(type: "smallint", nullable: false),
+                    SeatType = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
                     Value = table.Column<decimal>(type: "numeric(5,2)", nullable: false)
                 },
                 constraints: table =>
@@ -425,7 +429,7 @@ namespace Backend.Data.Migrations
                     BookingId = table.Column<int>(type: "integer", nullable: false),
                     PriceId = table.Column<int>(type: "integer", nullable: false),
                     DiscountId = table.Column<int>(type: "integer", nullable: false),
-                    PurchaseTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    PurchaseTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP AT TIME ZONE 'UTC'"),
                     FinalPrice = table.Column<decimal>(type: "numeric(10,2)", nullable: false)
                 },
                 constraints: table =>
@@ -441,19 +445,20 @@ namespace Backend.Data.Migrations
                         name: "FK_Tickets_Discount_DiscountId",
                         column: x => x.DiscountId,
                         principalTable: "Discount",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Tickets_Prices_PriceId",
                         column: x => x.PriceId,
                         principalTable: "Prices",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Tickets_Seats_SeatId",
                         column: x => x.SeatId,
                         principalTable: "Seats",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -509,9 +514,21 @@ namespace Backend.Data.Migrations
                 column: "ActorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_MovieActors_MovieId_ActorId",
+                table: "MovieActors",
+                columns: new[] { "MovieId", "ActorId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MovieGenres_GenreId",
                 table: "MovieGenres",
                 column: "GenreId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MovieGenres_MovieId_GenreId",
+                table: "MovieGenres",
+                columns: new[] { "MovieId", "GenreId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Movies_StudioId",
@@ -524,10 +541,9 @@ namespace Backend.Data.Migrations
                 column: "SessionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Seats_HallId_RowNumber_SeatNumber",
+                name: "IX_Seats_HallId",
                 table: "Seats",
-                columns: new[] { "HallId", "RowNumber", "SeatNumber" },
-                unique: true);
+                column: "HallId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Sessions_HallId",

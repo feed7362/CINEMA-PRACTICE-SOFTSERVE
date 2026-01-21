@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20260118081826_InitialCreate")]
+    [Migration("20260121154607_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -25,7 +25,25 @@ namespace Backend.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Backend.Data.Configurations.ApplicationUser", b =>
+            modelBuilder.Entity("Backend.Domain.Entities.Actor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActorName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Actor");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -98,24 +116,6 @@ namespace Backend.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Backend.Domain.Entities.Actor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ActorName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Actor");
-                });
-
             modelBuilder.Entity("Backend.Domain.Entities.Booking", b =>
                 {
                     b.Property<int>("Id")
@@ -137,7 +137,9 @@ namespace Backend.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<short>("Status")
-                        .HasColumnType("smallint");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)0);
 
                     b.HasKey("Id");
 
@@ -160,7 +162,9 @@ namespace Backend.Data.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<int>("Percentage")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.Property<short>("Type")
                         .HasColumnType("smallint");
@@ -200,9 +204,11 @@ namespace Backend.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<short>("Format")
-                        .HasColumnType("smallint");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)0);
 
-                    b.Property<string>("HallName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
@@ -221,7 +227,9 @@ namespace Backend.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<short>("AgeRating")
-                        .HasColumnType("smallint");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)0);
 
                     b.Property<string>("Country")
                         .HasMaxLength(100)
@@ -274,47 +282,58 @@ namespace Backend.Data.Migrations
 
                     b.HasIndex("StudioId");
 
-                    b.ToTable("Movies");
+                    b.ToTable("Movies", t =>
+                        {
+                            t.HasCheckConstraint("CK_Movie_Duration", "\"Duration\" >= 1 AND \"Duration\" <= 600");
+
+                            t.HasCheckConstraint("CK_Movie_IMDBRating", "\"IMDBRating\" >= 0 AND \"IMDBRating\" <= 10");
+                        });
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.MovieActor", b =>
                 {
-                    b.Property<int>("MovieId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ActorId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.HasKey("MovieId", "ActorId");
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MovieId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("ActorId");
+
+                    b.HasIndex("MovieId", "ActorId")
+                        .IsUnique();
 
                     b.ToTable("MovieActors");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.MovieGenre", b =>
                 {
-                    b.Property<int>("MovieId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("GenreId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.HasKey("MovieId", "GenreId");
+                    b.Property<int>("GenreId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MovieId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("GenreId");
+
+                    b.HasIndex("MovieId", "GenreId")
+                        .IsUnique();
 
                     b.ToTable("MovieGenres");
                 });
@@ -328,7 +347,9 @@ namespace Backend.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<short>("SeatType")
-                        .HasColumnType("smallint");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)0);
 
                     b.Property<int>("SessionId")
                         .HasColumnType("integer");
@@ -355,9 +376,7 @@ namespace Backend.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsReserved")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasColumnType("boolean");
 
                     b.Property<int>("RowNumber")
                         .HasColumnType("integer");
@@ -366,14 +385,20 @@ namespace Backend.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<short>("SeatType")
-                        .HasColumnType("smallint");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)0);
 
                     b.HasKey("Id");
 
-                    b.HasIndex("HallId", "RowNumber", "SeatNumber")
-                        .IsUnique();
+                    b.HasIndex("HallId");
 
-                    b.ToTable("Seats", (string)null);
+                    b.ToTable("Seats", t =>
+                        {
+                            t.HasCheckConstraint("CK_Seat_RowNumber", "\"RowNumber\" >= 1 AND \"RowNumber\" <= 100");
+
+                            t.HasCheckConstraint("CK_Seat_SeatNumber", "\"SeatNumber\" >= 1 AND \"SeatNumber\" <= 100");
+                        });
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Session", b =>
@@ -394,7 +419,9 @@ namespace Backend.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
 
                     b.HasKey("Id");
 
@@ -444,7 +471,9 @@ namespace Backend.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("PurchaseTime")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
 
                     b.Property<int>("SeatId")
                         .HasColumnType("integer");
@@ -596,7 +625,7 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Booking", b =>
                 {
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany("Bookings")
                         .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -685,7 +714,7 @@ namespace Backend.Data.Migrations
             modelBuilder.Entity("Backend.Domain.Entities.Session", b =>
                 {
                     b.HasOne("Backend.Domain.Entities.Hall", "Hall")
-                        .WithMany()
+                        .WithMany("Sessions")
                         .HasForeignKey("HallId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -711,18 +740,20 @@ namespace Backend.Data.Migrations
 
                     b.HasOne("Backend.Domain.Entities.Discount", "Discount")
                         .WithMany()
-                        .HasForeignKey("DiscountId");
+                        .HasForeignKey("DiscountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Backend.Domain.Entities.Price", "Price")
                         .WithMany()
                         .HasForeignKey("PriceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Backend.Domain.Entities.Seat", "Seat")
                         .WithMany()
                         .HasForeignKey("SeatId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Booking");
@@ -745,7 +776,7 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -754,7 +785,7 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -769,7 +800,7 @@ namespace Backend.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -778,21 +809,21 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Backend.Data.Configurations.ApplicationUser", b =>
-                {
-                    b.Navigation("Bookings");
-                });
-
             modelBuilder.Entity("Backend.Domain.Entities.Actor", b =>
                 {
                     b.Navigation("MovieActors");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("Bookings");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Booking", b =>
@@ -808,6 +839,8 @@ namespace Backend.Data.Migrations
             modelBuilder.Entity("Backend.Domain.Entities.Hall", b =>
                 {
                     b.Navigation("Seats");
+
+                    b.Navigation("Sessions");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Movie", b =>
