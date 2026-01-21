@@ -5,51 +5,52 @@ using Ardalis.Specification.EntityFrameworkCore;
 
 namespace Backend.Data.Repositories
 {
-    internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity
+    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity
     {
-        internal ApplicationContext context;
-        internal DbSet<TEntity> dbSet;
+        private readonly ApplicationContext _context;
+        private readonly DbSet<TEntity> _dbSet;
 
         public Repository(ApplicationContext context)
         {
-            this.context = context;
-            this.dbSet = context.Set<TEntity>();
+            _context = context;
+            _dbSet = context.Set<TEntity>();
         }
 
-        public IEnumerable<TEntity> GetAll()
+        public async Task<List<TEntity>> GetAllAsync()
         {
-            return dbSet.ToList();
+            return await _dbSet.ToListAsync(); 
         }
 
-        public TEntity? GetById(int id)
+        public async Task<TEntity?> GetByIdAsync(int id)
         {
-            return dbSet.Find(id);
+            return await _dbSet.FindAsync(id);
         }
 
         public void Insert(TEntity entity)
         {
-            dbSet.Add(entity);
+            _dbSet.Add(entity);
         }
 
         public void Delete(int id)
         {
-            TEntity? entity = dbSet.Find(id);
+            TEntity? entity = _dbSet.Find(id);
             if (entity != null) Delete(entity);
         }
 
         public void Delete(TEntity entity)
         {
-            if (context.Entry(entity).State == EntityState.Detached)
+            if (_context.Entry(entity).State == EntityState.Detached)
             {
-                dbSet.Attach(entity);
+                _dbSet.Attach(entity);
             }
-            dbSet.Remove(entity);
+
+            _dbSet.Remove(entity);
         }
 
         public void Update(TEntity entity)
         {
-            dbSet.Attach(entity);
-            context.Entry(entity).State = EntityState.Modified;
+            _dbSet.Attach(entity);
+            _context.Entry(entity).State = EntityState.Modified;
         }
 
         public IEnumerable<TEntity> GetListBySpec(ISpecification<TEntity> specification)
@@ -62,15 +63,54 @@ namespace Backend.Data.Repositories
             return ApplySpecification(specification).FirstOrDefault();
         }
 
+        public async Task<TEntity> AddAsync(TEntity entity)
+        {
+            await _dbSet.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return entity;
+        }
+
+        public async Task UpdateAsync(TEntity entity)
+        {
+            _dbSet.Attach(entity);
+            _context.Entry(entity).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var entity = await _dbSet.FindAsync(id);
+            if (entity != null)
+            {
+                await DeleteAsync(entity);
+            }
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(TEntity entity)
+        {
+            if (_context.Entry(entity).State == EntityState.Detached)
+            {
+                _dbSet.Attach(entity);
+            }
+
+            _dbSet.Remove(entity);
+            await _context.SaveChangesAsync();
+        }
+
         private IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> specification)
         {
             var evaluator = new SpecificationEvaluator();
-            return evaluator.GetQuery(dbSet, specification);
+            return evaluator.GetQuery(_dbSet, specification);
         }
 
         public void Save()
         {
-            context.SaveChanges();
+            _context.SaveChanges();
         }
     }
 }
