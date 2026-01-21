@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Backend.Data;
-using Backend.Data.Configurations;
+using Backend.Domain.Entities;
 
 namespace Backend.API.Extensions;
 
