@@ -1,5 +1,6 @@
 ﻿using Backend.Services.DTOs.Hall;
 using Backend.Services.Interfaces;
+using Backend.API.Extensions;
 
 internal static class HallEndpoints
 {
@@ -20,6 +21,8 @@ internal static class HallEndpoints
                     result
                 );
             })
+            .AddEndpointFilter<ValidationFilter<CreateHallDto>>()
+            .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("CreateHall")
             .WithSummary("Create a new hall");
 
@@ -48,6 +51,8 @@ internal static class HallEndpoints
                 var hall = await hallService.UpdateHallAsync(dto);
                 return Results.Ok(hall);
             })
+            .AddEndpointFilter<ValidationFilter<UpdateHallDto>>()
+            .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("UpdateHall");
 
         group.MapDelete("/delete{id:int}", async (
@@ -57,6 +62,7 @@ internal static class HallEndpoints
                 await hallService.DeleteHallAsync(id);
                 return Results.NoContent();
             })
+            .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteHall");
     }
 }
