@@ -1,6 +1,8 @@
-﻿using Backend.Services.DTOs.Hall;
+﻿using Backend.API.Extensions;
+using Backend.Services.DTOs.Hall;
 using Backend.Services.Interfaces;
-using Backend.API.Extensions;
+
+namespace Backend.API.Controllers;
 
 internal static class HallEndpoints
 {
@@ -10,7 +12,7 @@ internal static class HallEndpoints
             .MapGroup("/api/hall")
             .WithTags("Hall");
 
-        group.MapPost("/create", async (
+        group.MapPost("/", async (
                 CreateHallDto dto,
                 IHallService hallService) =>
             {
@@ -39,7 +41,7 @@ internal static class HallEndpoints
             .WithSummary("Get Hall by Id");
 
 
-        group.MapGet("/get_all", async (IHallService hallService) =>
+        group.MapGet("/", async (IHallService hallService) =>
             {
                 var halls = await hallService.GetAllHallsAsync();
                 return Results.Ok(halls);
@@ -48,24 +50,27 @@ internal static class HallEndpoints
             .WithSummary("Get all Halls");
 
 
-        group.MapPut("/update", async (
+        group.MapPut("/", async (
                 UpdateHallDto dto,
                 IHallService hallService) =>
             {
                 var hall = await hallService.UpdateHallAsync(dto);
                 return Results.Ok(hall);
             })
+            .AddEndpointFilter<ValidationFilter<UpdateHallDto>>()
+            .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("UpdateHall")
             .WithSummary("Update hall by Id");
 
 
-        group.MapDelete("/delete{id:int}", async (
+        group.MapDelete("/{id:int}", async (
                 int id,
                 IHallService hallService) =>
             {
                 await hallService.DeleteHallAsync(id);
                 return Results.NoContent();
             })
+            .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteHall")
             .WithSummary("Delete hall by Id");
 

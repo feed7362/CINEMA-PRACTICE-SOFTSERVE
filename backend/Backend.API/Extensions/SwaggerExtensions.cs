@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-
-namespace Backend.API.Extensions
+﻿namespace Backend.API.Extensions
 {
     public static class SwaggerExtensions
     {

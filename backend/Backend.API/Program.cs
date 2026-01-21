@@ -7,6 +7,7 @@ using Backend.Services.Services;
 using FluentValidation;
 using Microsoft.OpenApi;
 using System.Text;
+using Backend.API.Controllers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Backend.Services.Validators.Hall;
@@ -87,7 +88,6 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-app.UseCors("Default");
 app.UseAuthentication();
 app.UseAuthorization();
 
