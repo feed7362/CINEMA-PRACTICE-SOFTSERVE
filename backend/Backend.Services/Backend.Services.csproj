@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
+    <PackageReference Include="QuestPDF" Version="2025.12.3" />
   </ItemGroup>
 
   <ItemGroup>

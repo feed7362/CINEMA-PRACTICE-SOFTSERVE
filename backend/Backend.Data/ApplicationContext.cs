@@ -15,6 +15,7 @@ namespace Backend.Data
         public DbSet<Ticket> Tickets { get; set; } = null!;
         public DbSet<Seat> Seats { get; set; } = null!;
         public DbSet<Price> Prices { get; set; } = null!;
+        public DbSet<Discount> Discounts { get; set; } = null!;
         public DbSet<Movie> Movies { get; set; } = null!;
         public DbSet<MovieActor> MovieActors { get; set; } = null!;
         public DbSet<MovieGenre> MovieGenres { get; set; } = null!;
