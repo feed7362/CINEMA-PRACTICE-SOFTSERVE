@@ -1,9 +1,6 @@
-﻿using Backend.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.AspNetCore.Identity;
 
-namespace Backend.Data.Configurations;
+namespace Backend.Domain.Entities;
 
 public class ApplicationUser : IdentityUser<int>
 {
