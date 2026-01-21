@@ -1,12 +1,74 @@
 ﻿using Backend.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Backend.Data;
 
 public static class DataSeeder
 {
-    public static async Task SeedDataAsync(ApplicationContext context)
+    public static async Task ApplyMigrationsAndSeedAsync(this IHost app)
     {
+        using var scope = app.Services.CreateScope();
+        var services = scope.ServiceProvider;
+
+        try
+        {
+            var context = services.GetRequiredService<ApplicationContext>();
+            var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
+
+            if ((await context.Database.GetPendingMigrationsAsync()).Any())
+            {
+                await context.Database.MigrateAsync();
+            }
+
+            await DataSeeder.SeedDataAsync(context, userManager, roleManager);
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<ApplicationContext>>();
+            logger.LogError(ex, "Помилка під час міграції або наповнення бази.");
+            throw;
+        }
+    }
+    public static async Task SeedDataAsync(
+        ApplicationContext context,
+        UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole<int>> roleManager
+    )
+    {
+        #region Identity (Roles & Admin)
+        string[] roleNames = { "Admin", "Customer" };
+        foreach (var roleName in roleNames)
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole<int> { Name = roleName });
+            }
+        }
+
+        const string adminEmail = "admin@cinema.ua";
+        if (await userManager.FindByEmailAsync(adminEmail) == null)
+        {
+            var admin = new ApplicationUser
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var result = await userManager.CreateAsync(admin, "Admin123!");
+
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(admin, "Admin");
+            }
+        }
+        #endregion
         #region Studios
         if (!await context.Set<Studio>().AnyAsync())
         {

@@ -1,5 +1,6 @@
 ﻿using Backend.Services.DTOs.Hall;
 using Backend.Services.Interfaces;
+using Backend.API.Extensions;
 
 internal static class HallEndpoints
 {
@@ -20,6 +21,8 @@ internal static class HallEndpoints
                     result
                 );
             })
+            .AddEndpointFilter<ValidationFilter<CreateHallDto>>()
+            .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("CreateHall")
             .WithSummary("Create a new hall");
 
