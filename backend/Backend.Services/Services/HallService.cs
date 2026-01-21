@@ -32,7 +32,7 @@ public class HallService(IRepository<Hall> hallRepository) : IHallService
                 {
                     'V' => SeatType.VIP,
                     'P' => SeatType.PREMIUM,
-                    _  => SeatType.REGULAR,
+                    _ => SeatType.REGULAR,
                 };
 
                 hall.Seats.Add(new Seat
@@ -44,7 +44,7 @@ public class HallService(IRepository<Hall> hallRepository) : IHallService
                 });
             }
         }
-        
+
         hall.Capacity = hall.Seats.Count;
         await hallRepository.AddAsync(hall);
 
@@ -89,7 +89,7 @@ public class HallService(IRepository<Hall> hallRepository) : IHallService
             Capacity = hall.Capacity,
             Format = hall.Format.ToString()
         };
-        
+
     }
 
     public async Task<List<ReadHallDto>> GetAllHallsAsync()
@@ -108,6 +108,6 @@ public class HallService(IRepository<Hall> hallRepository) : IHallService
     public async Task DeleteHallAsync(int id)
     {
         await hallRepository.DeleteAsync(id);
-        
+
     }
 }

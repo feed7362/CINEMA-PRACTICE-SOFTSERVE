@@ -18,7 +18,7 @@ namespace Backend.Data.Repositories
 
         public async Task<List<TEntity>> GetAllAsync()
         {
-            return await _dbSet.ToListAsync(); 
+            return await _dbSet.ToListAsync();
         }
 
         public async Task<TEntity?> GetByIdAsync(int id)

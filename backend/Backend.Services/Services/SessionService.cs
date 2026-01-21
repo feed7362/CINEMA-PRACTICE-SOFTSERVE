@@ -19,7 +19,7 @@ public class SessionService(IRepository<Session> sessionRepository, IRepository<
 
         var movie = await movieRepository.GetByIdAsync(dto.MovieId);
         if (movie == null) throw new Exception("Movie not found");
-        
+
         session.EndTime = session.StartTime.AddMinutes(movie.Duration);
         await sessionRepository.AddAsync(session);
 
@@ -37,7 +37,7 @@ public class SessionService(IRepository<Session> sessionRepository, IRepository<
     {
         var session = await sessionRepository.GetByIdAsync(dto.Id);
         if (session == null) return null;
-        
+
         var movie = await movieRepository.GetByIdAsync(dto.MovieId);
         if (movie == null) return null;
 
@@ -45,7 +45,7 @@ public class SessionService(IRepository<Session> sessionRepository, IRepository<
         session.HallId = dto.HallId;
         session.StartTime = dto.StartTime;
         session.EndTime = session.StartTime.AddMinutes(movie.Duration);
-        
+
         await sessionRepository.UpdateAsync(session);
 
         return new ReadSessionDto()
