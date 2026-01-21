@@ -1,5 +1,8 @@
-﻿using Backend.Services.DTOs.Session;
+﻿using Backend.API.Extensions;
+using Backend.Services.DTOs.Session;
 using Backend.Services.Interfaces;
+
+namespace Backend.API.Controllers;
 
 internal static class SessionEndpoints
 {
@@ -9,7 +12,7 @@ internal static class SessionEndpoints
             .MapGroup("/api/session")
             .WithTags("Session");
 
-        group.MapPost("/create", async (
+        group.MapPost("/", async (
                 CreateSessionDto dto,
                 ISessionService sessionService) =>
             {
@@ -20,6 +23,8 @@ internal static class SessionEndpoints
                     result
                 );
             })
+            .AddEndpointFilter<ValidationFilter<CreateSessionDto>>()
+            .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("CreateSession")
             .WithSummary("Create a new Session");
 
@@ -35,7 +40,7 @@ internal static class SessionEndpoints
             .WithName("GetSessionById")
             .WithSummary("Get Session by Id");
 
-        group.MapGet("/get_all", async (ISessionService sessionService) =>
+        group.MapGet("/", async (ISessionService sessionService) =>
             {
                 var sessions = await sessionService.GetAllSessionsAsync();
                 return Results.Ok(sessions);
@@ -43,23 +48,26 @@ internal static class SessionEndpoints
             .WithName("GetAllSessions")
             .WithSummary("Get all Sessions");
 
-        group.MapPut("/update", async (
+        group.MapPut("/", async (
                 UpdateSessionDto dto,
                 ISessionService sessionService) =>
             {
                 var session = await sessionService.UpdateSessionAsync(dto);
                 return Results.Ok(session);
             })
+            .AddEndpointFilter<ValidationFilter<UpdateSessionDto>>()
+            .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("UpdateSession")
             .WithSummary("Update session by Id");
 
-        group.MapDelete("/delete{id:int}", async (
+        group.MapDelete("/{id:int}", async (
                 int id,
                 ISessionService sessionService) =>
             {
                 await sessionService.DeleteSessionAsync(id);
                 return Results.NoContent();
             })
+            .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteSession")
             .WithSummary("Delete session by Id");
     }
