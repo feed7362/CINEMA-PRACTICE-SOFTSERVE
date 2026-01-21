@@ -1,13 +1,12 @@
-﻿using Backend.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿//using Backend.Domain.Entities;
+//using Microsoft.AspNetCore.Identity;
 
-namespace Backend.Data.Configurations;
+using Backend.Domain.Entities;
+//namespace Backend.Data.Configurations;
 
-public class ApplicationUser : IdentityUser<int>
-{
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public string? ProfilePictureUrl { get; set; }
-    public ICollection<Booking> Bookings { get; set; } = [];
-}
+
+//public class ApplicationUser : IdentityUser<int>
+//{
+// Its had no builder called
+// ! MOVED to Domain Layer
+//}
