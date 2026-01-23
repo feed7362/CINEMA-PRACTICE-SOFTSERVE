@@ -64,6 +64,6 @@ internal static class BookingEndpoints
             return details is null ? Results.NotFound() : Results.Ok(details);
         })
             .WithName("GetBookingDetails")
-            .WithSummary("Get full booking details with tickets and movie info");
+            .WithSummary("Get full booking details");
     }
 }
