@@ -1,33 +1,37 @@
+using Backend.API.Controllers;
 using Backend.API.Extensions;
 using Backend.Data;
 using Backend.Data.Repositories;
 using Backend.Domain.Interfaces;
+using Backend.Services;
 using Backend.Services.Interfaces;
 using Backend.Services.Services;
+using Backend.Services.Validators.Hall;
 using FluentValidation;
-using Microsoft.OpenApi;
-using System.Text;
-using Backend.API.Controllers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Backend.Services.Validators.Hall;
-
+using Microsoft.OpenApi;
+using System.Text;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 Console.OutputEncoding = Encoding.UTF8;
 Console.InputEncoding = Encoding.UTF8;
 
-
 var builder = WebApplication.CreateBuilder(args);
+
+// --- Services Registration ---
 builder.Services.AddScoped<IHallService, HallService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddDatabaseServices(builder.Configuration);
 builder.Services.AddIdentityServices();
-builder.Services.AddOpenApi();
+
 builder.Services.AddScoped(
     typeof(IRepository<>),
     typeof(Repository<>)
 );
+
+// OpenAPI configuration
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, context, ct) =>
@@ -36,17 +40,36 @@ builder.Services.AddOpenApi(options =>
         {
             Title = "My API",
             Version = "v1",
-            Description = "Clean Minimal API",
-            Contact = new OpenApiContact
-            {
-                Name = "Your Name",
-                Email = "you@email.com"
-            },
-            License = new OpenApiLicense
-            {
-                Name = "MIT"
-            }
+            Description = "Clean Minimal API"
         };
+
+        var schemeName = "Bearer";
+        var securityScheme = new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            Description = "Enter JWT Bearer token"
+        };
+
+        // Safety Initializations
+        document.Components ??= new OpenApiComponents();
+        if (document.Components.SecuritySchemes == null)
+        {
+            document.Components.SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>();
+        }
+
+        if (!document.Components.SecuritySchemes.ContainsKey(schemeName))
+        {
+            document.Components.SecuritySchemes.Add(schemeName, securityScheme);
+        }
+
+        var requirement = new OpenApiSecurityRequirement();
+        var schemeReference = new OpenApiSecuritySchemeReference(schemeName, document);
+
+        requirement.Add(schemeReference, new List<string>());
+
+        document.Security = new List<OpenApiSecurityRequirement> { requirement };
 
         return Task.CompletedTask;
     });
@@ -83,27 +106,35 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-app.UseAuthentication();
-app.UseAuthorization();
-
+// --- Middleware Pipeline ---
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUI(options => {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    });
+
     await app.ApplyMigrationsAndSeedAsync();
 }
 
+app.UseHttpsRedirection();
+app.UseCors("Default");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Application Lifetime hooks
 app.Lifetime.ApplicationStarted.Register(() => { Console.WriteLine("Application started"); });
-
 app.Lifetime.ApplicationStopping.Register(() => { Console.WriteLine("Application stopping"); });
-app.SwaggerUi();
 
+// --- Endpoint Mapping ---
 app.MapAuthEndpoints();
 app.MapHallEndpoints();
 app.MapSessionEndpoints();
+app.MapBookingEndpoints();
 
 app.Run();
