@@ -19,5 +19,8 @@ namespace Backend.Domain.Interfaces
         Task DeleteAsync(TEntity entity);
         Task DeleteAsync(int id);
         Task SaveChangesAsync();
+
+        Task<TEntity?> GetFirstBySpecAsync(ISpecification<TEntity> spec);
+        Task<List<TEntity>> GetListBySpecAsync(ISpecification<TEntity> spec);
     }
 }

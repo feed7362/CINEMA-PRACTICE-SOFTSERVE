@@ -4,9 +4,10 @@ namespace Backend.Domain.Entities;
 
 public enum DiscountType : short
 {
-    STUDENT = 0,
-    MILITARY = 1,
-    PROMOCODE = 2
+    REGULAR = 0,
+    STUDENT = 1,
+    MILITARY = 2,
+    PROMOCODE = 3
 }
 
 public class Discount : IEntity
