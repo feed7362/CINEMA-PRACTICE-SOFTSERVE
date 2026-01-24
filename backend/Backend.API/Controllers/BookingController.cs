@@ -14,6 +14,21 @@ internal static class BookingEndpoints
             .WithTags("Booking")
             .RequireAuthorization();
 
+
+        group.MapGet("/", async (
+        IBookingService bookingService,
+        ClaimsPrincipal user,
+        int page = 1,
+        int pageSize = 10) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await bookingService.GetUserBookingHistoryAsync(userId, page, pageSize);
+            return Results.Ok(result);
+        })
+            .WithName("GetUserBookingHistory")
+            .WithSummary("Get paged bookings for the current user");
+
+
         group.MapPost("/", async (
                 CreateBookingDto dto,
                 IBookingService bookingService,
