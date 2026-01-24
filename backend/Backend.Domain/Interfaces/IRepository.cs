@@ -22,5 +22,6 @@ namespace Backend.Domain.Interfaces
 
         Task<TEntity?> GetFirstBySpecAsync(ISpecification<TEntity> spec);
         Task<List<TEntity>> GetListBySpecAsync(ISpecification<TEntity> spec);
+        Task<int> CountAsync(ISpecification<TEntity> spec);
     }
 }
