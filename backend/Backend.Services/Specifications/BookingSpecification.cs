@@ -64,5 +64,27 @@ namespace Backend.Services.Specifications
                         .ThenInclude(t => t.Discount);
             }
         }
+
+        public class UserBookingHistorySpec : Specification<Booking>
+        {
+            public UserBookingHistorySpec(int userId)
+            {
+                Query.Where(b => b.ApplicationUserId == userId);
+            }
+        }
+
+        public class UserBookingPagedSpec : Specification<Booking>
+        {
+            public UserBookingPagedSpec(int userId, int page, int pageSize)
+            {
+                Query
+                    .Where(b => b.ApplicationUserId == userId)
+                    .Include(b => b.Session).ThenInclude(s => s.Movie)
+                    .Include(b => b.Tickets)
+                    .OrderByDescending(b => b.BookingTime)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize);
+            }
+        }
     }
 }
