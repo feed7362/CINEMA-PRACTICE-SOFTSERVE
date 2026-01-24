@@ -90,6 +90,27 @@ public class BookingService : IBookingService
         );
     }
 
+    public async Task<PagedResponse<BookingSummaryDto>> GetUserBookingHistoryAsync(int userId, int page, int pageSize)
+    {
+        var filterSpec = new UserBookingHistorySpec(userId);
+
+        int totalCount = await _bookingRepository.CountAsync(filterSpec);
+
+        var pagedSpec = new UserBookingPagedSpec(userId, page, pageSize);
+        var bookings = await _bookingRepository.GetListBySpecAsync(pagedSpec);
+
+        var items = bookings.Select(b => new BookingSummaryDto(
+            b.Id,
+            b.Session.Movie.MovieTitleUKR,
+            b.Session.StartTime,
+            b.Tickets.Count,
+            b.Tickets.Sum(t => t.FinalPrice),
+            b.Status.ToString()
+        )).ToList();
+
+        return new PagedResponse<BookingSummaryDto>(items, totalCount, page, pageSize);
+    }
+
     public async Task<BookingDetailDto?> GetBookingDetailsByIdAsync(int bookingId, int userId)
     {
         var booking = await _bookingRepository.GetFirstBySpecAsync(new BookingWithDetailsByIdSpec(bookingId, userId));
