@@ -112,6 +112,12 @@ namespace Backend.Data.Repositories
             return await ApplySpecification(specification).FirstOrDefaultAsync();
         }
 
+        public async Task<int> CountAsync(ISpecification<TEntity> spec)
+        {
+            var query = ApplySpecification(spec);
+            return await query.CountAsync();
+        }
+
 
         private IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> specification)
         {
