@@ -1,5 +1,6 @@
 ﻿using Backend.Domain.Entities;
 using Backend.Domain.Interfaces;
+using Backend.Domain.Shared;
 using Backend.Services.DTOs.Movie;
 using Backend.Services.Interfaces;
 using Backend.Services.Specifications;
@@ -48,7 +49,7 @@ namespace Backend.Services.Services
 
         public async Task<ReadMovieDto?> UpdateMovieAsync(UpdateMovieDto dto)
         {
-            var spec = new ById(dto.Id); 
+            var spec = new ById(dto.Id);
             var movie = await movieRepository.GetFirstBySpecAsync(spec);
             if (movie == null) return null;
 
@@ -80,7 +81,7 @@ namespace Backend.Services.Services
             }
 
             await movieRepository.UpdateAsync(movie);
-            
+
             return MapToDto(movie);
         }
 
@@ -92,12 +93,25 @@ namespace Backend.Services.Services
             return movie == null ? null : MapToDto(movie);
         }
 
-        public async Task<List<ReadMovieDto>> GetAllMoviesAsync()
+        public async Task<PagedResult<ReadMovieDto>> GetAllMoviesAsync(MovieFilterDto filter)
         {
-            var spec = new All();
-            var movies = await movieRepository.GetListBySpecAsync(spec);
-            
-            return movies.Select(MapToDto).ToList();        }
+            var spec = new Search(filter);
+
+            var pagedData = await movieRepository.ListPagedAsync(
+                spec,
+                filter.PageNumber ?? 1,
+                filter.PageSize ?? 10
+            );
+
+            var dtos = pagedData.Items.Select(MapToDto).ToList();
+
+            return new PagedResult<ReadMovieDto>(
+                dtos,
+                pagedData.TotalItems,
+                pagedData.PageNumber,
+                pagedData.PageSize
+            );
+        }
 
         public async Task DeleteMovieAsync(int id)
         {

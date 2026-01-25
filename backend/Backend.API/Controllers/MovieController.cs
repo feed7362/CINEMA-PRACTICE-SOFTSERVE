@@ -41,9 +41,11 @@ internal static class MovieEndpoints
             .WithSummary("Get Movie by Id");
 
 
-        group.MapGet("/", async (IMovieService movieService) =>
+        group.MapGet("/", async (
+                IMovieService movieService,
+                [AsParameters] MovieFilterDto filter) =>
             {
-                var movies = await movieService.GetAllMoviesAsync();
+                var movies = await movieService.GetAllMoviesAsync(filter);
                 return Results.Ok(movies);
             })
             .WithName("GetAllMovies")
@@ -75,6 +77,5 @@ internal static class MovieEndpoints
             .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteMovie")
             .WithSummary("Delete movie by Id");
-
     }
 }
