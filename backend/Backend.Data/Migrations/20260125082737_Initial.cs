@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,7 +18,7 @@ namespace Backend.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ActorName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -89,7 +89,7 @@ namespace Backend.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    GenreName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                    Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -117,7 +117,7 @@ namespace Backend.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    StudioName = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
+                    Name = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -262,8 +262,8 @@ namespace Backend.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     StudioId = table.Column<int>(type: "integer", nullable: false),
-                    MovieTitleORG = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
-                    MovieTitleUKR = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
+                    TitleORG = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
+                    TitleUKR = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
                     Description = table.Column<string>(type: "text", nullable: true),
                     Duration = table.Column<int>(type: "integer", nullable: false),
                     ReleaseDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),

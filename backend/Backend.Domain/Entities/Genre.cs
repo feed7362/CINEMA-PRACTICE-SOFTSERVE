@@ -6,7 +6,7 @@ public class Genre : IEntity
 {
     public int Id { get; set; }
 
-    public string GenreName { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
     public ICollection<MovieGenre> MovieGenres { get; set; } = new List<MovieGenre>();
 }

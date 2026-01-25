@@ -14,7 +14,7 @@ public class ActorConfiguration : IEntityTypeConfiguration<Actor>
         builder.Property(a => a.Id)
             .ValueGeneratedOnAdd();
 
-        builder.Property(a => a.ActorName)
+        builder.Property(a => a.Name)
             .IsRequired()
             .HasMaxLength(100);
 
