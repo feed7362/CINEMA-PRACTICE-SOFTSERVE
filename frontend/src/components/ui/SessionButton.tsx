@@ -1,5 +1,5 @@
 import React from 'react';
-import type { SessionButtonProps } from '../../types/button';
+import type { SessionButtonProps } from '@/types/button';
 
 const SessionButton: React.FC<SessionButtonProps> = ({ time, isSelected, onClick, className = "" }) => {
   return (

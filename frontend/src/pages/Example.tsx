@@ -1,13 +1,13 @@
 import React from 'react';
-import MovieCard from '../components/movie/MovieCard';
-import MovieSchedule from '../components/movie/MovieSchedule';
-import MoviePreviewCard from '../components/movie/MoviePreviewCard';
-import Input from '../components/ui/Input';
-import BaseButton from '../components/ui/BaseButton';
-import UserIcon from '../assets/icons/UserIcon';
-import PlayIcon from '../assets/icons/PlayIcon';
-import { MOCK_MOVIES, MOCK_SCHEDULE } from '../constants/mockMovies';
-import { MOCK_PREVIEW } from '../constants/mockPreview';
+import MovieCard from '@/components/movie/MovieCard';
+import MovieSchedule from '@/components/movie/MovieSchedule';
+import MoviePreviewCard from '@/components/movie/MoviePreviewCard';
+import Input from '@/components/ui/Input';
+import BaseButton from '@/components/ui/BaseButton';
+import UserIcon from '@/assets/icons/UserIcon';
+import PlayIcon from '@/assets/icons/PlayIcon';
+import { MOCK_MOVIES, MOCK_SCHEDULE } from '@/constants/mockMovies';
+import { MOCK_PREVIEW } from '@/constants/mockPreview';
 
 const Example: React.FC = () => {
   return (

@@ -1,6 +1,6 @@
 import React from "react";
-import { useMovieNavigation } from "../../hooks/useMovieNavigation";
-import type { MovieCardProps } from "../../types/movie";
+import { useMovieNavigation } from "@/hooks/useMovieNavigation";
+import type { MovieCardProps } from "@/types/movie";
 
 const MovieCard: React.FC<MovieCardProps> = ({ movie, isBlurred }) => {
   const { id, title, poster, ageRating, sessions } = movie;

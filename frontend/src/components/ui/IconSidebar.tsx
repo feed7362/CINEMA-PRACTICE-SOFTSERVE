@@ -1,6 +1,6 @@
 import React from 'react';
-import UserIcon from '../../assets/icons/UserIcon';
-import SettingsIcon from '../../assets/icons/SettingsIcon';
+import UserIcon from '@/assets/icons/UserIcon';
+import SettingsIcon from '@/assets/icons/SettingsIcon';
 
 interface RoundIconProps {
   children: React.ReactNode;

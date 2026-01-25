@@ -1,17 +1,17 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Home from '../pages/Home';
-import Admin from '../pages/Admin';
-import Auth from '../pages/Auth';
-import Booking from '../pages/Booking';
-import Loading from '../pages/Loading';
-import MovieDetails from '../pages/MovieDetails';
-import MovieSchedule from '../pages/MovieSchedule';
-import Profile from '../pages/Profile';
-import Shares from '../pages/Shares';
-import SignUp from '../pages/SignUp';
-import SoonMovies from '../pages/SoonMovies';
-import Example from '../pages/Example';
+import Home from '@/pages/Home';
+import Admin from '@/pages/Admin';
+import Auth from '@/pages/Auth';
+import Booking from '@/pages/Booking';
+import Loading from '@/pages/Loading';
+import MovieDetails from '@/pages/MovieDetails';
+import MovieSchedule from '@/pages/MovieSchedule';
+import Profile from '@/pages/Profile';
+import Shares from '@/pages/Shares';
+import SignUp from '@/pages/SignUp';
+import SoonMovies from '@/pages/SoonMovies';
+import Example from '@/pages/Example';
 
 const AppRoutes: React.FC = () => {
   return (

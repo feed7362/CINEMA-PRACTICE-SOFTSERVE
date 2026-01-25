@@ -1,9 +1,9 @@
 import type { MoviePreviewProps } from "../types/movie";
 
-import poster1 from "../assets/images/poster1.jfif";
-import poster2 from "../assets/images/poster2.jfif";
-import poster3 from "../assets/images/poster3.jfif";
-import poster4 from "../assets/images/poster4.jfif";
+import poster1 from "@/assets/images/poster1.jfif";
+import poster2 from "@/assets/images/poster2.jfif";
+import poster3 from "@/assets/images/poster3.jfif";
+import poster4 from "@/assets/images/poster4.jfif";
 
 export const MOCK_PREVIEW: MoviePreviewProps[] = [
   {

@@ -1,8 +1,8 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import BaseButton from '../ui/BaseButton';
-import UserIcon from '../../assets/icons/UserIcon';
-import logo from "../../assets/images/logo.png";
+import BaseButton from '@/components/ui/BaseButton';
+import UserIcon from '@/assets/icons/UserIcon';
+import logo from "@/assets/images/logo.png";
 
 const Header: React.FC = () => {
   const navLinkClasses = ({ isActive }: { isActive: boolean }) =>

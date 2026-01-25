@@ -1,10 +1,10 @@
-import type { IMovie } from "../types/movie";
-import type { IScheduleEntry } from "../types/movie";
+import type { IMovie } from "@/types/movie";
+import type { IScheduleEntry } from "@/types/movie";
 
-import poster1 from "../assets/images/poster1.jfif";
-import poster2 from "../assets/images/poster2.jfif";
-import poster3 from "../assets/images/poster3.jfif";
-import poster4 from "../assets/images/poster4.jfif";
+import poster1 from "@/assets/images/poster1.jfif";
+import poster2 from "@/assets/images/poster2.jfif";
+import poster3 from "@/assets/images/poster3.jfif";
+import poster4 from "@/assets/images/poster4.jfif";
 
 export const MOCK_SCHEDULE: IScheduleEntry[] = [
   { date: "Пт, 16 січня", times: ["16:00", "20:00", "23:00"] },

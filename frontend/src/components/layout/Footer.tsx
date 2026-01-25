@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FOOTER_LINKS } from '../../constants/navigation';
+import { FOOTER_LINKS } from '@/constants/navigation';
 
 const Footer: React.FC = () => {
   return (

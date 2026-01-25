@@ -1,6 +1,6 @@
 import React from 'react';
-import SessionButton from '../ui/SessionButton';
-import type { MovieScheduleProps } from '../../types/movie';
+import SessionButton from '@/components/ui/SessionButton';
+import type { MovieScheduleProps } from '@/types/movie';
 import { useNavigate } from 'react-router-dom';
 
 const MovieSchedule: React.FC<MovieScheduleProps> = ({ schedule }) => {

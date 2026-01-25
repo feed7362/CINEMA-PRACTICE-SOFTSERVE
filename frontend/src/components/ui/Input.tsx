@@ -1,6 +1,6 @@
 import React from 'react';
-import type { InputProps } from '../../types/forms';
-import Label from './Label';
+import type { InputProps } from '@/types/forms';
+import Label from '@/components/ui/Label';
 
 const Input: React.FC<InputProps> = ({ label, id, type = "text", placeholder }) => (
   <div className="w-full flex flex-col">

@@ -1,11 +1,11 @@
 import { BrowserRouter as Router } from 'react-router-dom';
-import Header from './components/layout/Header';
-import Footer from './components/layout/Footer';
-import AppRoutes from './routes/AppRouter';
-import './App.css';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import AppRoutes from '@/routes/AppRouter';
+import '@/App.css';
 
-import bgEffectTopLeft from './assets/images/backgroundEffects/effect1.png';
-import bgEffectCenterRight from './assets/images/backgroundEffects/effect2.png';
+import bgEffectTopLeft from '@/assets/images/backgroundEffects/effect1.png';
+import bgEffectCenterRight from '@/assets/images/backgroundEffects/effect2.png';
 
 function App() {
   return (

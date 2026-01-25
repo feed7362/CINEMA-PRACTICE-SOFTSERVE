@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import type { MoviePreviewProps } from '../../types/movie';
+import type { MoviePreviewProps } from '@/types/movie';
 
 const MoviePreviewCard: React.FC<MoviePreviewProps> = ({ id, title, poster, releaseDate, ageRating, isBlurred }) => (
   <Link to={`/movie/${id}`} className={`flex flex-col group cursor-pointer w-full max-w-[240px] ${isBlurred ? 'opacity-40 blur-[2px] pointer-events-none' : ''}`}>
