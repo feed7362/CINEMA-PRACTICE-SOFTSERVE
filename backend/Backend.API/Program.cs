@@ -3,7 +3,6 @@ using Backend.API.Extensions;
 using Backend.Data;
 using Backend.Data.Repositories;
 using Backend.Domain.Interfaces;
-using Backend.Services;
 using Backend.Services.Interfaces;
 using Backend.Services.Services;
 using Backend.Services.Validators.Hall;
@@ -12,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Text;
+using Backend.Services.Validators.Movie;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 Console.OutputEncoding = Encoding.UTF8;
@@ -24,6 +24,7 @@ builder.Services.AddScoped<IHallService, HallService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddDatabaseServices(builder.Configuration);
 builder.Services.AddIdentityServices();
 
@@ -135,6 +136,7 @@ app.Lifetime.ApplicationStopping.Register(() => { Console.WriteLine("Application
 // --- Endpoint Mapping ---
 app.MapAuthEndpoints();
 app.MapHallEndpoints();
+app.MapMovieEndpoints();
 app.MapSessionEndpoints();
 app.MapBookingEndpoints();
 app.MapTicketEndpoints();

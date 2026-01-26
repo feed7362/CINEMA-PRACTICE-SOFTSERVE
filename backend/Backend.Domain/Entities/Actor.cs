@@ -6,7 +6,7 @@ public class Actor : IEntity
 {
     public int Id { get; set; }
 
-    public string ActorName { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
     public ICollection<MovieActor> MovieActors { get; set; } = new List<MovieActor>();
 }
