@@ -23,6 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IHallService, HallService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddDatabaseServices(builder.Configuration);
 builder.Services.AddIdentityServices();
 
@@ -136,5 +137,6 @@ app.MapAuthEndpoints();
 app.MapHallEndpoints();
 app.MapSessionEndpoints();
 app.MapBookingEndpoints();
+app.MapTicketEndpoints();
 
 app.Run();
