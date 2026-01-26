@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Backend.Data
 {
     public class ApplicationContext(DbContextOptions<ApplicationContext> options)
-        : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>(options)
+       : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>(options)
     {
         public DbSet<Booking> Bookings { get; set; } = null!;
         public DbSet<Hall> Halls { get; set; } = null!;

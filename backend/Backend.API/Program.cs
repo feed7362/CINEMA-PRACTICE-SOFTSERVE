@@ -25,6 +25,7 @@ builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<IAdminStatsService, AdminStatsService>();
 builder.Services.AddDatabaseServices(builder.Configuration);
 builder.Services.AddIdentityServices();
 
@@ -56,10 +57,7 @@ builder.Services.AddOpenApi(options =>
 
         // Safety Initializations
         document.Components ??= new OpenApiComponents();
-        if (document.Components.SecuritySchemes == null)
-        {
-            document.Components.SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>();
-        }
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
 
         if (!document.Components.SecuritySchemes.ContainsKey(schemeName))
         {
@@ -88,6 +86,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateHallDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<UpdateHallDtoValidator>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddAuthentication(options =>
@@ -128,7 +127,7 @@ app.UseCors("Default");
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+    
 // Application Lifetime hooks
 app.Lifetime.ApplicationStarted.Register(() => { Console.WriteLine("Application started"); });
 app.Lifetime.ApplicationStopping.Register(() => { Console.WriteLine("Application stopping"); });
@@ -140,5 +139,6 @@ app.MapMovieEndpoints();
 app.MapSessionEndpoints();
 app.MapBookingEndpoints();
 app.MapTicketEndpoints();
+app.MapAdminEndpoints();
 
 app.Run();

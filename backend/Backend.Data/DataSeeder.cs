@@ -1,4 +1,4 @@
-﻿using Backend.Domain.Entities;
+﻿﻿using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -54,12 +54,13 @@ public static class DataSeeder
         const string adminEmail = "admin@cinema.ua";
         if (await userManager.FindByEmailAsync(adminEmail) == null)
         {
-            var admin = new ApplicationUser
+            // ТЕПЕР ЦЕ ПРАЦЮЄ, бо тип у UserManager збігається з об'єктом
+            var admin = new ApplicationUser 
             {
                 UserName = adminEmail,
                 Email = adminEmail,
                 EmailConfirmed = true,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow 
             };
 
             var result = await userManager.CreateAsync(admin, "Admin123!");
@@ -288,6 +289,63 @@ public static class DataSeeder
                 new Discount { Type = DiscountType.MILITARY, Percentage = 30, IsActive = true },
                 new Discount { Type = DiscountType.PROMOCODE, Percentage = 25, IsActive = true }
             );
+            await context.SaveChangesAsync();
+        }
+        #endregion
+        #region Sales (Bookings & Tickets)
+        if (!await context.Set<Ticket>().AnyAsync())
+        {
+            var adminUser = await userManager.FindByEmailAsync("admin@cinema.ua");
+            var sessions = await context.Sessions
+                .Include(s => s.Prices)
+                .Include(s => s.Hall)
+                .ToListAsync();
+            
+            var regularDiscount = await context.Set<Discount>().FirstAsync(d => d.Type == DiscountType.REGULAR);
+            var studentDiscount = await context.Set<Discount>().FirstAsync(d => d.Type == DiscountType.STUDENT);
+
+            var random = new Random();
+            var bookings = new List<Booking>();
+
+            foreach (var session in sessions)
+            {
+                int ticketsToBuy = random.Next(5, 21);
+                
+                var booking = new Booking
+                {
+                    ApplicationUserId = adminUser.Id,
+                    SessionId = session.Id,
+                    BookingTime = DateTime.UtcNow,
+                    ExpirationTime = DateTime.UtcNow.AddMinutes(15),
+                    Status = BookingStatus.CONFIRMED
+                };
+
+                var seats = await context.Seats
+                    .Where(s => s.HallId == session.HallId)
+                    .Take(ticketsToBuy)
+                    .ToListAsync();
+
+                foreach (var seat in seats)
+                {
+                    var price = session.Prices.First(p => p.SeatType == seat.SeatType);
+                    
+                    var discount = random.Next(1, 5) == 1 ? studentDiscount : regularDiscount;
+                    
+                    decimal finalPrice = price.Value - (price.Value * discount.Percentage / 100m);
+
+                    booking.Tickets.Add(new Ticket
+                    {
+                        SeatId = seat.Id,
+                        PriceId = price.Id,
+                        DiscountId = discount.Id,
+                        FinalPrice = finalPrice,
+                        PurchaseTime = DateTime.UtcNow
+                    });
+                }
+                bookings.Add(booking);
+            }
+
+            await context.Bookings.AddRangeAsync(bookings);
             await context.SaveChangesAsync();
         }
         #endregion

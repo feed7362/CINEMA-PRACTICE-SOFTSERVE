@@ -17,8 +17,7 @@ public class SeatConfiguration : IEntityTypeConfiguration<Seat>
             .IsRequired();
 
         builder.Property(s => s.SeatType)
-            .HasConversion<short>()
-            .HasColumnType("smallint")
+            .HasConversion<string>()
             .IsRequired()
             .HasDefaultValue(SeatType.REGULAR);
 
