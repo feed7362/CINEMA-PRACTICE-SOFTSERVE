@@ -1,4 +1,4 @@
-﻿﻿using Backend.Domain.Entities;
+﻿using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -309,8 +309,9 @@ public static class DataSeeder
 
             foreach (var session in sessions)
             {
-                int ticketsToBuy = random.Next(5, 21);
-                
+                var ticketsToBuy = random.Next(5, 21);
+
+                if (adminUser == null) continue;
                 var booking = new Booking
                 {
                     ApplicationUserId = adminUser.Id,
@@ -331,7 +332,7 @@ public static class DataSeeder
                     
                     var discount = random.Next(1, 5) == 1 ? studentDiscount : regularDiscount;
                     
-                    decimal finalPrice = price.Value - (price.Value * discount.Percentage / 100m);
+                    var finalPrice = price.Value - (price.Value * discount.Percentage / 100m);
 
                     booking.Tickets.Add(new Ticket
                     {

@@ -1,7 +1,6 @@
-﻿namespace Backend.Domain.Interfaces
+﻿namespace Backend.Domain.Interfaces;
+
+public interface IEntity
 {
-    public interface IEntity
-    {
-        public int Id { get; set; }
-    }
+    public int Id { get; set; }
 }

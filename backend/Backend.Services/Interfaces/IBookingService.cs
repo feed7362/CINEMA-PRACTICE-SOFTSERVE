@@ -1,6 +1,7 @@
-﻿
+﻿using Backend.Services.DTOs;
 using Backend.Services.DTOs.Booking;
-using Backend.Services.DTOs;
+
+namespace Backend.Services.Interfaces;
 
 public interface IBookingService
 {

@@ -37,7 +37,7 @@ builder.Services.AddScoped(
 // OpenAPI configuration
 builder.Services.AddOpenApi(options =>
 {
-    options.AddDocumentTransformer((document, context, ct) =>
+    options.AddDocumentTransformer((document, _, _) =>
     {
         document.Info = new OpenApiInfo
         {
@@ -59,10 +59,7 @@ builder.Services.AddOpenApi(options =>
         document.Components ??= new OpenApiComponents();
         document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
 
-        if (!document.Components.SecuritySchemes.ContainsKey(schemeName))
-        {
-            document.Components.SecuritySchemes.Add(schemeName, securityScheme);
-        }
+        document.Components.SecuritySchemes.TryAdd(schemeName, securityScheme);
 
         var requirement = new OpenApiSecurityRequirement();
         var schemeReference = new OpenApiSecuritySchemeReference(schemeName, document);
@@ -115,9 +112,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseSwaggerUI(options => {
-        options.SwaggerEndpoint("/openapi/v1.json", "v1");
-    });
+    app.SwaggerUi();
 
     await app.ApplyMigrationsAndSeedAsync();
 }

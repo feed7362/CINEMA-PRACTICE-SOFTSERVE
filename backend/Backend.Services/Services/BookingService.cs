@@ -2,39 +2,27 @@
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs.Booking;
 using Backend.Services.DTOs;
+using Backend.Services.Interfaces;
 using static Backend.Services.Specifications.Booking;
 
 namespace Backend.Services.Services;
 
-public class BookingService : IBookingService
+public class BookingService(
+    IRepository<Booking> bookingRepository,
+    IRepository<Session> sessionRepository,
+    IRepository<Seat> seatRepository,
+    IRepository<Discount> discountRepository)
+    : IBookingService
 {
-    private readonly IRepository<Booking> _bookingRepository;
-    private readonly IRepository<Session> _sessionRepository;
-    private readonly IRepository<Seat> _seatRepository;
-    private readonly IRepository<Discount> _discountRepository;
-
-    public BookingService(
-        IRepository<Booking> bookingRepository,
-        IRepository<Session> sessionRepository,
-        IRepository<Seat> seatRepository,
-        IRepository<Discount> discountRepository
-        )
-    {
-        _bookingRepository = bookingRepository;
-        _sessionRepository = sessionRepository;
-        _seatRepository = seatRepository;
-        _discountRepository = discountRepository;
-    }
-
     public async Task<BookingResponseDto> CreateBookingAsync(CreateBookingDto dto, int userId)
     {
-        var session = await _sessionRepository.GetFirstBySpecAsync(new SessionWithPricesByIdSpec(dto.SessionId));
+        var session = await sessionRepository.GetFirstBySpecAsync(new SessionWithPricesByIdSpec(dto.SessionId));
         if (session == null) throw new Exception("Session not found.");
 
-        var seats = await _seatRepository.GetListBySpecAsync(new SeatsByListIdsSpec(dto.SeatIds));
+        var seats = await seatRepository.GetListBySpecAsync(new SeatsByListIdsSpec(dto.SeatIds));
         if (seats.Count != dto.SeatIds.Count) throw new Exception("One or more seats not found.");
 
-        var regularDiscount = await _discountRepository.GetFirstBySpecAsync(new DiscountByTypeSpec(DiscountType.REGULAR));
+        var regularDiscount = await discountRepository.GetFirstBySpecAsync(new DiscountByTypeSpec(DiscountType.REGULAR));
         if (regularDiscount == null) throw new Exception("Base 'REGULAR' discount not found in system.");
 
         var booking = new Booking
@@ -61,8 +49,8 @@ public class BookingService : IBookingService
             });
         }
 
-        await _bookingRepository.AddAsync(booking);
-        await _bookingRepository.SaveChangesAsync();
+        await bookingRepository.AddAsync(booking);
+        await bookingRepository.SaveChangesAsync();
 
         return new BookingResponseDto(
             booking.Id,
@@ -75,8 +63,8 @@ public class BookingService : IBookingService
     public async Task<BookingResponseDto?> GetBookingByIdAsync(int bookingId, int userId)
     {
 
-        var result = await _bookingRepository.GetFirstBySpecAsync(new BookingByUserIdAndUserId(bookingId, userId));
-        await _bookingRepository.SaveChangesAsync();
+        var result = await bookingRepository.GetFirstBySpecAsync(new BookingByUserIdAndUserId(bookingId, userId));
+        await bookingRepository.SaveChangesAsync();
 
         if (result == null) return null;
 
@@ -93,10 +81,10 @@ public class BookingService : IBookingService
     {
         var filterSpec = new UserBookingHistorySpec(userId);
 
-        int totalCount = await _bookingRepository.CountAsync(filterSpec);
+        var totalCount = await bookingRepository.CountAsync(filterSpec);
 
         var pagedSpec = new UserBookingPagedSpec(userId, page, pageSize);
-        var bookings = await _bookingRepository.GetListBySpecAsync(pagedSpec);
+        var bookings = await bookingRepository.GetListBySpecAsync(pagedSpec);
 
         var items = bookings.Select(b => new BookingSummaryDto(
             b.Id,
@@ -112,7 +100,7 @@ public class BookingService : IBookingService
 
     public async Task<BookingDetailDto?> GetBookingDetailsByIdAsync(int bookingId, int userId)
     {
-        var booking = await _bookingRepository.GetFirstBySpecAsync(new BookingWithDetailsByIdSpec(bookingId, userId));
+        var booking = await bookingRepository.GetFirstBySpecAsync(new BookingWithDetailsByIdSpec(bookingId, userId));
 
         if (booking == null) return null;
 

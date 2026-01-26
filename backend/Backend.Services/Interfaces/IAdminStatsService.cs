@@ -10,7 +10,7 @@ public interface IAdminStatsService
 
     Task<List<TopMovieDto>> GetTopMoviesAsync();
 
-    Task<int> GetSpecialTicketsCountAsync(int? movieId, DateTime? from, DateTime? to);
+    Task<int> GetSpecialTicketsCountAsync(int movieId, DateTime? from, DateTime? to);
 
     Task<TopMovieDto?> GetMostPopularMovieByGenreAsync(int genreId);
 

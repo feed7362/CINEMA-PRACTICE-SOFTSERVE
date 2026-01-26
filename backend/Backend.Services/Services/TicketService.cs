@@ -3,6 +3,7 @@ using Backend.Domain.Entities;
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs;
 using Backend.Services.DTOs.Ticket;
+using Backend.Services.Interfaces;
 using Backend.Services.Specifications;
 
 namespace Backend.Services;
@@ -30,7 +31,7 @@ public class TicketService : ITicketService
     {
         var countSpec = new Specification<Ticket>();
         countSpec.Query.Where(t => t.Booking.ApplicationUserId == userId);
-        int totalCount = await _ticketRepository.CountAsync(countSpec);
+        var totalCount = await _ticketRepository.CountAsync(countSpec);
 
         
         var pagedSpec = new UserTicketsPagedSpec(userId, page, pageSize);
