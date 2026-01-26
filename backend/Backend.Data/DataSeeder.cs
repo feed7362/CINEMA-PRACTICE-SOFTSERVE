@@ -25,7 +25,7 @@ public static class DataSeeder
                 await context.Database.MigrateAsync();
             }
 
-            await DataSeeder.SeedDataAsync(context, userManager, roleManager);
+            await SeedDataAsync(context, userManager, roleManager);
         }
         catch (Exception ex)
         {
@@ -34,7 +34,8 @@ public static class DataSeeder
             throw;
         }
     }
-    public static async Task SeedDataAsync(
+
+    private static async Task SeedDataAsync(
         ApplicationContext context,
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole<int>> roleManager

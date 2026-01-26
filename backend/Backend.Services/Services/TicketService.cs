@@ -46,7 +46,7 @@ public class TicketService : ITicketService
     {
         return new TicketResponseDto(
             ticket.Id,
-            ticket.Booking.Session.Movie.MovieTitleUKR,
+            ticket.Booking.Session.Movie.TitleUKR,
             ticket.Booking.Session.Hall.Name,
             ticket.Seat.RowNumber,
             ticket.Seat.SeatNumber,
