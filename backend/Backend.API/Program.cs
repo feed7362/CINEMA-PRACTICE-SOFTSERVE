@@ -3,7 +3,6 @@ using Backend.API.Extensions;
 using Backend.Data;
 using Backend.Data.Repositories;
 using Backend.Domain.Interfaces;
-using Backend.Services;
 using Backend.Services.Interfaces;
 using Backend.Services.Services;
 using Backend.Services.Validators.Hall;
@@ -23,6 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IHallService, HallService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IAdminStatsService, AdminStatsService>();
 builder.Services.AddDatabaseServices(builder.Configuration);
 builder.Services.AddIdentityServices();
 
@@ -54,10 +54,7 @@ builder.Services.AddOpenApi(options =>
 
         // Safety Initializations
         document.Components ??= new OpenApiComponents();
-        if (document.Components.SecuritySchemes == null)
-        {
-            document.Components.SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>();
-        }
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
 
         if (!document.Components.SecuritySchemes.ContainsKey(schemeName))
         {
@@ -86,6 +83,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateHallDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<UpdateHallDtoValidator>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddAuthentication(options =>
@@ -126,7 +124,7 @@ app.UseCors("Default");
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+    
 // Application Lifetime hooks
 app.Lifetime.ApplicationStarted.Register(() => { Console.WriteLine("Application started"); });
 app.Lifetime.ApplicationStopping.Register(() => { Console.WriteLine("Application stopping"); });
@@ -136,5 +134,6 @@ app.MapAuthEndpoints();
 app.MapHallEndpoints();
 app.MapSessionEndpoints();
 app.MapBookingEndpoints();
+app.MapAdminEndpoints();
 
 app.Run();

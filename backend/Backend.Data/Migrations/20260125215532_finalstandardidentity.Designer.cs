@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20260121154607_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260125215532_finalstandardidentity")]
+    partial class finalstandardidentity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -203,10 +203,11 @@ namespace Backend.Data.Migrations
                     b.Property<int>("Capacity")
                         .HasColumnType("integer");
 
-                    b.Property<short>("Format")
+                    b.Property<string>("Format")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint")
-                        .HasDefaultValue((short)0);
+                        .HasColumnType("text")
+                        .HasDefaultValue("REGULAR");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -384,10 +385,11 @@ namespace Backend.Data.Migrations
                     b.Property<int>("SeatNumber")
                         .HasColumnType("integer");
 
-                    b.Property<short>("SeatType")
+                    b.Property<string>("SeatType")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint")
-                        .HasDefaultValue((short)0);
+                        .HasColumnType("text")
+                        .HasDefaultValue("REGULAR");
 
                     b.HasKey("Id");
 

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class finalstandardidentity : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -102,7 +102,7 @@ namespace Backend.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Format = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
+                    Format = table.Column<string>(type: "text", nullable: false, defaultValue: "REGULAR"),
                     Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     Capacity = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -237,7 +237,7 @@ namespace Backend.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     HallId = table.Column<int>(type: "integer", nullable: false),
-                    SeatType = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
+                    SeatType = table.Column<string>(type: "text", nullable: false, defaultValue: "REGULAR"),
                     SeatNumber = table.Column<int>(type: "integer", nullable: false),
                     RowNumber = table.Column<int>(type: "integer", nullable: false),
                     IsReserved = table.Column<bool>(type: "boolean", nullable: false)

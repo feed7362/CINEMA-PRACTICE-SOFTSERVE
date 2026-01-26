@@ -5,7 +5,7 @@ using Backend.Services.Interfaces;
 using Backend.Services.Specifications;
 using static Backend.Services.Specifications.BookingSpecification;
 
-namespace Backend.Services;
+namespace Backend.Services.Services;
 
 public class BookingService : IBookingService
 {

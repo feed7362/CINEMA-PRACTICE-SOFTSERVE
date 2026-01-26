@@ -200,10 +200,11 @@ namespace Backend.Data.Migrations
                     b.Property<int>("Capacity")
                         .HasColumnType("integer");
 
-                    b.Property<short>("Format")
+                    b.Property<string>("Format")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint")
-                        .HasDefaultValue((short)0);
+                        .HasColumnType("text")
+                        .HasDefaultValue("REGULAR");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -381,10 +382,11 @@ namespace Backend.Data.Migrations
                     b.Property<int>("SeatNumber")
                         .HasColumnType("integer");
 
-                    b.Property<short>("SeatType")
+                    b.Property<string>("SeatType")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint")
-                        .HasDefaultValue((short)0);
+                        .HasColumnType("text")
+                        .HasDefaultValue("REGULAR");
 
                     b.HasKey("Id");
 
