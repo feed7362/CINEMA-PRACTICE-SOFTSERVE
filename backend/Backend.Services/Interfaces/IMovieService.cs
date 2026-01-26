@@ -1,4 +1,5 @@
-﻿using Backend.Services.DTOs.Movie;
+﻿using Backend.Services.DTOs;
+using Backend.Services.DTOs.Movie;
 
 namespace Backend.Services.Interfaces;
 
