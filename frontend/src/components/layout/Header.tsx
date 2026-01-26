@@ -21,7 +21,7 @@ const Header: React.FC = () => {
           <NavLink to="/contacts" className={navLinkClasses}>Контакти</NavLink>
         </nav>
         <div className="flex items-center gap-4">
-          <BaseButton to="/register" className="px-6 py-2 rounded-lg">
+          <BaseButton to="/sign up" className="px-6 py-2 rounded-lg">
             <span className="text-white font-bold">Реєстрація</span>
           </BaseButton>
           <BaseButton to="/profile" className="w-16 h-14 rounded-xl">
