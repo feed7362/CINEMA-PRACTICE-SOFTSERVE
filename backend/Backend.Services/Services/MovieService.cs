@@ -1,6 +1,5 @@
 ﻿using Backend.Domain.Entities;
 using Backend.Domain.Interfaces;
-using Backend.Domain.Shared;
 using Backend.Services.DTOs.Movie;
 using Backend.Services.Interfaces;
 using Backend.Services.Specifications;
@@ -93,25 +92,27 @@ namespace Backend.Services.Services
             return movie == null ? null : MapToDto(movie);
         }
 
-        public async Task<PagedResult<ReadMovieDto>> GetAllMoviesAsync(MovieFilterDto filter)
-        {
-            var spec = new Search(filter);
 
-            var pagedData = await movieRepository.ListPagedAsync(
-                spec,
+        public async Task<PagedResponse<ReadMovieDto>> GetAllMoviesAsync(MovieFilterDto filter)
+        {
+
+
+            var filterSpec = new MovieSearchFilterSpec(filter);
+            var totalCount = await movieRepository.CountAsync(filterSpec);
+
+            var pagedSpec = new MovieSearchPagedSpec(filter);
+            var movies = await movieRepository.GetListBySpecAsync(pagedSpec);
+
+            var items = movies.Select(MapToDto).ToList();
+
+            return new PagedResponse<ReadMovieDto>(
+                items,
+                totalCount,
                 filter.PageNumber ?? 1,
                 filter.PageSize ?? 10
             );
-
-            var dtos = pagedData.Items.Select(MapToDto).ToList();
-
-            return new PagedResult<ReadMovieDto>(
-                dtos,
-                pagedData.TotalItems,
-                pagedData.PageNumber,
-                pagedData.PageSize
-            );
         }
+
 
         public async Task DeleteMovieAsync(int id)
         {

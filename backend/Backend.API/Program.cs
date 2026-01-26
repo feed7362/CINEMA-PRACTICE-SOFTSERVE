@@ -87,9 +87,6 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateHallDtoValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<UpdateHallDtoValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<CreateMovieDtoValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<UpdateMovieDtoValidator>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddAuthentication(options =>

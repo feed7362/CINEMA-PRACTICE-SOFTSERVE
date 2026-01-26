@@ -2,7 +2,6 @@
 using Backend.Domain.Interfaces;
 using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
-using Backend.Domain.Shared;
 
 namespace Backend.Data.Repositories
 {
@@ -90,20 +89,6 @@ namespace Backend.Data.Repositories
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
-        }
-
-        public async Task<PagedResult<TEntity>> ListPagedAsync(ISpecification<TEntity> spec, int pageNumber, int pageSize)
-        {
-            var queryEvaluator = SpecificationEvaluator.Default.GetQuery(_dbSet.AsQueryable(), spec);
-
-            var totalItems = await queryEvaluator.CountAsync();
-
-            var items = await queryEvaluator
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return new PagedResult<TEntity>(items, totalItems, pageNumber, pageSize);
         }
 
         public async Task DeleteAsync(TEntity entity)

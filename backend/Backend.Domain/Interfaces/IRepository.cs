@@ -1,5 +1,4 @@
 ﻿using Ardalis.Specification;
-using Backend.Domain.Shared;
 
 namespace Backend.Domain.Interfaces
 {
@@ -21,7 +20,6 @@ namespace Backend.Domain.Interfaces
         Task DeleteAsync(int id);
         Task SaveChangesAsync();
 
-        Task<PagedResult<TEntity>> ListPagedAsync(ISpecification<TEntity> spec, int pageNumber, int pageSize);
         Task<TEntity?> GetFirstBySpecAsync(ISpecification<TEntity> spec);
         Task<List<TEntity>> GetListBySpecAsync(ISpecification<TEntity> spec);
         Task<int> CountAsync(ISpecification<TEntity> spec);

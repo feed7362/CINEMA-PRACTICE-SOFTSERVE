@@ -31,16 +31,17 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public class Search : Specification<Movie>
+    public class MovieSearchPagedSpec : Specification<Movie>
     {
-        public Search(MovieFilterDto filter)
+        public MovieSearchPagedSpec(MovieFilterDto filter)
         {
+            var pageNumber = filter.PageNumber ?? 1;
+            var pageSize = filter.PageSize ?? 10;
+            
             Query
                 .Include(m => m.Studio)
-                .Include(m => m.MovieActors)
-                .ThenInclude(ma => ma.Actor)
-                .Include(m => m.MovieGenres)
-                .ThenInclude(mg => mg.Genre);
+                .Include(m => m.MovieActors).ThenInclude(ma => ma.Actor)
+                .Include(m => m.MovieGenres).ThenInclude(mg => mg.Genre);
 
             if (!string.IsNullOrEmpty(filter.SearchTerm))
             {
@@ -54,12 +55,40 @@ namespace Backend.Services.Specifications
                 Query.Where(m => m.MovieGenres.Any(mg => mg.GenreId == filter.GenreId));
             }
 
-            if (filter.IsComingSoon.HasValue && filter.IsComingSoon.Value)
+            if (filter.IsComingSoon == true)
             {
                 Query.Where(m => m.ReleaseDate > DateTime.UtcNow);
             }
 
-            Query.OrderByDescending(m => m.ReleaseDate);
+            Query
+                .OrderByDescending(m => m.ReleaseDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
         }
     }
+    
+    public class MovieSearchFilterSpec : Specification<Movie>
+    {
+        public MovieSearchFilterSpec(MovieFilterDto filter)
+        {
+            if (!string.IsNullOrEmpty(filter.SearchTerm))
+            {
+                Query.Where(m =>
+                    m.TitleORG.Contains(filter.SearchTerm) ||
+                    m.TitleUKR.Contains(filter.SearchTerm));
+            }
+
+            if (filter.GenreId.HasValue)
+            {
+                Query.Where(m => m.MovieGenres.Any(mg => mg.GenreId == filter.GenreId));
+            }
+
+            if (filter.IsComingSoon == true)
+            {
+                Query.Where(m => m.ReleaseDate > DateTime.UtcNow);
+            }
+        }
+    }
+
+
 }
