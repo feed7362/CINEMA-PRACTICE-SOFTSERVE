@@ -13,7 +13,7 @@ public class StudioConfiguration : IEntityTypeConfiguration<Studio>
         builder.Property(s => s.Id)
             .ValueGeneratedOnAdd();
 
-        builder.Property(s => s.StudioName)
+        builder.Property(s => s.Name)
             .IsRequired()
             .HasMaxLength(200)
             .HasColumnType("varchar(200)");

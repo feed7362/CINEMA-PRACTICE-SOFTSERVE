@@ -1,0 +1,81 @@
+﻿using Backend.API.Extensions;
+using Backend.Services.DTOs.Movie;
+using Backend.Services.Interfaces;
+
+namespace Backend.API.Controllers;
+
+internal static class MovieEndpoints
+{
+    public static void MapMovieEndpoints(this IEndpointRouteBuilder endpoints)
+    {
+        var group = endpoints
+            .MapGroup("/api/movie")
+            .WithTags("Movie");
+
+        group.MapPost("/", async (
+                CreateMovieDto dto,
+                IMovieService movieService) =>
+            {
+                var result = await movieService.CreateMovieAsync(dto);
+
+                return Results.Created(
+                    $"/api/movie/{result.Id}",
+                    result
+                );
+            })
+            .AddEndpointFilter<ValidationFilter<CreateMovieDto>>()
+            .RequireAuthorization(p => p.RequireRole("Admin"))
+            .WithName("CreateMovie")
+            .WithSummary("Create a new movie");
+
+        group.MapGet("/{id:int}", async (
+                int id,
+                IMovieService movieService) =>
+            {
+                var movie = await movieService.GetMovieByIdAsync(id);
+                return movie is null
+                    ? Results.NotFound()
+                    : Results.Ok(movie);
+            })
+            .WithName("GetMovieById")
+            .WithSummary("Get Movie by Id");
+
+
+        group.MapGet("/", async (
+                IMovieService movieService,
+                [AsParameters] MovieFilterDto filter) =>
+            {
+                var movies = await movieService.GetAllMoviesAsync(filter);
+                return Results.Ok(movies);
+            })
+            .WithName("GetAllMovies")
+            .WithSummary("Get all Movies");
+
+
+        group.MapPut("/", async (
+                UpdateMovieDto dto,
+                IMovieService movieService) =>
+            {
+                var movie = await movieService.UpdateMovieAsync(dto);
+                return movie is null
+                    ? Results.NotFound()
+                    : Results.Ok(movie);
+            })
+            .AddEndpointFilter<ValidationFilter<UpdateMovieDto>>()
+            .RequireAuthorization(p => p.RequireRole("Admin"))
+            .WithName("UpdateMovie")
+            .WithSummary("Update movie by Id");
+
+
+        group.MapDelete("/{id:int}", async (
+                int id,
+                IMovieService movieService) =>
+            {
+                await movieService.DeleteMovieAsync(id);
+                return Results.NoContent();
+            })
+            .RequireAuthorization(p => p.RequireRole("Admin"))
+            .WithName("DeleteMovie")
+            .WithSummary("Delete movie by Id");
+    }
+}

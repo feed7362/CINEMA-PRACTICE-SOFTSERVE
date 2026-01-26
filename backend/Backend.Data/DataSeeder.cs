@@ -25,7 +25,7 @@ public static class DataSeeder
                 await context.Database.MigrateAsync();
             }
 
-            await DataSeeder.SeedDataAsync(context, userManager, roleManager);
+            await SeedDataAsync(context, userManager, roleManager);
         }
         catch (Exception ex)
         {
@@ -34,7 +34,8 @@ public static class DataSeeder
             throw;
         }
     }
-    public static async Task SeedDataAsync(
+
+    private static async Task SeedDataAsync(
         ApplicationContext context,
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole<int>> roleManager
@@ -74,18 +75,18 @@ public static class DataSeeder
         if (!await context.Set<Studio>().AnyAsync())
         {
             context.Set<Studio>().AddRange(
-                new Studio { StudioName = "Universal Pictures" },
-                new Studio { StudioName = "Warner Bros. Pictures" },
-                new Studio { StudioName = "Legendary Entertainment" },
-                new Studio { StudioName = "Paramount Pictures" },
-                new Studio { StudioName = "20th Century Studios" },
-                new Studio { StudioName = "A24" },
-                new Studio { StudioName = "Columbia Pictures" },
-                new Studio { StudioName = "Marvel Studios" },
-                new Studio { StudioName = "Pixar Animation Studios" },
-                new Studio { StudioName = "Netflix Studios" },
-                new Studio { StudioName = "Sony Pictures" },
-                new Studio { StudioName = "Lionsgate" }
+                new Studio { Name = "Universal Pictures" },
+                new Studio { Name = "Warner Bros. Pictures" },
+                new Studio { Name = "Legendary Entertainment" },
+                new Studio { Name = "Paramount Pictures" },
+                new Studio { Name = "20th Century Studios" },
+                new Studio { Name = "A24" },
+                new Studio { Name = "Columbia Pictures" },
+                new Studio { Name = "Marvel Studios" },
+                new Studio { Name = "Pixar Animation Studios" },
+                new Studio { Name = "Netflix Studios" },
+                new Studio { Name = "Sony Pictures" },
+                new Studio { Name = "Lionsgate" }
             );
             await context.SaveChangesAsync();
         }
@@ -95,19 +96,19 @@ public static class DataSeeder
         if (!await context.Set<Genre>().AnyAsync())
         {
             context.Set<Genre>().AddRange(
-                new Genre { GenreName = "Наукова фантастика" },
-                new Genre { GenreName = "Драма" },
-                new Genre { GenreName = "Біографія" },
-                new Genre { GenreName = "Екшн" },
-                new Genre { GenreName = "Трилер" },
-                new Genre { GenreName = "Пригоди" },
-                new Genre { GenreName = "Кримінал" },
-                new Genre { GenreName = "Фентезі" },
-                new Genre { GenreName = "Жахи" },
-                new Genre { GenreName = "Комедія" },
-                new Genre { GenreName = "Романтика" },
-                new Genre { GenreName = "Анімація" },
-                new Genre { GenreName = "Містика" }
+                new Genre { Name = "Наукова фантастика" },
+                new Genre { Name = "Драма" },
+                new Genre { Name = "Біографія" },
+                new Genre { Name = "Екшн" },
+                new Genre { Name = "Трилер" },
+                new Genre { Name = "Пригоди" },
+                new Genre { Name = "Кримінал" },
+                new Genre { Name = "Фентезі" },
+                new Genre { Name = "Жахи" },
+                new Genre { Name = "Комедія" },
+                new Genre { Name = "Романтика" },
+                new Genre { Name = "Анімація" },
+                new Genre { Name = "Містика" }
             );
             await context.SaveChangesAsync();
         }
@@ -117,21 +118,21 @@ public static class DataSeeder
         if (!await context.Set<Actor>().AnyAsync())
         {
             context.Set<Actor>().AddRange(
-                new Actor { ActorName = "Кілліан Мерфі" },
-                new Actor { ActorName = "Тімоті Шаламе" },
-                new Actor { ActorName = "Зендея" },
-                new Actor { ActorName = "Роберт Дауні-молодший" },
-                new Actor { ActorName = "Хоакін Фенікс" },
-                new Actor { ActorName = "Меттью Макконагі" },
-                new Actor { ActorName = "Енн Гетевей" },
-                new Actor { ActorName = "Леонардо Ді Капріо" },
-                new Actor { ActorName = "Марго Роббі" },
-                new Actor { ActorName = "Бред Пітт" },
-                new Actor { ActorName = "Крістіан Бейл" },
-                new Actor { ActorName = "Том Гарді" },
-                new Actor { ActorName = "Емма Стоун" },
-                new Actor { ActorName = "Раян Гослінг" },
-                new Actor { ActorName = "Кіану Рівз" }
+                new Actor { Name = "Кілліан Мерфі" },
+                new Actor { Name = "Тімоті Шаламе" },
+                new Actor { Name = "Зендея" },
+                new Actor { Name = "Роберт Дауні-молодший" },
+                new Actor { Name = "Хоакін Фенікс" },
+                new Actor { Name = "Меттью Макконагі" },
+                new Actor { Name = "Енн Гетевей" },
+                new Actor { Name = "Леонардо Ді Капріо" },
+                new Actor { Name = "Марго Роббі" },
+                new Actor { Name = "Бред Пітт" },
+                new Actor { Name = "Крістіан Бейл" },
+                new Actor { Name = "Том Гарді" },
+                new Actor { Name = "Емма Стоун" },
+                new Actor { Name = "Раян Гослінг" },
+                new Actor { Name = "Кіану Рівз" }
             );
             await context.SaveChangesAsync();
         }
@@ -146,8 +147,8 @@ public static class DataSeeder
             {
                 new()
                 {
-                    MovieTitleORG = "Oppenheimer",
-                    MovieTitleUKR = "Оппенгеймер",
+                    TitleORG = "Oppenheimer",
+                    TitleUKR = "Оппенгеймер",
                     Description = "Історія людини, яка створила атомну бомбу.",
                     Duration = 180,
                     ReleaseDate = CreateUtcDate(2023, 7, 21),
@@ -155,14 +156,14 @@ public static class DataSeeder
                     IMDBRating = 8.4m,
                     Director = "Крістофер Нолан",
                     Country = "США",
-                    StudioId = studios.First(s => s.StudioName == "Universal Pictures").Id,
+                    StudioId = studios.First(s => s.Name == "Universal Pictures").Id,
                     AgeRating = AgeRating._16Plus,
                     Subtitles = true
                 },
                 new()
                 {
-                    MovieTitleORG = "Dune: Part Two",
-                    MovieTitleUKR = "Дюна: Частина друга",
+                    TitleORG = "Dune: Part Two",
+                    TitleUKR = "Дюна: Частина друга",
                     Description = "Пол Атрідес стає лідером фрименів.",
                     Duration = 166,
                     ReleaseDate = CreateUtcDate(2024, 3, 1),
@@ -170,14 +171,14 @@ public static class DataSeeder
                     IMDBRating = 8.6m,
                     Director = "Дені Вільнев",
                     Country = "США, Канада",
-                    StudioId = studios.First(s => s.StudioName == "Legendary Entertainment").Id,
+                    StudioId = studios.First(s => s.Name == "Legendary Entertainment").Id,
                     AgeRating = AgeRating._12Plus,
                     Subtitles = true
                 },
                 new()
                 {
-                    MovieTitleORG = "Interstellar",
-                    MovieTitleUKR = "Інтерстеллар",
+                    TitleORG = "Interstellar",
+                    TitleUKR = "Інтерстеллар",
                     Description = "Подорож крізь простір і час заради людства.",
                     Duration = 169,
                     ReleaseDate = CreateUtcDate(2014, 11, 7),
@@ -185,14 +186,14 @@ public static class DataSeeder
                     IMDBRating = 8.7m,
                     Director = "Крістофер Нолан",
                     Country = "США",
-                    StudioId = studios.First(s => s.StudioName == "Paramount Pictures").Id,
+                    StudioId = studios.First(s => s.Name == "Paramount Pictures").Id,
                     AgeRating = AgeRating._12Plus,
                     Subtitles = true
                 },
                 new()
                 {
-                    MovieTitleORG = "Joker",
-                    MovieTitleUKR = "Джокер",
+                    TitleORG = "Joker",
+                    TitleUKR = "Джокер",
                     Description = "Психологічна історія становлення лиходія.",
                     Duration = 122,
                     ReleaseDate = CreateUtcDate(2019, 10, 4),
@@ -200,7 +201,7 @@ public static class DataSeeder
                     IMDBRating = 8.5m,
                     Director = "Тодд Філліпс",
                     Country = "США",
-                    StudioId = studios.First(s => s.StudioName == "Warner Bros. Pictures").Id,
+                    StudioId = studios.First(s => s.Name == "Warner Bros. Pictures").Id,
                     AgeRating = AgeRating._18Plus,
                     Subtitles = true
                 }
@@ -360,11 +361,11 @@ public static class DataSeeder
 
         void AddMG(Movie m, params string[] g) =>
             context.MovieGenres.AddRange(g.Select(x =>
-                new MovieGenre { MovieId = m.Id, GenreId = genres.First(y => y.GenreName == x).Id }));
+                new MovieGenre { MovieId = m.Id, GenreId = genres.First(y => y.Name == x).Id }));
 
         void AddMA(Movie m, params string[] a) =>
             context.MovieActors.AddRange(a.Select(x =>
-                new MovieActor { MovieId = m.Id, ActorId = actors.First(y => y.ActorName == x).Id }));
+                new MovieActor { MovieId = m.Id, ActorId = actors.First(y => y.Name == x).Id }));
 
         AddMG(movies[0], "Біографія", "Драма");
         AddMA(movies[0], "Кілліан Мерфі", "Роберт Дауні-молодший");

@@ -1,9 +1,8 @@
 ﻿using Backend.Domain.Entities;
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs.Booking;
-using Backend.Services.Interfaces;
-using Backend.Services.Specifications;
-using static Backend.Services.Specifications.BookingSpecification;
+using Backend.Services.DTOs;
+using static Backend.Services.Specifications.Booking;
 
 namespace Backend.Services.Services;
 
@@ -101,7 +100,7 @@ public class BookingService : IBookingService
 
         var items = bookings.Select(b => new BookingSummaryDto(
             b.Id,
-            b.Session.Movie.MovieTitleUKR,
+            b.Session.Movie.TitleUKR,
             b.Session.StartTime,
             b.Tickets.Count,
             b.Tickets.Sum(t => t.FinalPrice),
@@ -125,7 +124,7 @@ public class BookingService : IBookingService
             booking.Tickets.Sum(t => t.FinalPrice),
             new SessionShortDto(
                 booking.Session.Id,
-                booking.Session.Movie.MovieTitleUKR,
+                booking.Session.Movie.TitleUKR,
                 booking.Session.Hall.Name,
                 booking.Session.StartTime
             ),

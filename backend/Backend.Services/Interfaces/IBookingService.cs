@@ -1,5 +1,6 @@
 ﻿
 using Backend.Services.DTOs.Booking;
+using Backend.Services.DTOs;
 
 public interface IBookingService
 {
