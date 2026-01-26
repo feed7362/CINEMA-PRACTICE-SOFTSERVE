@@ -6,7 +6,7 @@ public class Studio : IEntity
 {
     public int Id { get; set; }
 
-    public string StudioName { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
     public ICollection<Movie> Movies { get; set; } = new List<Movie>();
 }

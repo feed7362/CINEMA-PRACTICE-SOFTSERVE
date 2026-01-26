@@ -13,7 +13,7 @@ public class GenreConfiguration : IEntityTypeConfiguration<Genre>
         builder.Property(g => g.Id)
             .ValueGeneratedOnAdd();
 
-        builder.Property(g => g.GenreName)
+        builder.Property(g => g.Name)
             .IsRequired()
             .HasMaxLength(50)
             .HasColumnType("varchar(50)");

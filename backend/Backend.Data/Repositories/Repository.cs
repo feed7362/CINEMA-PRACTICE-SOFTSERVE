@@ -33,7 +33,7 @@ namespace Backend.Data.Repositories
 
         public void Delete(int id)
         {
-            TEntity? entity = _dbSet.Find(id);
+            var entity = _dbSet.Find(id);
             if (entity != null) Delete(entity);
         }
 

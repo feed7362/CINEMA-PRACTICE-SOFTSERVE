@@ -16,9 +16,9 @@ public class Movie : IEntity
 
     public int StudioId { get; set; }
 
-    public string MovieTitleORG { get; set; } = null!;
+    public string TitleORG { get; set; } = null!;
 
-    public string MovieTitleUKR { get; set; } = null!;
+    public string TitleUKR { get; set; } = null!;
 
     public string? Description { get; set; }
 

@@ -16,12 +16,12 @@ public class MovieConfiguration : IEntityTypeConfiguration<Movie>
         builder.Property(m => m.StudioId)
                .IsRequired();
 
-        builder.Property(m => m.MovieTitleORG)
+        builder.Property(m => m.TitleORG)
                .IsRequired()
                .HasMaxLength(150)
                .HasColumnType("varchar(150)");
 
-        builder.Property(m => m.MovieTitleUKR)
+        builder.Property(m => m.TitleUKR)
                .IsRequired()
                .HasMaxLength(150)
                .HasColumnType("varchar(150)");

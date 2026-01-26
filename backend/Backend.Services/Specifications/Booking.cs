@@ -2,9 +2,9 @@
 using Backend.Domain.Entities;
 namespace Backend.Services.Specifications
 {
-    public static class BookingSpecification
+    public static class Booking
     {
-        public class BookingByUserIdAndUserId : Specification<Booking>
+        public class BookingByUserIdAndUserId : Specification<Domain.Entities.Booking>
         {
             public BookingByUserIdAndUserId(int bookingId, int userId)
             {
@@ -48,7 +48,7 @@ namespace Backend.Services.Specifications
             }
         }
 
-        public class BookingWithDetailsByIdSpec : Specification<Booking>
+        public class BookingWithDetailsByIdSpec : Specification<Domain.Entities.Booking>
         {
             public BookingWithDetailsByIdSpec(int bookingId, int userId)
             {
@@ -65,7 +65,7 @@ namespace Backend.Services.Specifications
             }
         }
 
-        public class UserBookingHistorySpec : Specification<Booking>
+        public class UserBookingHistorySpec : Specification<Domain.Entities.Booking>
         {
             public UserBookingHistorySpec(int userId)
             {
@@ -73,7 +73,7 @@ namespace Backend.Services.Specifications
             }
         }
 
-        public class UserBookingPagedSpec : Specification<Booking>
+        public class UserBookingPagedSpec : Specification<Domain.Entities.Booking>
         {
             public UserBookingPagedSpec(int userId, int page, int pageSize)
             {
