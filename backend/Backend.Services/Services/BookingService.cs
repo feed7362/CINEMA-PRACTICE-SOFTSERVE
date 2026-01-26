@@ -1,6 +1,9 @@
-﻿using Backend.Domain.Entities;
+﻿using Ardalis.Specification;
+using Backend.Domain.Entities;
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs.Booking;
+using Backend.Services.DTOs;
+using static Backend.Services.Specifications.BookingSpecification;
 using static Backend.Services.Specifications.Booking;
 
 namespace Backend.Services.Services;
