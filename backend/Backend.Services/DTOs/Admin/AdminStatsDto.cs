@@ -4,11 +4,21 @@ public record AdminStatsDto(
     decimal TotalRevenue,
     int TicketsSold,
     double AverageOccupancy,
-    List<TopMovieDto> TopMovies,
     int DiscountedTicketsCount,
     List<GenreStatsDto> GenrePopularity,
     List<SeatHeatmapDto> HallHeatmap
 );
 
-public record TopMovieDto(string Title, int TicketsCount, decimal Revenue);
 public record GenreStatsDto(string GenreName, int TicketsCount);
+
+public record PopularMovieDto(
+    string Title, 
+    string Genre, 
+    string Director, 
+    string Country, 
+    int ReleaseYear, 
+    decimal IMDBRating,
+    string AgeRating,
+    int TicketsSold, 
+    decimal Revenue
+);

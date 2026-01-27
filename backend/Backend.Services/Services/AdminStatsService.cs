@@ -22,11 +22,10 @@ public class AdminStatsService(
     {
         var utcFrom = Normalize(from)!.Value;
         var utcTo = Normalize(to);
-
         var actualToDate = utcTo ?? utcFrom.AddDays(1).AddTicks(-1);
 
-        var filter = new AdminStatsFilterDto { FromDate = utcFrom, ToDate = actualToDate };
-        var spec = new AdminStatsSpecification(filter);
+        var filter = new AdminStatsFilterDto { DateFrom = utcFrom, DateTo = actualToDate };
+        var spec = new AdminStatsSpecification(filter); // ID не передаємо
 
         var tickets = await ticketRepository.GetListBySpecAsync(spec);
         return tickets.Sum(t => t.FinalPrice);
@@ -34,8 +33,8 @@ public class AdminStatsService(
 
     public async Task<double> GetSessionOccupancyAsync(int sessionId)
     {
-        var filter = new AdminStatsFilterDto { SessionId = sessionId };
-        var spec = new AdminStatsSpecification(filter);
+        // Передаємо пустий фільтр, але заповнюємо sessionId в конструкторі
+        var spec = new AdminStatsSpecification(new AdminStatsFilterDto(), sessionId: sessionId);
         var ticketsSold = await ticketRepository.CountAsync(spec);
 
         var sessionWithHall = await sessionRepository.GetFirstBySpecAsync(new SessionsByIdsSpec([sessionId]));
@@ -44,71 +43,77 @@ public class AdminStatsService(
         return capacity > 0 ? (double)ticketsSold / capacity * 100 : 0;
     }
 
-    public async Task<List<TopMovieDto>> GetTopMoviesAsync()
-    {
-        var spec = new AdminStatsSpecification(new AdminStatsFilterDto());
-        var tickets = await ticketRepository.GetListBySpecAsync(spec);
-
-        return tickets
-            .GroupBy(t => t.Booking.Session.Movie.TitleUKR)
-            .Select(g => new TopMovieDto(g.Key, g.Count(), g.Sum(t => t.FinalPrice)))
-            .OrderByDescending(m => m.TicketsCount)
-            .Take(3)
-            .ToList();
-    }
-
     public async Task<int> GetSpecialTicketsCountAsync(int movieId, DateTime? from, DateTime? to)
     {
         var utcFrom = Normalize(from);
         var utcTo = Normalize(to);
+        var filter = new AdminStatsFilterDto { DateFrom = utcFrom, DateTo = utcTo };
 
-        var filter = new AdminStatsFilterDto { MovieId = movieId, FromDate = utcFrom, ToDate = utcTo };
-        var spec = new AdminStatsSpecification(filter);
+        // Передаємо movieId в конструктор
+        var spec = new AdminStatsSpecification(filter, movieId: movieId);
+        
         var tickets = await ticketRepository.GetListBySpecAsync(spec);
-
         return tickets.Count(t => t.Discount is { Percentage: > 0 });
-    }
-
-    public async Task<TopMovieDto?> GetMostPopularMovieByGenreAsync(int genreId)
-    {
-        var filter = new AdminStatsFilterDto { GenreId = genreId };
-        var spec = new AdminStatsSpecification(filter);
-        var tickets = await ticketRepository.GetListBySpecAsync(spec);
-
-        return tickets
-            .GroupBy(t => t.Booking.Session.Movie.TitleUKR)
-            .Select(g => new TopMovieDto(g.Key, g.Count(), g.Sum(t => t.FinalPrice)))
-            .OrderByDescending(m => m.TicketsCount)
-            .FirstOrDefault();
     }
 
     public async Task<List<SeatHeatmapDto>> GetHallHeatmapAsync(int hallId)
     {
-        var filter = new AdminStatsFilterDto { HallId = hallId };
-        var spec = new AdminStatsSpecification(filter);
+        // Передаємо hallId в конструктор
+        var spec = new AdminStatsSpecification(new AdminStatsFilterDto(), hallId: hallId);
 
         var tickets = await ticketRepository.GetListBySpecAsync(spec);
 
         var rawStats = tickets
             .GroupBy(t => new { t.Seat.RowNumber, t.Seat.SeatNumber })
-            .Select(g => new
-            {
-                Row = g.Key.RowNumber,
-                Number = g.Key.SeatNumber,
-                Count = g.Count()
-            })
+            .Select(g => new { Row = g.Key.RowNumber, Number = g.Key.SeatNumber, Count = g.Count() })
             .ToList();
 
         var averageSales = rawStats.Count != 0 ? rawStats.Average(x => x.Count) : 0;
 
-        var heatmap = rawStats.Select(seat =>
-            {
-                var color = seat.Count >= averageSales ? "Red" : "Blue";
+        return rawStats.Select(seat =>
+        {
+            var color = seat.Count >= averageSales ? "Red" : "Blue";
+            return new SeatHeatmapDto(seat.Row, seat.Number, seat.Count, color);
+        }).ToList();
+    }
 
-                return new SeatHeatmapDto(seat.Row, seat.Number, seat.Count, color);
-            })
+   public async Task<List<PopularMovieDto>> GetFilteredPopularMoviesAsync(AdminStatsFilterDto filter)
+    {
+        var spec = new AdminStatsSpecification(filter);
+        var tickets = await ticketRepository.GetListBySpecAsync(spec);
+
+        var query = tickets
+                .GroupBy(t => new {
+                    t.Booking.Session.Movie.TitleUKR,
+                    Genre = t.Booking.Session.Movie.MovieGenres.Select(mg => mg.Genre.Name).FirstOrDefault() ?? "Unknown",
+                    t.Booking.Session.Movie.Director,
+                    t.Booking.Session.Movie.Country,
+                    ReleaseYear = t.Booking.Session.Movie.ReleaseDate.Year, 
+                    IMDB = t.Booking.Session.Movie.IMDBRating,             
+                    Age = t.Booking.Session.Movie.AgeRating               
+                }) 
+                .Select(g => new PopularMovieDto(
+                    g.Key.TitleUKR,
+                    g.Key.Genre,
+                    g.Key.Director,
+                    g.Key.Country,
+                    g.Key.ReleaseYear,
+                    g.Key.IMDB ?? 0, 
+                    g.Key.Age.ToString(),   
+                    g.Count(),
+                    g.Sum(t => t.FinalPrice)
+                ));
+
+        if (filter.MinIMDBRating.HasValue)
+            query = query.Where(x => x.IMDBRating >= filter.MinIMDBRating.Value);
+        
+        var takeCount = (filter.Amount.HasValue && filter.Amount.Value > 0) 
+            ? filter.Amount.Value 
+            : 3;
+
+        return query
+            .OrderByDescending(x => x.TicketsSold)
+            .Take(takeCount) 
             .ToList();
-
-        return heatmap;
     }
 }

@@ -1,4 +1,6 @@
 using Backend.Services.DTOs.Admin;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Backend.Services.Interfaces;
 
@@ -8,11 +10,9 @@ public interface IAdminStatsService
 
     Task<double> GetSessionOccupancyAsync(int sessionId);
 
-    Task<List<TopMovieDto>> GetTopMoviesAsync();
+    Task<List<SeatHeatmapDto>> GetHallHeatmapAsync(int hallId);
 
     Task<int> GetSpecialTicketsCountAsync(int movieId, DateTime? from, DateTime? to);
 
-    Task<TopMovieDto?> GetMostPopularMovieByGenreAsync(int genreId);
-
-    Task<List<SeatHeatmapDto>> GetHallHeatmapAsync(int hallId);
+    Task<List<PopularMovieDto>> GetFilteredPopularMoviesAsync(AdminStatsFilterDto filter);
 }
