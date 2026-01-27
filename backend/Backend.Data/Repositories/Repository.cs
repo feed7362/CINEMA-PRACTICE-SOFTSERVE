@@ -2,6 +2,8 @@
 using Backend.Domain.Interfaces;
 using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
+using System.Data;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Backend.Data.Repositories
 {
@@ -118,6 +120,10 @@ namespace Backend.Data.Repositories
             return await query.CountAsync();
         }
 
+        public async Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel)
+        {
+            return await _context.Database.BeginTransactionAsync(isolationLevel);
+        }
 
         private IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> specification)
         {

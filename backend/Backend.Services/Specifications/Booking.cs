@@ -2,89 +2,86 @@
 using Backend.Domain.Entities;
 namespace Backend.Services.Specifications
 {
-    public static class Booking
+    public class BookingByUserIdAndUserId : Specification<Domain.Entities.Booking>
     {
-        public class BookingByUserIdAndUserId : Specification<Domain.Entities.Booking>
+        public BookingByUserIdAndUserId(int bookingId, int userId)
         {
-            public BookingByUserIdAndUserId(int bookingId, int userId)
-            {
-                Query
-                    .Where(b => b.Id == bookingId && b.ApplicationUserId == userId)
-                    .Include(b => b.Session)
-                        .ThenInclude(s => s.Movie)
-                    .Include(b => b.Session)
-                        .ThenInclude(s => s.Hall)
-                    .Include(b => b.Tickets)
-                        .ThenInclude(t => t.Seat)
-                    .Include(b => b.Tickets)
-                        .ThenInclude(t => t.Price);
-            }
+            Query
+                .Where(b => b.Id == bookingId && b.ApplicationUserId == userId)
+                .Include(b => b.Session)
+                    .ThenInclude(s => s.Movie)
+                .Include(b => b.Session)
+                    .ThenInclude(s => s.Hall)
+                .Include(b => b.Tickets)
+                    .ThenInclude(t => t.Seat)
+                .Include(b => b.Tickets)
+                    .ThenInclude(t => t.Price);
         }
+    }
 
-        public class SeatsByListIdsSpec : Specification<Seat>
+    public class SeatsByListIdsSpec : Specification<Seat>
+    {
+        public SeatsByListIdsSpec(List<int> seatIds)
         {
-            public SeatsByListIdsSpec(List<int> seatIds)
-            {
-                Query
-                    .Where(s => seatIds.Contains(s.Id));
-            }
+            Query
+                .Where(s => seatIds.Contains(s.Id));
         }
+    }
 
-        public class SessionWithPricesByIdSpec : Specification<Session>
+    public class SessionWithPricesByIdSpec : Specification<Session>
+    {
+        public SessionWithPricesByIdSpec(int sessionId)
         {
-            public SessionWithPricesByIdSpec(int sessionId)
-            {
-                Query
-                    .Where(s => s.Id == sessionId)
-                    .Include(s => s.Prices);
-            }
+            Query
+                .Where(s => s.Id == sessionId)
+                .Include(s => s.Prices);
         }
+    }
 
-        public class DiscountByTypeSpec : Specification<Discount>
+    public class DiscountByTypeSpec : Specification<Discount>
+    {
+        public DiscountByTypeSpec(DiscountType type)
         {
-            public DiscountByTypeSpec(DiscountType type)
-            {
-                Query.Where(d => d.Type == type && d.IsActive);
-            }
+            Query.Where(d => d.Type == type && d.IsActive);
         }
+    }
 
-        public class BookingWithDetailsByIdSpec : Specification<Domain.Entities.Booking>
+    public class BookingWithDetailsByIdSpec : Specification<Domain.Entities.Booking>
+    {
+        public BookingWithDetailsByIdSpec(int bookingId, int userId)
         {
-            public BookingWithDetailsByIdSpec(int bookingId, int userId)
-            {
-                Query
-                    .Where(b => b.Id == bookingId && b.ApplicationUserId == userId)
-                    .Include(b => b.Session)
-                        .ThenInclude(s => s.Movie)
-                    .Include(b => b.Session)
-                        .ThenInclude(s => s.Hall)
-                    .Include(b => b.Tickets)
-                        .ThenInclude(t => t.Seat)
-                    .Include(b => b.Tickets)
-                        .ThenInclude(t => t.Discount);
-            }
+            Query
+                .Where(b => b.Id == bookingId && b.ApplicationUserId == userId)
+                .Include(b => b.Session)
+                    .ThenInclude(s => s.Movie)
+                .Include(b => b.Session)
+                    .ThenInclude(s => s.Hall)
+                .Include(b => b.Tickets)
+                    .ThenInclude(t => t.Seat)
+                .Include(b => b.Tickets)
+                    .ThenInclude(t => t.Discount);
         }
+    }
 
-        public class UserBookingHistorySpec : Specification<Domain.Entities.Booking>
+    public class UserBookingHistorySpec : Specification<Domain.Entities.Booking>
+    {
+        public UserBookingHistorySpec(int userId)
         {
-            public UserBookingHistorySpec(int userId)
-            {
-                Query.Where(b => b.ApplicationUserId == userId);
-            }
+            Query.Where(b => b.ApplicationUserId == userId);
         }
+    }
 
-        public class UserBookingPagedSpec : Specification<Domain.Entities.Booking>
+    public class UserBookingPagedSpec : Specification<Domain.Entities.Booking>
+    {
+        public UserBookingPagedSpec(int userId, int page, int pageSize)
         {
-            public UserBookingPagedSpec(int userId, int page, int pageSize)
-            {
-                Query
-                    .Where(b => b.ApplicationUserId == userId)
-                    .Include(b => b.Session).ThenInclude(s => s.Movie)
-                    .Include(b => b.Tickets)
-                    .OrderByDescending(b => b.BookingTime)
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize);
-            }
+            Query
+                .Where(b => b.ApplicationUserId == userId)
+                .Include(b => b.Session).ThenInclude(s => s.Movie)
+                .Include(b => b.Tickets)
+                .OrderByDescending(b => b.BookingTime)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize);
         }
     }
 }

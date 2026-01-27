@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Text;
-using Backend.Services.Validators.Movie;
+using Backend.Services;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 Console.OutputEncoding = Encoding.UTF8;
@@ -23,6 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IHallService, HallService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddDatabaseServices(builder.Configuration);
 builder.Services.AddIdentityServices();
@@ -122,6 +123,8 @@ if (app.Environment.IsDevelopment())
     await app.ApplyMigrationsAndSeedAsync();
 }
 
+app.UseMiddleware<Backend.API.Middleware.ExceptionHandlingMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseCors("Default");
 
@@ -138,5 +141,6 @@ app.MapHallEndpoints();
 app.MapMovieEndpoints();
 app.MapSessionEndpoints();
 app.MapBookingEndpoints();
+app.MapTicketEndpoints();
 
 app.Run();

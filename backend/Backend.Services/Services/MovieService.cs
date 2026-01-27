@@ -1,5 +1,6 @@
 ﻿using Backend.Domain.Entities;
 using Backend.Domain.Interfaces;
+using Backend.Services.DTOs;
 using Backend.Services.DTOs.Movie;
 using Backend.Services.Interfaces;
 using Backend.Services.Specifications;

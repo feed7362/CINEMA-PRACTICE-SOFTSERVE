@@ -1,7 +1,11 @@
 ﻿using Backend.Domain.Entities;
 using Backend.Domain.Interfaces;
+using Backend.Services.DTOs;
 using Backend.Services.DTOs.Booking;
-using static Backend.Services.Specifications.Booking;
+using Backend.Services.Specifications;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
+using Npgsql;
 
 namespace Backend.Services.Services;
 
@@ -11,21 +15,75 @@ public class BookingService : IBookingService
     private readonly IRepository<Session> _sessionRepository;
     private readonly IRepository<Seat> _seatRepository;
     private readonly IRepository<Discount> _discountRepository;
+    private readonly IRepository<Ticket> _ticketRepository;
 
     public BookingService(
         IRepository<Booking> bookingRepository,
         IRepository<Session> sessionRepository,
         IRepository<Seat> seatRepository,
-        IRepository<Discount> discountRepository
+        IRepository<Discount> discountRepository,
+        IRepository<Ticket> ticketRepository
         )
     {
         _bookingRepository = bookingRepository;
         _sessionRepository = sessionRepository;
         _seatRepository = seatRepository;
         _discountRepository = discountRepository;
+        _ticketRepository = ticketRepository;
     }
+    public async Task<BookingResponseDto> LockBookingAsync(CreateBookingDto dto, int userId)
+    {
+        // 1. Start Transaction with SERIALIZABLE isolation
+        using var transaction = await _bookingRepository.BeginTransactionAsync(IsolationLevel.Serializable);
 
-    public async Task<BookingResponseDto> CreateBookingAsync(CreateBookingDto dto, int userId)
+        try
+        {
+            var activeTickets = await _ticketRepository.GetListBySpecAsync(
+                new GetActiveTicketsForSeatsSpec(dto.SessionId, dto.SeatIds));
+
+            if (activeTickets.Any())
+            {
+                throw new InvalidOperationException("One or more seats are already taken.");
+            }
+
+            var booking = await CreateBookingEntityInternalAsync(dto, userId);
+
+            _bookingRepository.Insert(booking);
+            await _bookingRepository.SaveChangesAsync();
+
+            // 4. Commit
+            await transaction.CommitAsync();
+
+            return new BookingResponseDto(
+                booking.Id,
+                booking.ApplicationUserId,
+                booking.SessionId,
+                booking.BookingTime,
+                booking.Status.ToString()
+            );
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "40001" })
+        {
+            await transaction.RollbackAsync();
+            // may implement auto-retry 3 times later ....
+
+            // for now:
+            throw new Exception("Concurrency conflict: The seats were modified by another transaction. Please try again.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+        catch (Exception)
+        {
+            // Rollback any other failure
+            await transaction.RollbackAsync();
+            throw;
+        }
+        
+    }
+    private async Task<Booking> CreateBookingEntityInternalAsync(CreateBookingDto dto, int userId)
     {
         var session = await _sessionRepository.GetFirstBySpecAsync(new SessionWithPricesByIdSpec(dto.SessionId));
         if (session == null) throw new Exception("Session not found.");
@@ -60,22 +118,12 @@ public class BookingService : IBookingService
             });
         }
 
-        await _bookingRepository.AddAsync(booking);
-        await _bookingRepository.SaveChangesAsync();
-
-        return new BookingResponseDto(
-            booking.Id,
-            booking.ApplicationUserId,
-            booking.SessionId,
-            booking.BookingTime,
-            booking.Status.ToString()
-        );
+        return booking;
     }
     public async Task<BookingResponseDto?> GetBookingByIdAsync(int bookingId, int userId)
     {
 
         var result = await _bookingRepository.GetFirstBySpecAsync(new BookingByUserIdAndUserId(bookingId, userId));
-        await _bookingRepository.SaveChangesAsync();
 
         if (result == null) return null;
 

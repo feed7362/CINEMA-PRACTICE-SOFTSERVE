@@ -82,6 +82,12 @@ namespace Backend.Services.Specifications
             {
                 Query.Where(m => m.MovieGenres.Any(mg => mg.GenreId == filter.GenreId));
             }
+            
+            if (filter.StudioId.HasValue)
+            {
+                Query.Where(m => m.StudioId == filter.StudioId);
+            }
+
 
             if (filter.IsComingSoon == true)
             {
