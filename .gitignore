@@ -218,4 +218,3 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
-/backend/backend.sln
