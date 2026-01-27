@@ -37,4 +37,20 @@ namespace Backend.Services.Specifications
                         .ThenInclude(s => s.Hall);
         }
     }
+
+    public class GetActiveTicketsForSeatsSpec : Specification<Ticket>
+    {
+        public GetActiveTicketsForSeatsSpec(int sessionId, List<int> seatIds)
+        {
+            Query
+                .Include(t => t.Booking)
+                .Where(t => t.Booking.SessionId == sessionId)
+                .Where(t => seatIds.Contains(t.SeatId))
+                .Where(t =>
+                    t.Booking.Status == BookingStatus.CONFIRMED ||
+                    (t.Booking.Status == BookingStatus.PENDING && t.Booking.ExpirationTime > DateTime.UtcNow)
+                );
+        }
+    }
+
 }

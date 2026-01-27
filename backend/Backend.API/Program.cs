@@ -123,6 +123,8 @@ if (app.Environment.IsDevelopment())
     await app.ApplyMigrationsAndSeedAsync();
 }
 
+app.UseMiddleware<Backend.API.Middleware.ExceptionHandlingMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseCors("Default");
 

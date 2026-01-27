@@ -29,23 +29,23 @@ internal static class BookingEndpoints
             .WithSummary("Get paged bookings for the current user");
 
 
-        group.MapPost("/", async (
-                CreateBookingDto dto,
-                IBookingService bookingService,
-                ClaimsPrincipal user) =>
+        group.MapPost("/lock", async (
+            CreateBookingDto dto,
+            IBookingService bookingService,
+            ClaimsPrincipal user) =>
         {
             var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdClaim)) return Results.Unauthorized();
 
             int userId = int.Parse(userIdClaim);
 
-            var result = await bookingService.CreateBookingAsync(dto, userId);
+            var result = await bookingService.LockBookingAsync(dto, userId);
 
-            return Results.Created($"/api/booking/{result.Id}", result);
+            return Results.Created($"/api/booking/{result.Id}/details", result);
         })
             .AddEndpointFilter<ValidationFilter<CreateBookingDto>>()
-            .WithName("CreateBooking")
-            .WithSummary("Create a new booking");
+            .WithName("LockBooking")
+            .WithSummary("Locks seats for 15 minutes with concurrency protection");
 
         group.MapGet("/{id:int}", async (
                 int id,
