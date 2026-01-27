@@ -2,24 +2,20 @@
 
 namespace Backend.Services.Specifications;
 
-public class SessionWithDetailsSpec : Specification<Domain.Entities.Session>
+public class SessionOverlapSpec : Specification<Domain.Entities.Session>
 {
-    public SessionWithDetailsSpec(int id)
+    public SessionOverlapSpec(int hallId, DateTime newStart, DateTime newEnd)
     {
         Query
-            .Where(s => s.Id == id)
-            .Include(s => s.Movie)
-            .Include(s => s.Hall);
+            .Where(s => s.HallId == hallId)
+            .Where(s => s.StartTime < newEnd && s.EndTime > newStart);
     }
-}
 
-public class UpcomingSessionsSpec : Specification<Domain.Entities.Session>
-{
-    public UpcomingSessionsSpec()
+    public SessionOverlapSpec(int hallId, DateTime newStart, DateTime newEnd, int excludeSessionId)
     {
         Query
-            .Where(s => s.StartTime > DateTime.UtcNow)
-            .Include(s => s.Movie)
-            .OrderBy(s => s.StartTime);
+            .Where(s => s.Id != excludeSessionId)
+            .Where(s => s.HallId == hallId)
+            .Where(s => s.StartTime < newEnd && s.EndTime > newStart);
     }
 }

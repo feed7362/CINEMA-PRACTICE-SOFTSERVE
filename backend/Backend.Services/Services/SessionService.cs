@@ -2,35 +2,47 @@
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs.Session;
 using Backend.Services.Interfaces;
+using Backend.Services.Specifications;
+using Hall = Backend.Domain.Entities.Hall;
 
 namespace Backend.Services.Services;
 
-public class SessionService(IRepository<Session> sessionRepository, IRepository<Movie> movieRepository)
+public class SessionService(
+    IRepository<Session> sessionRepository,
+    IRepository<Movie> movieRepository,
+    IRepository<Hall> hallRepository)
     : ISessionService
 {
     public async Task<ReadSessionDto> CreateSessionAsync(CreateSessionDto dto)
     {
-        var session = new Session()
-        {
-            MovieId = dto.MovieId,
-            HallId = dto.HallId,
-            StartTime = dto.StartTime
-        };
-
         var movie = await movieRepository.GetByIdAsync(dto.MovieId);
         if (movie == null) throw new Exception("Movie not found");
 
-        session.EndTime = session.StartTime.AddMinutes(movie.Duration);
-        await sessionRepository.AddAsync(session);
+        var hall = await hallRepository.GetByIdAsync(dto.HallId);
+        if (hall == null) throw new Exception("Hall not found");
 
-        return new ReadSessionDto()
+
+        var endTime = dto.StartTime.AddMinutes(movie.Duration);
+        var overlapSpec = new SessionOverlapSpec(dto.HallId, dto.StartTime, endTime);
+        var conflictingSessions = await sessionRepository.CountAsync(overlapSpec);
+
+        if (conflictingSessions > 0)
         {
-            Id = session.Id,
+            throw new Exception(
+                $"Collision Detected! Hall {hall.Name} is already booked during this time range."
+            );
+        }
+
+        var session = new Session
+        {
             MovieId = dto.MovieId,
             HallId = dto.HallId,
             StartTime = dto.StartTime,
-            EndTime = session.EndTime
+            EndTime = endTime
         };
+        await sessionRepository.AddAsync(session);
+
+        return MapToDto(session);
     }
 
     public async Task<ReadSessionDto?> UpdateSessionAsync(UpdateSessionDto dto)
@@ -41,21 +53,24 @@ public class SessionService(IRepository<Session> sessionRepository, IRepository<
         var movie = await movieRepository.GetByIdAsync(dto.MovieId);
         if (movie == null) return null;
 
+        var newEndTime = dto.StartTime.AddMinutes(movie.Duration);
+
+
+        var overlapSpec = new SessionOverlapSpec(dto.HallId, dto.StartTime, newEndTime, dto.Id);
+
+        if (await sessionRepository.CountAsync(overlapSpec) > 0)
+        {
+            throw new Exception("Time conflict! The new time overlaps with another session.");
+        }
+
         session.MovieId = dto.MovieId;
         session.HallId = dto.HallId;
         session.StartTime = dto.StartTime;
-        session.EndTime = session.StartTime.AddMinutes(movie.Duration);
+        session.EndTime = newEndTime;
 
         await sessionRepository.UpdateAsync(session);
 
-        return new ReadSessionDto()
-        {
-            Id = session.Id,
-            MovieId = dto.MovieId,
-            HallId = dto.HallId,
-            StartTime = dto.StartTime,
-            EndTime = session.EndTime
-        };
+        return MapToDto(session);
     }
 
     public async Task<ReadSessionDto?> GetSessionByIdAsync(int id)
@@ -64,14 +79,7 @@ public class SessionService(IRepository<Session> sessionRepository, IRepository<
 
         if (session == null) return null;
 
-        return new ReadSessionDto()
-        {
-            Id = session.Id,
-            MovieId = session.MovieId,
-            HallId = session.HallId,
-            StartTime = session.StartTime,
-            EndTime = session.EndTime
-        };
+        return MapToDto(session);
     }
 
     public async Task<List<ReadSessionDto>> GetAllSessionsAsync()
@@ -91,5 +99,16 @@ public class SessionService(IRepository<Session> sessionRepository, IRepository<
     public async Task DeleteSessionAsync(int id)
     {
         await sessionRepository.DeleteAsync(id);
+    }
+    private static ReadSessionDto MapToDto(Session s)
+    {
+        return new ReadSessionDto
+        {
+            Id = s.Id,
+            MovieId = s.MovieId,
+            HallId = s.HallId,
+            StartTime = s.StartTime,
+            EndTime = s.EndTime
+        };
     }
 }
