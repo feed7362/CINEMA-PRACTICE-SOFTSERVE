@@ -3,6 +3,8 @@ using Backend.API.Extensions;
 using Backend.Data;
 using Backend.Data.Repositories;
 using Backend.Domain.Interfaces;
+using Backend.Services;
+using Backend.Services.BackgroundServices;
 using Backend.Services.Interfaces;
 using Backend.Services.Services;
 using Backend.Services.Validators.Hall;
@@ -10,8 +12,8 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Stripe;
 using System.Text;
-using Backend.Services;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 Console.OutputEncoding = Encoding.UTF8;
@@ -25,6 +27,7 @@ builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddHostedService<ExpiredBookingWorker>();
 builder.Services.AddDatabaseServices(builder.Configuration);
 builder.Services.AddIdentityServices();
 
@@ -88,7 +91,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateHallDtoValidator>();
-builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ITokenService, Backend.Services.Services.TokenService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -109,6 +112,8 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 var app = builder.Build();
 
