@@ -2,6 +2,7 @@ using System.Text;
 using Backend.API;
 using Backend.API.Extensions;
 using Backend.Data;
+using Stripe;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 Console.OutputEncoding = Encoding.UTF8;
