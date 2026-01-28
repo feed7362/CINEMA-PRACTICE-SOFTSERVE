@@ -27,4 +27,6 @@ public class Booking : IEntity
     public Session Session { get; set; } = null!;
 
     public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+    public string? PaymentIntentId { get; set; }
+    public DateTime? ConfirmationTime { get; set; }
 }

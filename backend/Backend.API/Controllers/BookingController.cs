@@ -47,6 +47,20 @@ internal static class BookingEndpoints
             .WithName("LockBooking")
             .WithSummary("Locks seats for 15 minutes with concurrency protection");
 
+        group.MapPost("/confirm", async (
+            ConfirmBookingDto dto,
+            IBookingService bookingService,
+            ClaimsPrincipal user) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var result = await bookingService.ConfirmBookingAsync(dto, userId);
+
+            return Results.Ok(result);
+        })
+            .WithName("ConfirmBooking")
+            .WithSummary("Finalizes a pending booking after successful payment");
+
         group.MapGet("/{id:int}", async (
                 int id,
                 IBookingService bookingService,
