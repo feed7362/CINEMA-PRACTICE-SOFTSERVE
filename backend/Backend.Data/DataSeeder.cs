@@ -291,6 +291,40 @@ public static class DataSeeder
             await context.SaveChangesAsync();
         }
         #endregion
+        
+        #region Bookings (Initial History)
+        if (!await context.Bookings.AnyAsync())
+        {
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            var firstSession = await context.Sessions.FirstAsync();
+            var firstSeat = await context.Seats.FirstAsync(s => s.HallId == firstSession.HallId);
+            var regularDiscount = await context.Set<Discount>().FirstAsync(d => d.Type == DiscountType.REGULAR);
+            var price = await context.Prices.FirstAsync(p => p.SessionId == firstSession.Id && p.SeatType == firstSeat.SeatType);
+
+            var historicBooking = new Booking
+            {
+                ApplicationUserId = adminUser!.Id,
+                SessionId = firstSession.Id,
+                BookingTime = DateTime.UtcNow.AddDays(-1),
+                ExpirationTime = DateTime.UtcNow.AddDays(-1).AddMinutes(15),
+                Status = BookingStatus.CONFIRMED,
+                PaymentIntentId = "pi_seeder_mock_123",
+                ConfirmationTime = DateTime.UtcNow.AddDays(-1).AddMinutes(5)
+            };
+
+            historicBooking.Tickets.Add(new Ticket
+            {
+                SeatId = firstSeat.Id,
+                PriceId = price.Id,
+                DiscountId = regularDiscount.Id,
+                FinalPrice = price.Value,
+                PurchaseTime = DateTime.UtcNow.AddDays(-1)
+            });
+
+            context.Bookings.Add(historicBooking);
+            await context.SaveChangesAsync();
+        }
+        #endregion
     }
 
     private static async Task SeedMovieRelationships(ApplicationContext context, List<Movie> movies)
