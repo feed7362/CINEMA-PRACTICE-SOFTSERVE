@@ -6,5 +6,7 @@ public record BookingResponseDto(
     int ApplicationUserId,
     int SessionId,
     DateTime BookingTime,
-    string Status
+    string Status,
+    string? ClientSecret = null,
+    string? PaymentIntentId = null
 );
