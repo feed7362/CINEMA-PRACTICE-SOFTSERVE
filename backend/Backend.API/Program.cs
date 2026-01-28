@@ -17,6 +17,8 @@ builder.Services
 .AddCorsPolicy() //CORS
 .AddJwtAuthentication(builder.Configuration); //JWT auth
 
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

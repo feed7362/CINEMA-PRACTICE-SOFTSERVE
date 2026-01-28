@@ -7,7 +7,9 @@ public record BookingDetailDto(
     string Status,
     decimal TotalPrice,
     SessionShortDto Session,
-    List<TicketDetailDto> Tickets
+    List<TicketDetailDto> Tickets,
+    string? PaymentIntentId = null,
+    string? ClientSecret = null
 );
 
 public record SessionShortDto(
