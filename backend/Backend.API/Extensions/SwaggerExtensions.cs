@@ -1,15 +1,50 @@
-﻿namespace Backend.API.Extensions
+﻿using Microsoft.OpenApi;
+
+namespace Backend.API.Extensions;
+
+public static class SwaggerExtensions
 {
-    public static class SwaggerExtensions
+    public static IServiceCollection AddSwaggerWithJwt(this IServiceCollection services)
     {
-        public static void SwaggerUi(this IApplicationBuilder app)
+        services.AddOpenApi(options =>
         {
-            app.UseSwaggerUI(options =>
+            options.AddDocumentTransformer((document, context, ct) =>
             {
-                options.SwaggerEndpoint("/openapi/v1.json", "My API v1");
-                options.RoutePrefix = "swagger";       // URL: /swagger
-                options.DocumentTitle = "My API Docs"; // Browser tab title
+                document.Info = new OpenApiInfo
+                {
+                    Title = "My API",
+                    Version = "v1",
+                    Description = "Clean Minimal API"
+                };
+
+                var schemeName = "Bearer";
+                var securityScheme = new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Description = "Enter JWT Bearer token"
+                };
+
+                document.Components ??= new OpenApiComponents();
+                document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+
+                if (!document.Components.SecuritySchemes.ContainsKey(schemeName))
+                {
+                    document.Components.SecuritySchemes.Add(schemeName, securityScheme);
+                }
+
+                var requirement = new OpenApiSecurityRequirement();
+                var schemeReference = new OpenApiSecuritySchemeReference(schemeName, document);
+
+                requirement.Add(schemeReference, new List<string>());
+
+                document.Security = new List<OpenApiSecurityRequirement> { requirement };
+
+                return Task.CompletedTask;
             });
-        }
+        });
+
+        return services;
     }
 }

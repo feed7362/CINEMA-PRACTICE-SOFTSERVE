@@ -6,12 +6,6 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-        <Folder Include="Constants\"/>
-        <Folder Include="Validators\"/>
-        <Folder Include="Validation\"/>
-    </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.1.1" />
   </ItemGroup>
