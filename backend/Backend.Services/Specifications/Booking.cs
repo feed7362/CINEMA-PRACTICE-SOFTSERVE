@@ -38,7 +38,7 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public class DiscountByTypeSpec : Specification<Discount>
+    public class DiscountByTypeSpec : Specification<Domain.Entities.Discount>
     {
         public DiscountByTypeSpec(DiscountType type)
         {
