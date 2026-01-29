@@ -9,8 +9,8 @@ public static class AdminEndpoints
     public static void MapAdminEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/admin/stats")
-            .WithTags("Admin Analytics");
-         //  .RequireAuthorization(p => p.RequireRole("Admin"));
+            .WithTags("Admin Analytics")
+            .RequireAuthorization(p => p.RequireRole("Admin"));
 
 
         group.MapGet("/revenue", async (

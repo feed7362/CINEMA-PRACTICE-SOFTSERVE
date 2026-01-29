@@ -1,141 +1,46 @@
-using Backend.API.Controllers;
+using System.Text;
+using Backend.API;
 using Backend.API.Extensions;
 using Backend.Data;
-using Backend.Data.Repositories;
-using Backend.Domain.Interfaces;
-using Backend.Services.Interfaces;
-using Backend.Services.Services;
-using Backend.Services.Validators.Hall;
-using FluentValidation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
-using System.Text;
-using Backend.Services;
+using Stripe;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 Console.OutputEncoding = Encoding.UTF8;
 Console.InputEncoding = Encoding.UTF8;
 
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
 var builder = WebApplication.CreateBuilder(args);
 
-// --- Services Registration ---
-builder.Services.AddScoped<IHallService, HallService>();
-builder.Services.AddScoped<ISessionService, SessionService>();
-builder.Services.AddScoped<IBookingService, BookingService>();
-builder.Services.AddScoped<ITicketService, TicketService>();
-builder.Services.AddScoped<IMovieService, MovieService>();
-builder.Services.AddScoped<IAdminStatsService, AdminStatsService>();
-builder.Services.AddDatabaseServices(builder.Configuration);
-builder.Services.AddIdentityServices();
+//Services
+builder.Services
+.AddApplicationServices() //Hall, Ticket, Movie, Booking, Session, TokenService
+.AddInfrastructure(builder.Configuration) //Database, Identity, Repositories
+.AddSwaggerWithJwt() //OpenAPI + JWT security
+.AddCorsPolicy() //CORS
+.AddJwtAuthentication(builder.Configuration); //JWT auth
 
-builder.Services.AddScoped(
-    typeof(IRepository<>),
-    typeof(Repository<>)
-);
-
-// OpenAPI configuration
-builder.Services.AddOpenApi(options =>
-{
-    options.AddDocumentTransformer((document, _, _) =>
-    {
-        document.Info = new OpenApiInfo
-        {
-            Title = "My API",
-            Version = "v1",
-            Description = "Clean Minimal API"
-        };
-
-        var schemeName = "Bearer";
-        var securityScheme = new OpenApiSecurityScheme
-        {
-            Type = SecuritySchemeType.Http,
-            Scheme = "bearer",
-            BearerFormat = "JWT",
-            Description = "Enter JWT Bearer token"
-        };
-
-        // Safety Initializations
-        document.Components ??= new OpenApiComponents();
-        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
-
-        document.Components.SecuritySchemes.TryAdd(schemeName, securityScheme);
-
-        var requirement = new OpenApiSecurityRequirement();
-        var schemeReference = new OpenApiSecuritySchemeReference(schemeName, document);
-
-        requirement.Add(schemeReference, new List<string>());
-
-        document.Security = new List<OpenApiSecurityRequirement> { requirement };
-
-        return Task.CompletedTask;
-    });
-});
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("Default", p =>
-    {
-        p.WithOrigins("https://localhost:5122")
-            .WithMethods("GET", "POST")
-            .WithHeaders("Content-Type", "Authorization");
-    });
-});
-
-builder.Services.AddValidatorsFromAssemblyContaining<CreateHallDtoValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<UpdateHallDtoValidator>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options => {
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
-    };
-});
-
-builder.Services.AddAuthorization();
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 var app = builder.Build();
 
-// --- Middleware Pipeline ---
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.SwaggerUi();
-
+    app.UseSwaggerUI();
     await app.ApplyMigrationsAndSeedAsync();
 }
+
+app.UseMiddleware<Backend.API.Middleware.ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseCors("Default");
 
 app.UseAuthentication();
 app.UseAuthorization();
-    
-// Application Lifetime hooks
+
+//Endpoints
+app.MapApplicationEndpoints();
+
 app.Lifetime.ApplicationStarted.Register(() => { Console.WriteLine("Application started"); });
 app.Lifetime.ApplicationStopping.Register(() => { Console.WriteLine("Application stopping"); });
-
-// --- Endpoint Mapping ---
-app.MapAuthEndpoints();
-app.MapHallEndpoints();
-app.MapMovieEndpoints();
-app.MapSessionEndpoints();
-app.MapBookingEndpoints();
-app.MapTicketEndpoints();
-app.MapAdminEndpoints();
 
 app.Run();

@@ -1,9 +1,6 @@
 ﻿using Ardalis.Specification;
 using Backend.Domain.Entities;
-
-namespace Backend.Services.Specifications;
-
-public static class Booking
+namespace Backend.Services.Specifications
 {
     public class BookingByUserIdAndUserId : Specification<Domain.Entities.Booking>
     {
@@ -12,13 +9,13 @@ public static class Booking
             Query
                 .Where(b => b.Id == bookingId && b.ApplicationUserId == userId)
                 .Include(b => b.Session)
-                .ThenInclude(s => s.Movie)
+                    .ThenInclude(s => s.Movie)
                 .Include(b => b.Session)
-                .ThenInclude(s => s.Hall)
+                    .ThenInclude(s => s.Hall)
                 .Include(b => b.Tickets)
-                .ThenInclude(t => t.Seat)
+                    .ThenInclude(t => t.Seat)
                 .Include(b => b.Tickets)
-                .ThenInclude(t => t.Price);
+                    .ThenInclude(t => t.Price);
         }
     }
 
@@ -41,7 +38,7 @@ public static class Booking
         }
     }
 
-    public class DiscountByTypeSpec : Specification<Discount>
+    public class DiscountByTypeSpec : Specification<Domain.Entities.Discount>
     {
         public DiscountByTypeSpec(DiscountType type)
         {
@@ -56,13 +53,13 @@ public static class Booking
             Query
                 .Where(b => b.Id == bookingId && b.ApplicationUserId == userId)
                 .Include(b => b.Session)
-                .ThenInclude(s => s.Movie)
+                    .ThenInclude(s => s.Movie)
                 .Include(b => b.Session)
-                .ThenInclude(s => s.Hall)
+                    .ThenInclude(s => s.Hall)
                 .Include(b => b.Tickets)
-                .ThenInclude(t => t.Seat)
+                    .ThenInclude(t => t.Seat)
                 .Include(b => b.Tickets)
-                .ThenInclude(t => t.Discount);
+                    .ThenInclude(t => t.Discount);
         }
     }
 

@@ -54,13 +54,12 @@ public static class DataSeeder
         const string adminEmail = "admin@cinema.ua";
         if (await userManager.FindByEmailAsync(adminEmail) == null)
         {
-            // ТЕПЕР ЦЕ ПРАЦЮЄ, бо тип у UserManager збігається з об'єктом
-            var admin = new ApplicationUser 
+            var admin = new ApplicationUser
             {
                 UserName = adminEmail,
                 Email = adminEmail,
                 EmailConfirmed = true,
-                CreatedAt = DateTime.UtcNow 
+                CreatedAt = DateTime.UtcNow
             };
 
             var result = await userManager.CreateAsync(admin, "Admin123!");
@@ -292,61 +291,37 @@ public static class DataSeeder
             await context.SaveChangesAsync();
         }
         #endregion
-        #region Sales (Bookings & Tickets)
-        if (!await context.Set<Ticket>().AnyAsync())
+        
+        #region Bookings (Initial History)
+        if (!await context.Bookings.AnyAsync())
         {
-            var adminUser = await userManager.FindByEmailAsync("admin@cinema.ua");
-            var sessions = await context.Sessions
-                .Include(s => s.Prices)
-                .Include(s => s.Hall)
-                .ToListAsync();
-            
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            var firstSession = await context.Sessions.FirstAsync();
+            var firstSeat = await context.Seats.FirstAsync(s => s.HallId == firstSession.HallId);
             var regularDiscount = await context.Set<Discount>().FirstAsync(d => d.Type == DiscountType.REGULAR);
-            var studentDiscount = await context.Set<Discount>().FirstAsync(d => d.Type == DiscountType.STUDENT);
+            var price = await context.Prices.FirstAsync(p => p.SessionId == firstSession.Id && p.SeatType == firstSeat.SeatType);
 
-            var random = new Random();
-            var bookings = new List<Booking>();
-
-            foreach (var session in sessions)
+            var historicBooking = new Booking
             {
-                var ticketsToBuy = random.Next(5, 21);
+                ApplicationUserId = adminUser!.Id,
+                SessionId = firstSession.Id,
+                BookingTime = DateTime.UtcNow.AddDays(-1),
+                ExpirationTime = DateTime.UtcNow.AddDays(-1).AddMinutes(15),
+                Status = BookingStatus.CONFIRMED,
+                PaymentIntentId = "pi_seeder_mock_123",
+                ConfirmationTime = DateTime.UtcNow.AddDays(-1).AddMinutes(5)
+            };
 
-                if (adminUser == null) continue;
-                var booking = new Booking
-                {
-                    ApplicationUserId = adminUser.Id,
-                    SessionId = session.Id,
-                    BookingTime = DateTime.UtcNow,
-                    ExpirationTime = DateTime.UtcNow.AddMinutes(15),
-                    Status = BookingStatus.CONFIRMED
-                };
+            historicBooking.Tickets.Add(new Ticket
+            {
+                SeatId = firstSeat.Id,
+                PriceId = price.Id,
+                DiscountId = regularDiscount.Id,
+                FinalPrice = price.Value,
+                PurchaseTime = DateTime.UtcNow.AddDays(-1)
+            });
 
-                var seats = await context.Seats
-                    .Where(s => s.HallId == session.HallId)
-                    .Take(ticketsToBuy)
-                    .ToListAsync();
-
-                foreach (var seat in seats)
-                {
-                    var price = session.Prices.First(p => p.SeatType == seat.SeatType);
-                    
-                    var discount = random.Next(1, 5) == 1 ? studentDiscount : regularDiscount;
-                    
-                    var finalPrice = price.Value - (price.Value * discount.Percentage / 100m);
-
-                    booking.Tickets.Add(new Ticket
-                    {
-                        SeatId = seat.Id,
-                        PriceId = price.Id,
-                        DiscountId = discount.Id,
-                        FinalPrice = finalPrice,
-                        PurchaseTime = DateTime.UtcNow
-                    });
-                }
-                bookings.Add(booking);
-            }
-
-            await context.Bookings.AddRangeAsync(bookings);
+            context.Bookings.Add(historicBooking);
             await context.SaveChangesAsync();
         }
         #endregion

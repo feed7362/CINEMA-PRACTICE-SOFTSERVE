@@ -1,28 +1,168 @@
 ﻿using Backend.Domain.Entities;
 using Backend.Domain.Interfaces;
-using Backend.Services.DTOs.Booking;
 using Backend.Services.DTOs;
-using Backend.Services.Interfaces;
-using static Backend.Services.Specifications.Booking;
+using Backend.Services.DTOs.Booking;
+using Backend.Services.Specifications;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using Stripe;
+using System.Data;
 
 namespace Backend.Services.Services;
 
-public class BookingService(
-    IRepository<Booking> bookingRepository,
-    IRepository<Session> sessionRepository,
-    IRepository<Seat> seatRepository,
-    IRepository<Discount> discountRepository)
-    : IBookingService
+public class BookingService : IBookingService
 {
-    public async Task<BookingResponseDto> CreateBookingAsync(CreateBookingDto dto, int userId)
+    private readonly IRepository<Booking> _bookingRepository;
+    private readonly IRepository<Session> _sessionRepository;
+    private readonly IRepository<Seat> _seatRepository;
+    private readonly IRepository<Domain.Entities.Discount> _discountRepository;
+    private readonly IRepository<Ticket> _ticketRepository;
+
+    public BookingService(
+        IRepository<Booking> bookingRepository,
+        IRepository<Session> sessionRepository,
+        IRepository<Seat> seatRepository,
+        IRepository<Domain.Entities.Discount> discountRepository,
+        IRepository<Ticket> ticketRepository
+    )
     {
-        var session = await sessionRepository.GetFirstBySpecAsync(new SessionWithPricesByIdSpec(dto.SessionId));
+        _bookingRepository = bookingRepository;
+        _sessionRepository = sessionRepository;
+        _seatRepository = seatRepository;
+        _discountRepository = discountRepository;
+        _ticketRepository = ticketRepository;
+    }
+
+    public async Task<BookingResponseDto> LockBookingAsync(CreateBookingDto dto, int userId)
+    {
+        // Start Transaction with SERIALIZABLE isolation
+        using var transaction = await _bookingRepository.BeginTransactionAsync(IsolationLevel.Serializable);
+
+        try
+        {
+            var activeTickets = await _ticketRepository.GetListBySpecAsync(
+                new TicketByIdAndUserSpec.GetActiveTicketsForSeatsSpec(dto.SessionId, dto.SeatIds));
+
+            if (activeTickets.Any())
+            {
+                throw new InvalidOperationException("One or more seats are already taken.");
+            }
+
+            var booking = await CreateBookingEntityInternalAsync(dto, userId);
+
+            _bookingRepository.Insert(booking);
+            await _bookingRepository.SaveChangesAsync();
+
+            var totalAmount = (long)(booking.Tickets.Sum(t => t.FinalPrice) * 100);
+
+            var options = new PaymentIntentCreateOptions
+            {
+                Amount = totalAmount,
+                Currency = "uah",
+                PaymentMethodTypes = new List<string> { "card" },
+                Metadata = new Dictionary<string, string> { { "BookingId", booking.Id.ToString() } }
+            };
+
+            var intent = await new PaymentIntentService().CreateAsync(options);
+
+            // Update the entity with the Stripe ID
+            booking.PaymentIntentId = intent.Id;
+            await _bookingRepository.SaveChangesAsync();
+
+            // Commit
+            await transaction.CommitAsync();
+
+            return new BookingResponseDto(
+                booking.Id,
+                booking.ApplicationUserId,
+                booking.SessionId,
+                booking.BookingTime,
+                booking.Status.ToString(),
+                intent.ClientSecret,
+                intent.Id
+            );
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "40001" })
+        {
+            await transaction.RollbackAsync();
+            // may implement auto-retry 3 times later ....
+
+            // for now:
+            throw new Exception(
+                "Concurrency conflict: The seats were modified by another transaction. Please try again.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+        catch (Exception)
+        {
+            // Rollback any other failure
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task<BookingResponseDto> ConfirmBookingAsync(ConfirmBookingDto dto, int userId)
+    {
+        // Fetch with Tickets and Sessions
+        var booking = await _bookingRepository.GetFirstBySpecAsync(
+            new BookingWithDetailsByIdSpec(dto.BookingId, userId));
+
+        if (booking == null)
+            throw new KeyNotFoundException($"Booking {dto.BookingId} not found.");
+
+        // Prevent confirming expired locks
+        bool isExpired = booking.Status == BookingStatus.CANCELED || booking.ExpirationTime < DateTime.UtcNow;
+
+        // see if they actually paid
+        var intentService = new PaymentIntentService();
+        var intent = await intentService.GetAsync(booking.PaymentIntentId);
+
+        if (intent.Status != "succeeded")
+        {
+            throw new InvalidOperationException("Payment was not successful.");
+        }
+
+        // Refund if expired and paid
+        if (isExpired)
+        {
+            var refundOptions = new RefundCreateOptions { PaymentIntent = booking.PaymentIntentId };
+            var refundService = new RefundService();
+            await refundService.CreateAsync(refundOptions);
+
+            throw new InvalidOperationException(
+                "Your booking window expired before the payment was finalized. A full refund has been issued.");
+        }
+
+        // Finalize Success
+        booking.Status = BookingStatus.CONFIRMED;
+        booking.ConfirmationTime = DateTime.UtcNow;
+        await _bookingRepository.UpdateAsync(booking);
+        var clientSecret = intent.ClientSecret;
+
+        return new BookingResponseDto(
+            booking.Id,
+            booking.ApplicationUserId,
+            booking.SessionId,
+            booking.BookingTime,
+            booking.Status.ToString(),
+            clientSecret,
+            booking.PaymentIntentId
+        );
+    }
+
+    private async Task<Booking> CreateBookingEntityInternalAsync(CreateBookingDto dto, int userId)
+    {
+        var session = await _sessionRepository.GetFirstBySpecAsync(new SessionWithPricesByIdSpec(dto.SessionId));
         if (session == null) throw new Exception("Session not found.");
 
-        var seats = await seatRepository.GetListBySpecAsync(new SeatsByListIdsSpec(dto.SeatIds));
+        var seats = await _seatRepository.GetListBySpecAsync(new SeatsByListIdsSpec(dto.SeatIds));
         if (seats.Count != dto.SeatIds.Count) throw new Exception("One or more seats not found.");
 
-        var regularDiscount = await discountRepository.GetFirstBySpecAsync(new DiscountByTypeSpec(DiscountType.REGULAR));
+        var regularDiscount =
+            await _discountRepository.GetFirstBySpecAsync(new DiscountByTypeSpec(DiscountType.REGULAR));
         if (regularDiscount == null) throw new Exception("Base 'REGULAR' discount not found in system.");
 
         var booking = new Booking
@@ -49,31 +189,33 @@ public class BookingService(
             });
         }
 
-        await bookingRepository.AddAsync(booking);
-        await bookingRepository.SaveChangesAsync();
+        return booking;
+    }
+
+    public async Task<BookingResponseDto?> GetBookingByIdAsync(int bookingId, int userId)
+    {
+        var booking = await _bookingRepository.GetFirstBySpecAsync(
+            new BookingByUserIdAndUserId(bookingId, userId));
+
+        if (booking == null) return null;
+
+        string? clientSecret = null;
+
+        if (booking.Status == BookingStatus.PENDING && !string.IsNullOrEmpty(booking.PaymentIntentId))
+        {
+            var service = new PaymentIntentService();
+            var intent = await service.GetAsync(booking.PaymentIntentId);
+            clientSecret = intent.ClientSecret;
+        }
 
         return new BookingResponseDto(
             booking.Id,
             booking.ApplicationUserId,
             booking.SessionId,
             booking.BookingTime,
-            booking.Status.ToString()
-        );
-    }
-    public async Task<BookingResponseDto?> GetBookingByIdAsync(int bookingId, int userId)
-    {
-
-        var result = await bookingRepository.GetFirstBySpecAsync(new BookingByUserIdAndUserId(bookingId, userId));
-        await bookingRepository.SaveChangesAsync();
-
-        if (result == null) return null;
-
-        return new BookingResponseDto(
-            result.Id,
-            result.ApplicationUserId,
-            result.SessionId,
-            result.BookingTime,
-            result.Status.ToString()
+            booking.Status.ToString(),
+            clientSecret,
+            booking.PaymentIntentId
         );
     }
 
@@ -81,15 +223,16 @@ public class BookingService(
     {
         var filterSpec = new UserBookingHistorySpec(userId);
 
-        var totalCount = await bookingRepository.CountAsync(filterSpec);
+        int totalCount = await _bookingRepository.CountAsync(filterSpec);
 
         var pagedSpec = new UserBookingPagedSpec(userId, page, pageSize);
-        var bookings = await bookingRepository.GetListBySpecAsync(pagedSpec);
+        var bookings = await _bookingRepository.GetListBySpecAsync(pagedSpec);
 
         var items = bookings.Select(b => new BookingSummaryDto(
             b.Id,
             b.Session.Movie.TitleUKR,
             b.Session.StartTime,
+            b.BookingTime,
             b.Tickets.Count,
             b.Tickets.Sum(t => t.FinalPrice),
             b.Status.ToString()
@@ -100,9 +243,19 @@ public class BookingService(
 
     public async Task<BookingDetailDto?> GetBookingDetailsByIdAsync(int bookingId, int userId)
     {
-        var booking = await bookingRepository.GetFirstBySpecAsync(new BookingWithDetailsByIdSpec(bookingId, userId));
+        var booking = await _bookingRepository.GetFirstBySpecAsync(new BookingWithDetailsByIdSpec(bookingId, userId));
 
         if (booking == null) return null;
+
+        string? clientSecret = null;
+
+        // latest status/secret from Stripe
+        if (booking.Status == BookingStatus.PENDING && !string.IsNullOrEmpty(booking.PaymentIntentId))
+        {
+            var service = new PaymentIntentService();
+            var intent = await service.GetAsync(booking.PaymentIntentId);
+            clientSecret = intent.ClientSecret;
+        }
 
         return new BookingDetailDto(
             booking.Id,
@@ -123,7 +276,9 @@ public class BookingService(
                 t.Seat.SeatType.ToString(),
                 t.FinalPrice,
                 t.Discount?.Type.ToString() ?? "NONE"
-            )).ToList()
+            )).ToList(),
+            booking.PaymentIntentId,
+            clientSecret
         );
     }
 }

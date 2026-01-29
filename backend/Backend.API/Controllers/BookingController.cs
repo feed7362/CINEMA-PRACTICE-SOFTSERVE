@@ -29,23 +29,37 @@ internal static class BookingEndpoints
             .WithSummary("Get paged bookings for the current user");
 
 
-        group.MapPost("/", async (
-                CreateBookingDto dto,
-                IBookingService bookingService,
-                ClaimsPrincipal user) =>
+        group.MapPost("/lock", async (
+            CreateBookingDto dto,
+            IBookingService bookingService,
+            ClaimsPrincipal user) =>
         {
             var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdClaim)) return Results.Unauthorized();
 
             var userId = int.Parse(userIdClaim);
 
-            var result = await bookingService.CreateBookingAsync(dto, userId);
+            var result = await bookingService.LockBookingAsync(dto, userId);
 
-            return Results.Created($"/api/booking/{result.Id}", result);
+            return Results.Created($"/api/booking/{result.Id}/details", result);
         })
             .AddEndpointFilter<ValidationFilter<CreateBookingDto>>()
-            .WithName("CreateBooking")
-            .WithSummary("Create a new booking");
+            .WithName("LockBooking")
+            .WithSummary("Locks seats for 15 minutes with concurrency protection");
+
+        group.MapPost("/confirm", async (
+            ConfirmBookingDto dto,
+            IBookingService bookingService,
+            ClaimsPrincipal user) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var result = await bookingService.ConfirmBookingAsync(dto, userId);
+
+            return Results.Ok(result);
+        })
+            .WithName("ConfirmBooking")
+            .WithSummary("Finalizes a pending booking after successful payment");
 
         group.MapGet("/{id:int}", async (
                 int id,
