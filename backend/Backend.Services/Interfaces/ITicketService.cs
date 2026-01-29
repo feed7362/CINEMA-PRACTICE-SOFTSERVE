@@ -1,7 +1,6 @@
-﻿using Backend.Services.DTOs;
+﻿
+using Backend.Services.DTOs;
 using Backend.Services.DTOs.Ticket;
-
-namespace Backend.Services.Interfaces;
 
 public interface ITicketService
 {

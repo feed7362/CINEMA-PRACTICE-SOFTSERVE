@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
 using Backend.Services.DTOs.Hall;
 
-namespace Backend.Services.Validators.Hall;
-
-public class CreateHallDtoValidator : AbstractValidator<CreateHallDto>
+namespace Backend.Services.Validators.Hall
+{
+    public class CreateHallDtoValidator : AbstractValidator<CreateHallDto>
 {
     public CreateHallDtoValidator()
     {
@@ -18,4 +18,4 @@ public class CreateHallDtoValidator : AbstractValidator<CreateHallDto>
             .NotEmpty().WithMessage("Карта місць не може бути порожньою")
             .Must(x => x.Count > 0).WithMessage("Зал повинен мати хоча б один ряд");
     }
-}
+}}

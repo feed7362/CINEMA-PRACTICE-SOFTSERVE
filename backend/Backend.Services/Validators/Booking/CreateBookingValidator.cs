@@ -1,7 +1,7 @@
-﻿using Backend.Services.DTOs.Booking;
-using FluentValidation;
+﻿using FluentValidation;
+using Backend.Services.DTOs.Booking;
 
-namespace Backend.Services.Validators.Booking;
+namespace Backend.Services.Validators;
 
 public class CreateBookingValidator : AbstractValidator<CreateBookingDto>
 {

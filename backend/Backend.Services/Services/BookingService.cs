@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Stripe;
 using System.Data;
+using System.Security;
 
 namespace Backend.Services.Services;
 
@@ -24,7 +25,7 @@ public class BookingService : IBookingService
         IRepository<Seat> seatRepository,
         IRepository<Domain.Entities.Discount> discountRepository,
         IRepository<Ticket> ticketRepository
-    )
+        )
     {
         _bookingRepository = bookingRepository;
         _sessionRepository = sessionRepository;
@@ -32,7 +33,6 @@ public class BookingService : IBookingService
         _discountRepository = discountRepository;
         _ticketRepository = ticketRepository;
     }
-
     public async Task<BookingResponseDto> LockBookingAsync(CreateBookingDto dto, int userId)
     {
         // Start Transaction with SERIALIZABLE isolation
@@ -41,7 +41,7 @@ public class BookingService : IBookingService
         try
         {
             var activeTickets = await _ticketRepository.GetListBySpecAsync(
-                new TicketByIdAndUserSpec.GetActiveTicketsForSeatsSpec(dto.SessionId, dto.SeatIds));
+                new GetActiveTicketsForSeatsSpec(dto.SessionId, dto.SeatIds));
 
             if (activeTickets.Any())
             {
@@ -88,8 +88,7 @@ public class BookingService : IBookingService
             // may implement auto-retry 3 times later ....
 
             // for now:
-            throw new Exception(
-                "Concurrency conflict: The seats were modified by another transaction. Please try again.");
+            throw new Exception("Concurrency conflict: The seats were modified by another transaction. Please try again.");
         }
         catch (InvalidOperationException ex)
         {
@@ -102,8 +101,8 @@ public class BookingService : IBookingService
             await transaction.RollbackAsync();
             throw;
         }
+        
     }
-
     public async Task<BookingResponseDto> ConfirmBookingAsync(ConfirmBookingDto dto, int userId)
     {
         // Fetch with Tickets and Sessions
@@ -128,12 +127,12 @@ public class BookingService : IBookingService
         // Refund if expired and paid
         if (isExpired)
         {
+
             var refundOptions = new RefundCreateOptions { PaymentIntent = booking.PaymentIntentId };
             var refundService = new RefundService();
             await refundService.CreateAsync(refundOptions);
 
-            throw new InvalidOperationException(
-                "Your booking window expired before the payment was finalized. A full refund has been issued.");
+            throw new InvalidOperationException("Your booking window expired before the payment was finalized. A full refund has been issued.");
         }
 
         // Finalize Success
@@ -152,7 +151,6 @@ public class BookingService : IBookingService
             booking.PaymentIntentId
         );
     }
-
     private async Task<Booking> CreateBookingEntityInternalAsync(CreateBookingDto dto, int userId)
     {
         var session = await _sessionRepository.GetFirstBySpecAsync(new SessionWithPricesByIdSpec(dto.SessionId));
@@ -161,8 +159,7 @@ public class BookingService : IBookingService
         var seats = await _seatRepository.GetListBySpecAsync(new SeatsByListIdsSpec(dto.SeatIds));
         if (seats.Count != dto.SeatIds.Count) throw new Exception("One or more seats not found.");
 
-        var regularDiscount =
-            await _discountRepository.GetFirstBySpecAsync(new DiscountByTypeSpec(DiscountType.REGULAR));
+        var regularDiscount = await _discountRepository.GetFirstBySpecAsync(new DiscountByTypeSpec(DiscountType.REGULAR));
         if (regularDiscount == null) throw new Exception("Base 'REGULAR' discount not found in system.");
 
         var booking = new Booking
@@ -191,7 +188,6 @@ public class BookingService : IBookingService
 
         return booking;
     }
-
     public async Task<BookingResponseDto?> GetBookingByIdAsync(int bookingId, int userId)
     {
         var booking = await _bookingRepository.GetFirstBySpecAsync(
@@ -277,8 +273,8 @@ public class BookingService : IBookingService
                 t.FinalPrice,
                 t.Discount?.Type.ToString() ?? "NONE"
             )).ToList(),
-            booking.PaymentIntentId,
-            clientSecret
+            booking.PaymentIntentId, 
+            clientSecret             
         );
     }
 }

@@ -4,7 +4,7 @@ using Backend.Services.Services;
 using Backend.Services.Validators.Hall;
 using FluentValidation;
 
-namespace Backend.API.Extensions;
+namespace Backend.API;
 
 public static class ApplicationServiceExtensions
 {
