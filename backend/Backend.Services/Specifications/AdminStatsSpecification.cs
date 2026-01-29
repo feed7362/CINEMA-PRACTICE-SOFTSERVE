@@ -6,7 +6,6 @@ namespace Backend.Services.Specifications;
 
 public class AdminStatsSpecification : Specification<Ticket>
 {
-    // Додали необов'язкові параметри (movieId, sessionId, hallId) в конструктор
     public AdminStatsSpecification(
         AdminStatsFilterDto filter, 
         int? movieId = null, 

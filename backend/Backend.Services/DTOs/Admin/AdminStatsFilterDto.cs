@@ -15,6 +15,5 @@ public class AdminStatsFilterDto
     public decimal? MinIMDBRating { get; set; }
     public int? AgeRatingValue { get; set; } 
 
-    // ✅ ОСЬ ТВОЄ ПОЛЕ (Nullable, щоб не було помилки Required)
     public int? Amount { get; set; } 
 }
