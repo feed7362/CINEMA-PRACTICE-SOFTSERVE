@@ -9,7 +9,7 @@ public record AdminStatsDto(
     List<SeatHeatmapDto> HallHeatmap
 );
 
-public record GenreStatsDto(string GenreName, int TicketsCount);
+public abstract record GenreStatsDto(string GenreName, int TicketsCount);
 
 public record PopularMovieDto(
     string Title, 
@@ -17,7 +17,7 @@ public record PopularMovieDto(
     string Director, 
     string Country, 
     int ReleaseYear, 
-    decimal IMDBRating,
+    decimal ImdbRating,
     string AgeRating,
     int TicketsSold, 
     decimal Revenue
