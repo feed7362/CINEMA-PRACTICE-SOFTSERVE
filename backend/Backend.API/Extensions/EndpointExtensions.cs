@@ -4,7 +4,7 @@ namespace Backend.API.Extensions;
 
 public static class EndpointExtensions
 {
-    public static WebApplication MapApplicationEndpoints(this WebApplication app)
+    public static void MapApplicationEndpoints(this WebApplication app)
     {
         app.MapAuthEndpoints();
         app.MapHallEndpoints();
@@ -13,7 +13,5 @@ public static class EndpointExtensions
         app.MapBookingEndpoints();
         app.MapTicketEndpoints();
         app.MapAdminEndpoints();
-
-        return app;
     }
 }
