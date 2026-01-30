@@ -218,10 +218,10 @@ public static class DataSeeder
         {
             var halls = new List<Hall>
             {
-                new() { Name = "IMAX Київ", Capacity = 100, Format = HallFormat.Imax },
-                new() { Name = "4DX Львів", Capacity = 60, Format = HallFormat.Regular },
-                new() { Name = "Dolby Atmos", Capacity = 80, Format = HallFormat.Regular },
-                new() { Name = "VIP Lounge", Capacity = 40, Format = HallFormat.Regular }
+                new() { Name = "IMAX Київ", Capacity = 100, Format = HallFormat.IMAX },
+                new() { Name = "4DX Львів", Capacity = 60, Format = HallFormat.REGULAR },
+                new() { Name = "Dolby Atmos", Capacity = 80, Format = HallFormat.REGULAR },
+                new() { Name = "VIP Lounge", Capacity = 40, Format = HallFormat.REGULAR }
             };
 
             await context.Halls.AddRangeAsync(halls);
@@ -283,10 +283,10 @@ public static class DataSeeder
         if (!await context.Set<Discount>().AnyAsync())
         {
             context.Set<Discount>().AddRange(
-                new Discount { Type = DiscountType.Regular, Percentage = 0, IsActive = true },
-                new Discount { Type = DiscountType.Student, Percentage = 20, IsActive = true },
-                new Discount { Type = DiscountType.Military, Percentage = 30, IsActive = true },
-                new Discount { Type = DiscountType.Promocode, Percentage = 25, IsActive = true }
+                new Discount { Type = DiscountType.REGULAR, Percentage = 0, IsActive = true },
+                new Discount { Type = DiscountType.STUDENT, Percentage = 20, IsActive = true },
+                new Discount { Type = DiscountType.MILITARY, Percentage = 30, IsActive = true },
+                new Discount { Type = DiscountType.PROMOCODE, Percentage = 25, IsActive = true }
             );
             await context.SaveChangesAsync();
         }
@@ -298,7 +298,7 @@ public static class DataSeeder
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
             var firstSession = await context.Sessions.FirstAsync();
             var firstSeat = await context.Seats.FirstAsync(s => s.HallId == firstSession.HallId);
-            var regularDiscount = await context.Set<Discount>().FirstAsync(d => d.Type == DiscountType.Regular);
+            var regularDiscount = await context.Set<Discount>().FirstAsync(d => d.Type == DiscountType.REGULAR);
             var price = await context.Prices.FirstAsync(p => p.SessionId == firstSession.Id && p.SeatType == firstSeat.SeatType);
 
             var historicBooking = new Booking
