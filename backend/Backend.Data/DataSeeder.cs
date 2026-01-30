@@ -42,7 +42,7 @@ public static class DataSeeder
     )
     {
         #region Identity (Roles & Admin)
-        string[] roleNames = { "Admin", "Customer" };
+        string[] roleNames = ["Admin", "Customer"];
         foreach (var roleName in roleNames)
         {
             if (!await roleManager.RoleExistsAsync(roleName))
@@ -146,13 +146,13 @@ public static class DataSeeder
             {
                 new()
                 {
-                    TitleORG = "Oppenheimer",
-                    TitleUKR = "Оппенгеймер",
+                    TitleOrg = "Oppenheimer",
+                    TitleUkr = "Оппенгеймер",
                     Description = "Історія людини, яка створила атомну бомбу.",
                     Duration = 180,
                     ReleaseDate = CreateUtcDate(2023, 7, 21),
                     FinishDate = CreateUtcDate(2026, 12, 31),
-                    IMDBRating = 8.4m,
+                    ImdbRating = 8.4m,
                     Director = "Крістофер Нолан",
                     Country = "США",
                     StudioId = studios.First(s => s.Name == "Universal Pictures").Id,
@@ -161,13 +161,13 @@ public static class DataSeeder
                 },
                 new()
                 {
-                    TitleORG = "Dune: Part Two",
-                    TitleUKR = "Дюна: Частина друга",
+                    TitleOrg = "Dune: Part Two",
+                    TitleUkr = "Дюна: Частина друга",
                     Description = "Пол Атрідес стає лідером фрименів.",
                     Duration = 166,
                     ReleaseDate = CreateUtcDate(2024, 3, 1),
                     FinishDate = CreateUtcDate(2026, 11, 30),
-                    IMDBRating = 8.6m,
+                    ImdbRating = 8.6m,
                     Director = "Дені Вільнев",
                     Country = "США, Канада",
                     StudioId = studios.First(s => s.Name == "Legendary Entertainment").Id,
@@ -176,13 +176,13 @@ public static class DataSeeder
                 },
                 new()
                 {
-                    TitleORG = "Interstellar",
-                    TitleUKR = "Інтерстеллар",
+                    TitleOrg = "Interstellar",
+                    TitleUkr = "Інтерстеллар",
                     Description = "Подорож крізь простір і час заради людства.",
                     Duration = 169,
                     ReleaseDate = CreateUtcDate(2014, 11, 7),
                     FinishDate = CreateUtcDate(2026, 12, 31),
-                    IMDBRating = 8.7m,
+                    ImdbRating = 8.7m,
                     Director = "Крістофер Нолан",
                     Country = "США",
                     StudioId = studios.First(s => s.Name == "Paramount Pictures").Id,
@@ -191,13 +191,13 @@ public static class DataSeeder
                 },
                 new()
                 {
-                    TitleORG = "Joker",
-                    TitleUKR = "Джокер",
+                    TitleOrg = "Joker",
+                    TitleUkr = "Джокер",
                     Description = "Психологічна історія становлення лиходія.",
                     Duration = 122,
                     ReleaseDate = CreateUtcDate(2019, 10, 4),
                     FinishDate = CreateUtcDate(2026, 6, 30),
-                    IMDBRating = 8.5m,
+                    ImdbRating = 8.5m,
                     Director = "Тодд Філліпс",
                     Country = "США",
                     StudioId = studios.First(s => s.Name == "Warner Bros. Pictures").Id,
@@ -218,10 +218,10 @@ public static class DataSeeder
         {
             var halls = new List<Hall>
             {
-                new() { Name = "IMAX Київ", Capacity = 100, Format = HallFormat.IMAX },
-                new() { Name = "4DX Львів", Capacity = 60, Format = HallFormat.REGULAR },
-                new() { Name = "Dolby Atmos", Capacity = 80, Format = HallFormat.REGULAR },
-                new() { Name = "VIP Lounge", Capacity = 40, Format = HallFormat.REGULAR }
+                new() { Name = "IMAX Київ", Capacity = 100, Format = HallFormat.Imax },
+                new() { Name = "4DX Львів", Capacity = 60, Format = HallFormat.Regular },
+                new() { Name = "Dolby Atmos", Capacity = 80, Format = HallFormat.Regular },
+                new() { Name = "VIP Lounge", Capacity = 40, Format = HallFormat.Regular }
             };
 
             await context.Halls.AddRangeAsync(halls);
@@ -238,7 +238,7 @@ public static class DataSeeder
                             HallId = hall.Id,
                             RowNumber = row,
                             SeatNumber = seat,
-                            SeatType = row == 1 ? SeatType.VIP : SeatType.REGULAR,
+                            SeatType = row == 1 ? SeatType.Vip : SeatType.Regular,
                             IsReserved = false
                         });
                     }
@@ -270,8 +270,8 @@ public static class DataSeeder
                     await context.SaveChangesAsync();
 
                     context.Prices.AddRange(
-                        new Price { SessionId = session.Id, SeatType = SeatType.REGULAR, Value = 220 },
-                        new Price { SessionId = session.Id, SeatType = SeatType.VIP, Value = 380 }
+                        new Price { SessionId = session.Id, SeatType = SeatType.Regular, Value = 220 },
+                        new Price { SessionId = session.Id, SeatType = SeatType.Vip, Value = 380 }
                     );
                     await context.SaveChangesAsync();
                 }
@@ -283,10 +283,10 @@ public static class DataSeeder
         if (!await context.Set<Discount>().AnyAsync())
         {
             context.Set<Discount>().AddRange(
-                new Discount { Type = DiscountType.REGULAR, Percentage = 0, IsActive = true },
-                new Discount { Type = DiscountType.STUDENT, Percentage = 20, IsActive = true },
-                new Discount { Type = DiscountType.MILITARY, Percentage = 30, IsActive = true },
-                new Discount { Type = DiscountType.PROMOCODE, Percentage = 25, IsActive = true }
+                new Discount { Type = DiscountType.Regular, Percentage = 0, IsActive = true },
+                new Discount { Type = DiscountType.Student, Percentage = 20, IsActive = true },
+                new Discount { Type = DiscountType.Military, Percentage = 30, IsActive = true },
+                new Discount { Type = DiscountType.Promocode, Percentage = 25, IsActive = true }
             );
             await context.SaveChangesAsync();
         }
@@ -298,7 +298,7 @@ public static class DataSeeder
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
             var firstSession = await context.Sessions.FirstAsync();
             var firstSeat = await context.Seats.FirstAsync(s => s.HallId == firstSession.HallId);
-            var regularDiscount = await context.Set<Discount>().FirstAsync(d => d.Type == DiscountType.REGULAR);
+            var regularDiscount = await context.Set<Discount>().FirstAsync(d => d.Type == DiscountType.Regular);
             var price = await context.Prices.FirstAsync(p => p.SessionId == firstSession.Id && p.SeatType == firstSeat.SeatType);
 
             var historicBooking = new Booking
@@ -335,25 +335,25 @@ public static class DataSeeder
         var genres = await context.Set<Genre>().ToListAsync();
         var actors = await context.Set<Actor>().ToListAsync();
 
-        void AddMG(Movie m, params string[] g) =>
+        void AddMg(Movie m, params string[] g) =>
             context.MovieGenres.AddRange(g.Select(x =>
                 new MovieGenre { MovieId = m.Id, GenreId = genres.First(y => y.Name == x).Id }));
 
-        void AddMA(Movie m, params string[] a) =>
+        void AddMa(Movie m, params string[] a) =>
             context.MovieActors.AddRange(a.Select(x =>
                 new MovieActor { MovieId = m.Id, ActorId = actors.First(y => y.Name == x).Id }));
 
-        AddMG(movies[0], "Біографія", "Драма");
-        AddMA(movies[0], "Кілліан Мерфі", "Роберт Дауні-молодший");
+        AddMg(movies[0], "Біографія", "Драма");
+        AddMa(movies[0], "Кілліан Мерфі", "Роберт Дауні-молодший");
 
-        AddMG(movies[1], "Наукова фантастика", "Пригоди");
-        AddMA(movies[1], "Тімоті Шаламе", "Зендея");
+        AddMg(movies[1], "Наукова фантастика", "Пригоди");
+        AddMa(movies[1], "Тімоті Шаламе", "Зендея");
 
-        AddMG(movies[2], "Наукова фантастика", "Драма");
-        AddMA(movies[2], "Меттью Макконагі", "Енн Гетевей");
+        AddMg(movies[2], "Наукова фантастика", "Драма");
+        AddMa(movies[2], "Меттью Макконагі", "Енн Гетевей");
 
-        AddMG(movies[3], "Драма", "Кримінал", "Трилер");
-        AddMA(movies[3], "Хоакін Фенікс");
+        AddMg(movies[3], "Драма", "Кримінал", "Трилер");
+        AddMa(movies[3], "Хоакін Фенікс");
 
         await context.SaveChangesAsync();
     }

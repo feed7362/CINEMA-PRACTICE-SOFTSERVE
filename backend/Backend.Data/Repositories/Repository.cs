@@ -7,16 +7,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Backend.Data.Repositories
 {
-    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity
+    public class Repository<TEntity>(ApplicationContext context) : IRepository<TEntity>
+        where TEntity : class, IEntity
     {
-        private readonly ApplicationContext _context;
-        private readonly DbSet<TEntity> _dbSet;
-
-        public Repository(ApplicationContext context)
-        {
-            _context = context;
-            _dbSet = context.Set<TEntity>();
-        }
+        private readonly DbSet<TEntity> _dbSet = context.Set<TEntity>();
 
         public async Task<List<TEntity>> GetAllAsync()
         {
@@ -41,7 +35,7 @@ namespace Backend.Data.Repositories
 
         public void Delete(TEntity entity)
         {
-            if (_context.Entry(entity).State == EntityState.Detached)
+            if (context.Entry(entity).State == EntityState.Detached)
             {
                 _dbSet.Attach(entity);
             }
@@ -52,7 +46,7 @@ namespace Backend.Data.Repositories
         public void Update(TEntity entity)
         {
             _dbSet.Attach(entity);
-            _context.Entry(entity).State = EntityState.Modified;
+            context.Entry(entity).State = EntityState.Modified;
         }
 
         public IEnumerable<TEntity> GetListBySpec(ISpecification<TEntity> specification)
@@ -68,15 +62,15 @@ namespace Backend.Data.Repositories
         public async Task<TEntity> AddAsync(TEntity entity)
         {
             await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return entity;
         }
 
         public async Task UpdateAsync(TEntity entity)
         {
             _dbSet.Attach(entity);
-            _context.Entry(entity).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            context.Entry(entity).State = EntityState.Modified;
+            await context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
@@ -90,18 +84,18 @@ namespace Backend.Data.Repositories
 
         public async Task SaveChangesAsync()
         {
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(TEntity entity)
         {
-            if (_context.Entry(entity).State == EntityState.Detached)
+            if (context.Entry(entity).State == EntityState.Detached)
             {
                 _dbSet.Attach(entity);
             }
 
             _dbSet.Remove(entity);
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public async Task<List<TEntity>> GetListBySpecAsync(ISpecification<TEntity> specification)
@@ -122,7 +116,7 @@ namespace Backend.Data.Repositories
 
         public async Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel)
         {
-            return await _context.Database.BeginTransactionAsync(isolationLevel);
+            return await context.Database.BeginTransactionAsync(isolationLevel);
         }
 
         private IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> specification)
@@ -133,7 +127,7 @@ namespace Backend.Data.Repositories
 
         public void Save()
         {
-            _context.SaveChanges();
+            context.SaveChanges();
         }
     }
 }
