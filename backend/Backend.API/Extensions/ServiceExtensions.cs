@@ -16,6 +16,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<IMovieService, MovieService>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IAdminStatsService, AdminStatsService>();
 
         services.AddValidatorsFromAssemblyContaining<CreateHallDtoValidator>();
 

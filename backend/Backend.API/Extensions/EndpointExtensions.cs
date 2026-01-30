@@ -12,6 +12,7 @@ public static class EndpointExtensions
         app.MapSessionEndpoints();
         app.MapBookingEndpoints();
         app.MapTicketEndpoints();
+        app.MapAdminEndpoints();
 
         return app;
     }

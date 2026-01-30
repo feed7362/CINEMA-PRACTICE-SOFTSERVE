@@ -24,7 +24,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapOpenApi("/swagger/{documentName}/swagger.json");
     app.UseSwaggerUI();
     await app.ApplyMigrationsAndSeedAsync();
 }

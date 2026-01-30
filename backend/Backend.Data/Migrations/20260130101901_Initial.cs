@@ -379,7 +379,9 @@ namespace Backend.Data.Migrations
                     SessionId = table.Column<int>(type: "integer", nullable: false),
                     BookingTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ExpirationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Status = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0)
+                    Status = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
+                    PaymentIntentId = table.Column<string>(type: "text", nullable: true),
+                    ConfirmationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
