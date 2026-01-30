@@ -10,7 +10,7 @@ public interface IAdminStatsService
 
     Task<List<SeatHeatmapDto>> GetHallHeatmapAsync(int hallId);
 
-    Task<int> GetSpecialTicketsCountAsync(int movieId, DateTime? from, DateTime? to);
+    Task<int> GetSpecialTicketsCountAsync(int? movieId, DateTime? from, DateTime? to);
 
     Task<List<PopularMovieDto>> GetFilteredPopularMoviesAsync(AdminStatsFilterDto filter);
 }

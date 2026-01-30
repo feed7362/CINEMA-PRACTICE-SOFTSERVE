@@ -43,7 +43,7 @@ public class AdminStatsService(
         return capacity > 0 ? (double)ticketsSold / capacity * 100 : 0;
     }
 
-    public async Task<int> GetSpecialTicketsCountAsync(int movieId, DateTime? from, DateTime? to)
+    public async Task<int> GetSpecialTicketsCountAsync(int? movieId, DateTime? from, DateTime? to)
     {
         var utcFrom = Normalize(from);
         var utcTo = Normalize(to);

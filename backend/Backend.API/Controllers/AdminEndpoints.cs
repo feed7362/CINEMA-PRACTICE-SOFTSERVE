@@ -40,7 +40,7 @@ public static class AdminEndpoints
             .Produces(200);
 
         group.MapGet("/special-tickets", async (
-                [FromQuery] int movieId,
+                [FromQuery] int? movieId,
                 [FromQuery] DateTime? from,
                 [FromQuery] DateTime? to,
                 IAdminStatsService service) =>

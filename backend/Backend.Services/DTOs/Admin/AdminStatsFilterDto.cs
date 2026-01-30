@@ -3,8 +3,8 @@ namespace Backend.Services.DTOs.Admin;
 public class AdminStatsFilterDto
 {
     // Період часу
-    public DateTime? DateFrom { get; set; }
-    public DateTime? DateTo { get; set; }
+    public DateTimeOffset? DateFrom { get; set; }
+    public DateTimeOffset? DateTo { get; set; }
 
     public int? HallId { get; set; }
     

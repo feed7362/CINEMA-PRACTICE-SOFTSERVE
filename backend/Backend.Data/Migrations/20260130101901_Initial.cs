@@ -102,7 +102,7 @@ namespace Backend.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Format = table.Column<string>(type: "text", nullable: false, defaultValue: "REGULAR"),
+                    Format = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
                     Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     Capacity = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -237,7 +237,7 @@ namespace Backend.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     HallId = table.Column<int>(type: "integer", nullable: false),
-                    SeatType = table.Column<string>(type: "text", nullable: false, defaultValue: "REGULAR"),
+                    SeatType = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
                     SeatNumber = table.Column<int>(type: "integer", nullable: false),
                     RowNumber = table.Column<int>(type: "integer", nullable: false),
                     IsReserved = table.Column<bool>(type: "boolean", nullable: false)
