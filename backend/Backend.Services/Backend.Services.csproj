@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Backend.Domain\Backend.Domain.csproj" />
-    <ProjectReference Include="..\Backend.Utilities\Backend.Utilities.csproj" />
   </ItemGroup>
 
 </Project>

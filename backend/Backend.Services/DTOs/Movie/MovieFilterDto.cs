@@ -1,6 +1,6 @@
 ﻿namespace Backend.Services.DTOs.Movie;
 
-public class MovieFilterDto
+public record MovieFilterDto
 {
     // Pagination
     public int? PageNumber { get; set; } = 1;

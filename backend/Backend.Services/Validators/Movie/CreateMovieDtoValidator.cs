@@ -7,11 +7,11 @@ namespace Backend.Services.Validators.Movie
     {
         public CreateMovieDtoValidator()
         {
-            RuleFor(x => x.TitleORG)
+            RuleFor(x => x.TitleOrg)
                 .NotEmpty().WithMessage("Original title is required.")
                 .MaximumLength(200);
 
-            RuleFor(x => x.TitleUKR)
+            RuleFor(x => x.TitleUkr)
                 .MaximumLength(200);
 
             RuleFor(x => x.Description)
@@ -24,9 +24,9 @@ namespace Backend.Services.Validators.Movie
             RuleFor(x => x.Duration)
                 .InclusiveBetween(1, 600).WithMessage("Duration must be between 1 and 600 minutes.");
 
-            RuleFor(x => x.IMDBRating)
+            RuleFor(x => x.ImdbRating)
                 .InclusiveBetween(0, 10).WithMessage("IMDB Rating must be between 0 and 10.")
-                .When(x => x.IMDBRating.HasValue);
+                .When(x => x.ImdbRating.HasValue);
 
             RuleFor(x => x.ReleaseDate)
                 .NotEmpty();
@@ -35,14 +35,14 @@ namespace Backend.Services.Validators.Movie
                 .GreaterThan(x => x.ReleaseDate)
                 .WithMessage("Finish Date must be after the Release Date.");
 
-            RuleFor(x => x.ImageURL)
+            RuleFor(x => x.ImageUrl)
                 .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
-                .When(x => !string.IsNullOrEmpty(x.ImageURL))
+                .When(x => !string.IsNullOrEmpty(x.ImageUrl))
                 .WithMessage("Image URL is not valid.");
 
-            RuleFor(x => x.TrailerURL)
+            RuleFor(x => x.TrailerUrl)
                 .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
-                .When(x => !string.IsNullOrEmpty(x.TrailerURL))
+                .When(x => !string.IsNullOrEmpty(x.TrailerUrl))
                 .WithMessage("Trailer URL is not valid.");
 
             RuleFor(x => x.GenreIds)

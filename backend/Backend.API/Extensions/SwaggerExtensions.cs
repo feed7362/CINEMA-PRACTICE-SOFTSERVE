@@ -8,7 +8,7 @@ public static class SwaggerExtensions
     {
         services.AddOpenApi(options =>
         {
-            options.AddDocumentTransformer((document, context, ct) =>
+            options.AddDocumentTransformer((document, _, _) =>
             {
                 document.Info = new OpenApiInfo
                 {
@@ -29,10 +29,7 @@ public static class SwaggerExtensions
                 document.Components ??= new OpenApiComponents();
                 document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
 
-                if (!document.Components.SecuritySchemes.ContainsKey(schemeName))
-                {
-                    document.Components.SecuritySchemes.Add(schemeName, securityScheme);
-                }
+                document.Components.SecuritySchemes.TryAdd(schemeName, securityScheme);
 
                 var requirement = new OpenApiSecurityRequirement();
                 var schemeReference = new OpenApiSecuritySchemeReference(schemeName, document);

@@ -1,6 +1,6 @@
 ﻿namespace Backend.Services.DTOs.Hall;
 
-public class CreateHallDto
+public record CreateHallDto
 {
     public string Name { get; set; } = string.Empty;
     public int Format { get; set; }

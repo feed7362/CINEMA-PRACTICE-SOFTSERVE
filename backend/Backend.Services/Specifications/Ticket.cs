@@ -11,11 +11,11 @@ namespace Backend.Services.Specifications
                 .Where(t => t.Booking.ApplicationUserId == userId)
                 .Include(t => t.Seat)
                 .Include(t => t.Booking)
-                    .ThenInclude(b => b.Session)
-                        .ThenInclude(s => s.Movie)
+                .ThenInclude(b => b.Session)
+                .ThenInclude(s => s.Movie)
                 .Include(t => t.Booking)
-                    .ThenInclude(b => b.Session)
-                        .ThenInclude(s => s.Hall)
+                .ThenInclude(b => b.Session)
+                .ThenInclude(s => s.Hall)
                 .OrderByDescending(t => t.PurchaseTime)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize);
@@ -30,11 +30,11 @@ namespace Backend.Services.Specifications
                 .Where(t => t.Id == ticketId && t.Booking.ApplicationUserId == userId)
                 .Include(t => t.Seat)
                 .Include(t => t.Booking)
-                    .ThenInclude(b => b.Session)
-                        .ThenInclude(s => s.Movie)
+                .ThenInclude(b => b.Session)
+                .ThenInclude(s => s.Movie)
                 .Include(t => t.Booking)
-                    .ThenInclude(b => b.Session)
-                        .ThenInclude(s => s.Hall);
+                .ThenInclude(b => b.Session)
+                .ThenInclude(s => s.Hall);
         }
     }
 
@@ -52,5 +52,4 @@ namespace Backend.Services.Specifications
                 );
         }
     }
-
 }

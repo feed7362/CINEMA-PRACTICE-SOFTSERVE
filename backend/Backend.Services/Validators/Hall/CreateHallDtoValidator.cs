@@ -12,7 +12,7 @@ namespace Backend.Services.Validators.Hall
             .MaximumLength(50).WithMessage("Назва не може бути довшою за 50 символів");
 
         RuleFor(x => x.Format)
-            .InclusiveBetween((short)0, (short)5).WithMessage("Некоректний формат залу");
+            .InclusiveBetween(0, 5).WithMessage("Некоректний формат залу");
 
         RuleFor(x => x.SeatMap)
             .NotEmpty().WithMessage("Карта місць не може бути порожньою")

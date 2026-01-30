@@ -14,19 +14,19 @@ namespace Backend.Services.Services
             var movie = new Movie
             {
                 StudioId = dto.StudioId,
-                TitleORG = dto.TitleORG,
-                TitleUKR = dto.TitleUKR,
+                TitleOrg = dto.TitleOrg,
+                TitleUkr = dto.TitleUkr,
                 Description = dto.Description,
                 Duration = dto.Duration,
                 ReleaseDate = dto.ReleaseDate,
                 FinishDate = dto.FinishDate,
                 AgeRating = dto.AgeRating,
-                IMDBRating = dto.IMDBRating,
+                ImdbRating = dto.ImdbRating,
                 Director = dto.Director,
                 Country = dto.Country,
                 Subtitles = dto.Subtitles,
-                ImageURL = dto.ImageURL,
-                TrailerURL = dto.TrailerURL,
+                ImageUrl = dto.ImageUrl,
+                TrailerUrl = dto.TrailerUrl,
 
                 // Convert List<int> -> List<MovieGenre>
                 MovieGenres = dto.GenreIds.Select(gId => new MovieGenre
@@ -54,19 +54,19 @@ namespace Backend.Services.Services
             if (movie == null) return null;
 
             movie.StudioId = dto.StudioId;
-            movie.TitleORG = dto.TitleORG;
-            movie.TitleUKR = dto.TitleUKR;
+            movie.TitleOrg = dto.TitleOrg;
+            movie.TitleUkr = dto.TitleUkr;
             movie.Description = dto.Description;
             movie.Duration = dto.Duration;
             movie.ReleaseDate = dto.ReleaseDate;
             movie.FinishDate = dto.FinishDate;
             movie.AgeRating = dto.AgeRating;
-            movie.IMDBRating = dto.IMDBRating;
+            movie.ImdbRating = dto.ImdbRating;
             movie.Director = dto.Director;
             movie.Country = dto.Country;
             movie.Subtitles = dto.Subtitles;
-            movie.ImageURL = dto.ImageURL;
-            movie.TrailerURL = dto.TrailerURL;
+            movie.ImageUrl = dto.ImageUrl;
+            movie.TrailerUrl = dto.TrailerUrl;
 
             movie.MovieGenres.Clear();
             foreach (var gId in dto.GenreIds)
@@ -127,19 +127,19 @@ namespace Backend.Services.Services
                 Id = m.Id,
                 StudioName = m.Studio.Name,
 
-                TitleORG = m.TitleORG,
-                TitleUKR = m.TitleUKR,
+                TitleOrg = m.TitleOrg,
+                TitleUkr = m.TitleUkr,
                 Description = m.Description,
                 Duration = m.Duration,
                 ReleaseDate = m.ReleaseDate,
                 FinishDate = m.FinishDate,
                 AgeRating = m.AgeRating,
-                IMDBRating = m.IMDBRating,
+                ImdbRating = m.ImdbRating,
                 Director = m.Director,
                 Country = m.Country,
                 Subtitles = m.Subtitles,
-                ImageURL = m.ImageURL,
-                TrailerURL = m.TrailerURL,
+                ImageUrl = m.ImageUrl,
+                TrailerUrl = m.TrailerUrl,
 
                 GenreNames = m.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
                 ActorNames = m.MovieActors.Select(ma => ma.Actor.Name).ToList()

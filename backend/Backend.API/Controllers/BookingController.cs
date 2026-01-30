@@ -1,7 +1,7 @@
 ﻿using Backend.API.Extensions;
 using Backend.Services.DTOs.Booking;
-using Microsoft.OpenApi;
 using System.Security.Claims;
+using Backend.Services.Interfaces;
 
 namespace Backend.API.Controllers;
 
@@ -37,7 +37,7 @@ internal static class BookingEndpoints
             var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdClaim)) return Results.Unauthorized();
 
-            int userId = int.Parse(userIdClaim);
+            var userId = int.Parse(userIdClaim);
 
             var result = await bookingService.LockBookingAsync(dto, userId);
 
@@ -69,7 +69,7 @@ internal static class BookingEndpoints
             var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdClaim)) return Results.Unauthorized();
 
-            int userId = int.Parse(userIdClaim);
+            var userId = int.Parse(userIdClaim);
 
             var booking = await bookingService.GetBookingByIdAsync(id, userId);
 

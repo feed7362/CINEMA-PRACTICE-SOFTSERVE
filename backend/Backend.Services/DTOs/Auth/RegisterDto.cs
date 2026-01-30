@@ -1,10 +1,8 @@
 ﻿namespace Backend.Services.DTOs.Auth;
 
-public class RegisterDto
+public record RegisterDto
 {
-    public required string Email { get; set; }
-
-    public required string Password { get; set; }
-
-    public required string ConfirmPassword { get; set; }
+    public required string Email { get; init; }
+    public required string Password { get; init; }
+    public required string ConfirmPassword { get; init; }
 }

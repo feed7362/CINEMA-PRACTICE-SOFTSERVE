@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.Domain", "Backend.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.Services", "Backend.Services/Backend.Services.csproj", "{F28F65AE-8400-464A-9CDE-F9616379C611}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.Utilities", "Backend.Utilities/Backend.Utilities.csproj", "{D1305002-52DA-493F-8C68-5C0CA7061252}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.Data", "Backend.Data/Backend.Data.csproj", "{36474C97-A16B-4CF6-B98B-3C6C088B14EA}"
 EndProject
 Global
@@ -31,10 +29,6 @@ Global
 		{F28F65AE-8400-464A-9CDE-F9616379C611}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F28F65AE-8400-464A-9CDE-F9616379C611}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F28F65AE-8400-464A-9CDE-F9616379C611}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D1305002-52DA-493F-8C68-5C0CA7061252}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D1305002-52DA-493F-8C68-5C0CA7061252}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D1305002-52DA-493F-8C68-5C0CA7061252}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D1305002-52DA-493F-8C68-5C0CA7061252}.Release|Any CPU.Build.0 = Release|Any CPU
 		{36474C97-A16B-4CF6-B98B-3C6C088B14EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{36474C97-A16B-4CF6-B98B-3C6C088B14EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36474C97-A16B-4CF6-B98B-3C6C088B14EA}.Release|Any CPU.ActiveCfg = Release|Any CPU

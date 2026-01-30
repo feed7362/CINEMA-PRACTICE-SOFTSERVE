@@ -4,9 +4,9 @@ namespace Backend.Domain.Entities;
 
 public enum SeatType : short
 {
-    REGULAR = 0,
-    PREMIUM = 1,
-    VIP = 2
+    Regular = 0,
+    Premium = 1,
+    Vip = 2
 }
 
 public class Seat : IEntity
@@ -15,7 +15,7 @@ public class Seat : IEntity
 
     public int HallId { get; set; }
 
-    public SeatType SeatType { get; set; } = SeatType.REGULAR;
+    public SeatType SeatType { get; set; } = SeatType.Regular;
 
     public int SeatNumber { get; set; }
 

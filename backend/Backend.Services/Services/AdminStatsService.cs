@@ -51,7 +51,7 @@ public class AdminStatsService(
 
         // Передаємо movieId в конструктор
         var spec = new AdminStatsSpecification(filter, movieId: movieId);
-        
+
         var tickets = await ticketRepository.GetListBySpecAsync(spec);
         return tickets.Count(t => t.Discount is { Percentage: > 0 });
     }
@@ -77,43 +77,45 @@ public class AdminStatsService(
         }).ToList();
     }
 
-   public async Task<List<PopularMovieDto>> GetFilteredPopularMoviesAsync(AdminStatsFilterDto filter)
+    public async Task<List<PopularMovieDto>> GetFilteredPopularMoviesAsync(AdminStatsFilterDto filter)
     {
         var spec = new AdminStatsSpecification(filter);
         var tickets = await ticketRepository.GetListBySpecAsync(spec);
 
         var query = tickets
-                .GroupBy(t => new {
-                    t.Booking.Session.Movie.TitleUKR,
-                    Genre = t.Booking.Session.Movie.MovieGenres.Select(mg => mg.Genre.Name).FirstOrDefault() ?? "Unknown",
-                    t.Booking.Session.Movie.Director,
-                    t.Booking.Session.Movie.Country,
-                    ReleaseYear = t.Booking.Session.Movie.ReleaseDate.Year, 
-                    IMDB = t.Booking.Session.Movie.IMDBRating,             
-                    Age = t.Booking.Session.Movie.AgeRating               
-                }) 
-                .Select(g => new PopularMovieDto(
+            .GroupBy(t => new
+            {
+                TitleUKR = t.Booking.Session.Movie.TitleUkr,
+                Genre = t.Booking.Session.Movie.MovieGenres.Select(mg => mg.Genre.Name).FirstOrDefault() ?? "Unknown",
+                t.Booking.Session.Movie.Director,
+                t.Booking.Session.Movie.Country,
+                ReleaseYear = t.Booking.Session.Movie.ReleaseDate.Year,
+                IMDB = t.Booking.Session.Movie.ImdbRating,
+                Age = t.Booking.Session.Movie.AgeRating
+            })
+            .Select(g =>
+            {
+                return new PopularMovieDto(
                     g.Key.TitleUKR,
                     g.Key.Genre,
-                    g.Key.Director,
-                    g.Key.Country,
+                    g.Key.Director ?? throw new InvalidOperationException(),
+                    g.Key.Country ?? throw new InvalidOperationException(),
                     g.Key.ReleaseYear,
-                    g.Key.IMDB ?? 0, 
-                    g.Key.Age.ToString(),   
+                    g.Key.IMDB ?? 0,
+                    g.Key.Age.ToString(),
                     g.Count(),
                     g.Sum(t => t.FinalPrice)
-                ));
+                );
+            });
 
-        if (filter.MinIMDBRating.HasValue)
-            query = query.Where(x => x.IMDBRating >= filter.MinIMDBRating.Value);
-        
-        var takeCount = (filter.Amount.HasValue && filter.Amount.Value > 0) 
-            ? filter.Amount.Value 
-            : 3;
+        if (filter.MinImdbRating.HasValue)
+            query = query.Where(x => x.ImdbRating >= filter.MinImdbRating.Value);
+
+        var takeCount = filter.Amount is > 0 ? filter.Amount.Value : 3;
 
         return query
             .OrderByDescending(x => x.TicketsSold)
-            .Take(takeCount) 
+            .Take(takeCount)
             .ToList();
     }
 }
