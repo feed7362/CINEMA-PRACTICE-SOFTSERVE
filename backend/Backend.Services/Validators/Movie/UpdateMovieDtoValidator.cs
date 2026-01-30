@@ -10,7 +10,7 @@ public class UpdateMovieDtoValidator : AbstractValidator<UpdateMovieDto>
         RuleFor(x => x.Id)
             .GreaterThan(0);
 
-        RuleFor(x => x.TitleORG)
+        RuleFor(x => x.TitleOrg)
             .NotEmpty().MaximumLength(200);
 
         RuleFor(x => x.Duration)
