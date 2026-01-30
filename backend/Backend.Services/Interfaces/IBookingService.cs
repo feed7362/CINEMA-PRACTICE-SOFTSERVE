@@ -1,6 +1,8 @@
 ﻿using Backend.Services.DTOs;
 using Backend.Services.DTOs.Booking;
 
+namespace Backend.Services.Interfaces;
+
 public interface IBookingService
 {
     Task<BookingResponseDto> LockBookingAsync(CreateBookingDto dto, int userId);
