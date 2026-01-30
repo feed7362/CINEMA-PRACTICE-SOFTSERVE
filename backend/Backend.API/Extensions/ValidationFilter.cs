@@ -2,31 +2,22 @@
 
 namespace Backend.API.Extensions;
 
-public class ValidationFilter<T> : IEndpointFilter
+public class ValidationFilter<T>(IValidator<T>? validator = null) : IEndpointFilter
 {
-    private readonly IValidator<T>? _validator;
-
-    public ValidationFilter(IValidator<T>? validator = null)
-    {
-        _validator = validator;
-    }
-
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
-        if (_validator is not null)
+        if (validator is null) return await next(context);
+        var entity = context.Arguments.OfType<T>().FirstOrDefault();
+
+        if (entity is null)
         {
-            var entity = context.Arguments.OfType<T>().FirstOrDefault();
+            return Results.BadRequest(new { error = $"The request body for {typeof(T).Name} is required." });
+        }
 
-            if (entity is null)
-            {
-                return Results.BadRequest(new { error = $"The request body for {typeof(T).Name} is required." });
-            }
-
-            var validationResult = await _validator.ValidateAsync(entity);
-            if (!validationResult.IsValid)
-            {
-                return Results.ValidationProblem(validationResult.ToDictionary());
-            }
+        var validationResult = await validator.ValidateAsync(entity);
+        if (!validationResult.IsValid)
+        {
+            return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
         return await next(context);
