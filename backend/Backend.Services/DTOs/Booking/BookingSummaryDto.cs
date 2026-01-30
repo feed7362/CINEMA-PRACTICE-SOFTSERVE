@@ -1,6 +1,4 @@
-﻿
-
-namespace Backend.Services.DTOs.Booking;
+﻿namespace Backend.Services.DTOs.Booking;
 public record BookingSummaryDto(
     int Id,
     string MovieTitle,

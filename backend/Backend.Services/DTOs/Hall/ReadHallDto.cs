@@ -1,9 +1,9 @@
 ﻿namespace Backend.Services.DTOs.Hall;
 
-public class ReadHallDto
+public record ReadHallDto
 {
     public int Id { get; set; }
-    public string Name { get; set; }
-    public string Format { get; set; }
-    public int Capacity { get; set; }
+    public required string Name { get; set; }
+    public required string Format { get; set; }
+    public required int Capacity { get; set; }
 }

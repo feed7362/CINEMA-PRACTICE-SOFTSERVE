@@ -1,6 +1,6 @@
 ﻿namespace Backend.Services.DTOs.Session;
 
-public class ReadSessionDto
+public record ReadSessionDto
 {
     public int Id { get; set; }
     public int MovieId { get; set; }
