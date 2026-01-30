@@ -46,8 +46,8 @@ namespace Backend.Services.Specifications
             if (!string.IsNullOrEmpty(filter.SearchTerm))
             {
                 Query.Where(m =>
-                    m.TitleORG.Contains(filter.SearchTerm) ||
-                    m.TitleUKR.Contains(filter.SearchTerm));
+                    m.TitleOrg.Contains(filter.SearchTerm) ||
+                    m.TitleUkr.Contains(filter.SearchTerm));
             }
 
             if (filter.GenreId.HasValue)
@@ -74,8 +74,8 @@ namespace Backend.Services.Specifications
             if (!string.IsNullOrEmpty(filter.SearchTerm))
             {
                 Query.Where(m =>
-                    m.TitleORG.Contains(filter.SearchTerm) ||
-                    m.TitleUKR.Contains(filter.SearchTerm));
+                    m.TitleOrg.Contains(filter.SearchTerm) ||
+                    m.TitleUkr.Contains(filter.SearchTerm));
             }
 
             if (filter.GenreId.HasValue)
