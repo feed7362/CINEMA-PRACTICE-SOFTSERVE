@@ -96,8 +96,6 @@ namespace Backend.Services.Services
 
         public async Task<PagedResponse<ReadMovieDto>> GetAllMoviesAsync(MovieFilterDto filter)
         {
-
-
             var filterSpec = new MovieSearchFilterSpec(filter);
             var totalCount = await movieRepository.CountAsync(filterSpec);
 
