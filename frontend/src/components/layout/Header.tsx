@@ -24,7 +24,7 @@ const Header: React.FC = () => {
         </nav>
         
         <div className="flex items-center gap-4">
-          <BaseButton to="/sign up" className="px-6 py-2 rounded-lg">
+          <BaseButton to="/signup" className="px-6 py-2 rounded-lg">
             <span className="text-white font-bold">Реєстрація</span>
           </BaseButton>
           
