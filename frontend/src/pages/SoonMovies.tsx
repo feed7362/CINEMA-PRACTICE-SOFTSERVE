@@ -1,9 +1,18 @@
 import React from 'react';
 import MoviePreviewCard from '@/components/movie/MoviePreviewCard';
 import { useComingSoonMovies } from '@/hooks/useComingSoonMovies';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const SoonMovies: React.FC = () => {
   const { movies, loading, error } = useComingSoonMovies();
+
+  if (loading) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#020617]">
+      <LoadingSpinner />
+    </div>
+  );
+}
 
   return (
     <div className="relative w-full h-full font-['Inter']">
@@ -14,12 +23,6 @@ const SoonMovies: React.FC = () => {
         <h1 className="text-white text-[48px] font-bold text-center mb-12 drop-shadow-lg">
           Скоро у кіно
         </h1>
-
-        {loading && (
-          <div className="flex items-center justify-center h-100">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0753E0]"></div>
-          </div>
-        )}
 
         {error && (
           <div className="text-center text-red-500 text-xl py-10">

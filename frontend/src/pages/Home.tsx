@@ -1,9 +1,18 @@
 import React from 'react';
 import MovieCard from '@/components/movie/MovieCard';
 import { useMovies } from '@/hooks/useMovies';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const Home: React.FC = () => {
   const { movies, loading, error } = useMovies();
+
+    if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#020617]">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-full font-['Inter']">
@@ -15,22 +24,10 @@ const Home: React.FC = () => {
           Зараз у кіно
         </h1>
 
-        {loading && (
-          <div className="flex items-center justify-center h-100">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0753E0]"></div>
-          </div>
-        )}
-
         {error && (
           <div className="text-center text-red-500 text-xl py-10">
             {error}
           </div>
-        )}
-
-        {!loading && !error && movies.length === 0 && (
-           <div className="text-center text-white/50 text-xl py-10">
-             Фільмів поки немає :(
-           </div>
         )}
 
         {!loading && !error && movies.length > 0 && (

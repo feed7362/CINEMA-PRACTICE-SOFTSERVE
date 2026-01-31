@@ -5,8 +5,9 @@ import { FOOTER_LINKS } from '@/constants/navigation';
 const Footer: React.FC = () => {
   return (
     <footer className="w-full bg-[#020617] border-t border-white/5 py-6 px-6 mt-auto font-['Inter']">
-      <div className="max-w-360 mx-auto">
-        <nav className="flex flex-wrap justify-start items-center gap-x-8 gap-y-4">
+      <div className="max-w-360 mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        
+        <nav className="flex flex-wrap justify-center md:justify-start items-center gap-x-8 gap-y-4">
           {FOOTER_LINKS.map((link) => (
             <Link 
               key={link.path} 
@@ -18,9 +19,10 @@ const Footer: React.FC = () => {
           ))}
         </nav>
         
-        <div className="mt-4 pt-4 border-t border-white/5 text-white/20 text-xs">
+        <div className="text-white/20 text-xs whitespace-nowrap">
           © 2026 NetFilm. Усі права захищені.
         </div>
+        
       </div>
     </footer>
   );
