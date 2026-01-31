@@ -4,7 +4,6 @@ import Home from '@/pages/Home';
 import Admin from '@/pages/Admin';
 import Auth from '@/pages/Auth';
 import Booking from '@/pages/Booking';
-import Loading from '@/pages/Loading';
 import MovieDetails from '@/pages/MovieDetails';
 import MovieSchedule from '@/pages/MovieSchedule';
 import Profile from '@/pages/Profile';
@@ -20,7 +19,6 @@ const AppRoutes: React.FC = () => {
         <Route path="/admin" element={<Admin />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/booking/:id" element={<Booking />} />
-        <Route path="/loading" element={<Loading />} />
         <Route path="/movie/:id" element={<MovieDetails />} />
         <Route path="/schedule" element={<MovieSchedule />} />
         <Route path="/profile/:id" element={<Profile />} />

@@ -16,19 +16,19 @@ function App() {
           <img
             src={bgEffectTopLeft}
             alt=""
-            className="absolute top-[-10%] left-[-15%] w-[70%] max-w-[900px] opacity-80 mix-blend-screen"
+            className="absolute top-[-10%] left-[-15%] w-[70%] max-w-225 opacity-80 mix-blend-screen"
           />
 
           <img
             src={bgEffectCenterRight}
             alt=""
-            className="absolute top-[25%] right-[-10%] w-[85%] max-w-[1100px] opacity-70 mix-blend-screen"
+            className="absolute top-[25%] right-[-10%] w-[85%] max-w-275 opacity-70 mix-blend-screen"
           />
         </div>
 
         <div className="relative z-10 flex flex-col min-h-screen">
           <Header />
-          <main className="flex-grow">
+          <main className="grow">
             <AppRoutes />
           </main>
           <Footer />

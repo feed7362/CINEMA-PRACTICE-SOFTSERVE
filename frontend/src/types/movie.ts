@@ -17,6 +17,25 @@ export interface IMovie {
   fullSchedule?: IScheduleEntry[];
 }
 
+export interface IMovieDetails {
+  id: number;
+  title: string;
+  poster: string;
+  ageRating: string;
+  originalTitle: string;
+  director: string;
+  year: number;
+  country: string;
+  genre: string;
+  rating: number;
+  language: string;
+  subtitles: string;
+  cast: string;
+  description: string;
+  trailerUrl?: string;
+  schedule: IScheduleEntry[];
+}
+
 export interface MovieCardProps {
   movie: IMovie;
   isBlurred?: boolean;
