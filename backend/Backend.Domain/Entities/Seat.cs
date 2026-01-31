@@ -20,8 +20,6 @@ public class Seat : IEntity
     public int SeatNumber { get; set; }
 
     public int RowNumber { get; set; }
-
-    public bool IsReserved { get; set; }
-
+    
     public Hall Hall { get; set; } = null!;
 }

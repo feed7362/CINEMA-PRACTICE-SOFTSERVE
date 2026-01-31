@@ -239,7 +239,6 @@ public static class DataSeeder
                             RowNumber = row,
                             SeatNumber = seat,
                             SeatType = row == 1 ? SeatType.Vip : SeatType.Regular,
-                            IsReserved = false
                         });
                     }
                 }
