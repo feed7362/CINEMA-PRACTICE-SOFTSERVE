@@ -19,7 +19,7 @@ const Footer: React.FC = () => {
           ))}
         </nav>
         
-        <div className="text-white/20 text-xs whitespace-nowrap">
+        <div className="text-white/80 text-xs whitespace-nowrap">
           © 2026 NetFilm. Усі права захищені.
         </div>
         
