@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 const MovieSchedule: React.FC<MovieScheduleProps> = ({ schedule }) => {
   const navigate = useNavigate();
   return (
-    <div className="w-full max-w-[360px] bg-sky-950 rounded-[20px] p-6 flex flex-col gap-6 shadow-2xl border border-white/5">
+    <div className="w-full max-w-90 bg-sky-950 rounded-[20px] p-6 flex flex-col gap-6 shadow-2xl border border-white/5">
       <h2 className="text-white text-2xl font-bold">Розклад сеансів</h2>
       <div className="flex flex-col gap-6">
         {schedule.map((day, index) => (
