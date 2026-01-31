@@ -2,38 +2,34 @@
 using Backend.Domain.Interfaces;
 using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
+using System.Data;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Backend.Data.Repositories
 {
-    internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity
+    public class Repository<TEntity>(ApplicationContext context) : IRepository<TEntity>
+        where TEntity : class, IEntity
     {
-        internal ApplicationContext context;
-        internal DbSet<TEntity> dbSet;
+        private readonly DbSet<TEntity> _dbSet = context.Set<TEntity>();
 
-        public Repository(ApplicationContext context)
+        public async Task<List<TEntity>> GetAllAsync()
         {
-            this.context = context;
-            this.dbSet = context.Set<TEntity>();
+            return await _dbSet.ToListAsync();
         }
 
-        public IEnumerable<TEntity> GetAll()
+        public async Task<TEntity?> GetByIdAsync(int id)
         {
-            return dbSet.ToList();
-        }
-
-        public TEntity? GetById(int id)
-        {
-            return dbSet.Find(id);
+            return await _dbSet.FindAsync(id);
         }
 
         public void Insert(TEntity entity)
         {
-            dbSet.Add(entity);
+            _dbSet.Add(entity);
         }
 
         public void Delete(int id)
         {
-            TEntity? entity = dbSet.Find(id);
+            var entity = _dbSet.Find(id);
             if (entity != null) Delete(entity);
         }
 
@@ -41,14 +37,15 @@ namespace Backend.Data.Repositories
         {
             if (context.Entry(entity).State == EntityState.Detached)
             {
-                dbSet.Attach(entity);
+                _dbSet.Attach(entity);
             }
-            dbSet.Remove(entity);
+
+            _dbSet.Remove(entity);
         }
 
         public void Update(TEntity entity)
         {
-            dbSet.Attach(entity);
+            _dbSet.Attach(entity);
             context.Entry(entity).State = EntityState.Modified;
         }
 
@@ -62,10 +59,70 @@ namespace Backend.Data.Repositories
             return ApplySpecification(specification).FirstOrDefault();
         }
 
+        public async Task<TEntity> AddAsync(TEntity entity)
+        {
+            await _dbSet.AddAsync(entity);
+            await context.SaveChangesAsync();
+            return entity;
+        }
+
+        public async Task UpdateAsync(TEntity entity)
+        {
+            _dbSet.Attach(entity);
+            context.Entry(entity).State = EntityState.Modified;
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var entity = await _dbSet.FindAsync(id);
+            if (entity != null)
+            {
+                await DeleteAsync(entity);
+            }
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(TEntity entity)
+        {
+            if (context.Entry(entity).State == EntityState.Detached)
+            {
+                _dbSet.Attach(entity);
+            }
+
+            _dbSet.Remove(entity);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<List<TEntity>> GetListBySpecAsync(ISpecification<TEntity> specification)
+        {
+            return await ApplySpecification(specification).ToListAsync();
+        }
+
+        public async Task<TEntity?> GetFirstBySpecAsync(ISpecification<TEntity> specification)
+        {
+            return await ApplySpecification(specification).FirstOrDefaultAsync();
+        }
+
+        public async Task<int> CountAsync(ISpecification<TEntity> spec)
+        {
+            var query = ApplySpecification(spec);
+            return await query.CountAsync();
+        }
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel)
+        {
+            return await context.Database.BeginTransactionAsync(isolationLevel);
+        }
+
         private IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> specification)
         {
             var evaluator = new SpecificationEvaluator();
-            return evaluator.GetQuery(dbSet, specification);
+            return evaluator.GetQuery(_dbSet, specification);
         }
 
         public void Save()

@@ -1,11 +1,13 @@
 ﻿using Ardalis.Specification;
+using Microsoft.EntityFrameworkCore.Storage;
+using System.Data;
 
 namespace Backend.Domain.Interfaces
 {
     public interface IRepository<TEntity> where TEntity : class, IEntity
     {
-        IEnumerable<TEntity> GetAll();
-        TEntity? GetById(int id);
+        Task<List<TEntity>> GetAllAsync();
+        Task<TEntity?> GetByIdAsync(int id);
         void Insert(TEntity entity);
         void Update(TEntity entity);
         void Delete(int id);
@@ -14,6 +16,16 @@ namespace Backend.Domain.Interfaces
         IEnumerable<TEntity> GetListBySpec(ISpecification<TEntity> specification);
         TEntity? GetFirstBySpec(ISpecification<TEntity> specification);
 
-        void Save();
+        Task<TEntity> AddAsync(TEntity entity);
+        Task UpdateAsync(TEntity entity);
+        Task DeleteAsync(TEntity entity);
+        Task DeleteAsync(int id);
+        Task SaveChangesAsync();
+
+        Task<TEntity?> GetFirstBySpecAsync(ISpecification<TEntity> spec);
+        Task<List<TEntity>> GetListBySpecAsync(ISpecification<TEntity> spec);
+        Task<int> CountAsync(ISpecification<TEntity> spec);
+
+        Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel);
     }
 }

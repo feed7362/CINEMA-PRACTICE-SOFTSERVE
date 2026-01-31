@@ -22,7 +22,25 @@ namespace Backend.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Backend.Data.Configurations.ApplicationUser", b =>
+            modelBuilder.Entity("Backend.Domain.Entities.Actor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Actor");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -95,24 +113,6 @@ namespace Backend.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Backend.Domain.Entities.Actor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ActorName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Actor");
-                });
-
             modelBuilder.Entity("Backend.Domain.Entities.Booking", b =>
                 {
                     b.Property<int>("Id")
@@ -127,8 +127,14 @@ namespace Backend.Data.Migrations
                     b.Property<DateTime>("BookingTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("ConfirmationTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("ExpirationTime")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PaymentIntentId")
+                        .HasColumnType("text");
 
                     b.Property<int>("SessionId")
                         .HasColumnType("integer");
@@ -179,7 +185,7 @@ namespace Backend.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("GenreName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
@@ -252,16 +258,6 @@ namespace Backend.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
 
-                    b.Property<string>("MovieTitleORG")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
-
-                    b.Property<string>("MovieTitleUKR")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
-
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -270,6 +266,16 @@ namespace Backend.Data.Migrations
 
                     b.Property<bool>("Subtitles")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("TitleORG")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("TitleUKR")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
 
                     b.Property<string>("TrailerURL")
                         .HasMaxLength(200)
@@ -437,7 +443,7 @@ namespace Backend.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("StudioName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
@@ -622,7 +628,7 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Booking", b =>
                 {
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany("Bookings")
                         .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -773,7 +779,7 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -782,7 +788,7 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -797,7 +803,7 @@ namespace Backend.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -806,21 +812,21 @@ namespace Backend.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("Backend.Data.Configurations.ApplicationUser", null)
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Backend.Data.Configurations.ApplicationUser", b =>
-                {
-                    b.Navigation("Bookings");
-                });
-
             modelBuilder.Entity("Backend.Domain.Entities.Actor", b =>
                 {
                     b.Navigation("MovieActors");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("Bookings");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Booking", b =>

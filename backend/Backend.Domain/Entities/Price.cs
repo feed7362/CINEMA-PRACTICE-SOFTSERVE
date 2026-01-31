@@ -8,7 +8,7 @@ public class Price : IEntity
 
     public int SessionId { get; set; }
 
-    public SeatType SeatType { get; set; } = SeatType.REGULAR;
+    public SeatType SeatType { get; set; } = SeatType.Regular;
 
     public decimal Value { get; set; }
 

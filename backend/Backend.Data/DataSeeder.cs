@@ -1,28 +1,91 @@
 ﻿using Backend.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Backend.Data;
 
 public static class DataSeeder
 {
-    public static async Task SeedDataAsync(ApplicationContext context)
+    public static async Task ApplyMigrationsAndSeedAsync(this IHost app)
     {
+        using var scope = app.Services.CreateScope();
+        var services = scope.ServiceProvider;
+
+        try
+        {
+            var context = services.GetRequiredService<ApplicationContext>();
+            var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
+
+            if ((await context.Database.GetPendingMigrationsAsync()).Any())
+            {
+                await context.Database.MigrateAsync();
+            }
+
+            await SeedDataAsync(context, userManager, roleManager);
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<ApplicationContext>>();
+            logger.LogError(ex, "Помилка під час міграції або наповнення бази.");
+            throw;
+        }
+    }
+
+    private static async Task SeedDataAsync(
+        ApplicationContext context,
+        UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole<int>> roleManager
+    )
+    {
+        #region Identity (Roles & Admin)
+        string[] roleNames = ["Admin", "Customer"];
+        foreach (var roleName in roleNames)
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole<int> { Name = roleName });
+            }
+        }
+
+        const string adminEmail = "admin@cinema.ua";
+        if (await userManager.FindByEmailAsync(adminEmail) == null)
+        {
+            var admin = new ApplicationUser
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var result = await userManager.CreateAsync(admin, "Admin123!");
+
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(admin, "Admin");
+            }
+        }
+        #endregion
         #region Studios
         if (!await context.Set<Studio>().AnyAsync())
         {
             context.Set<Studio>().AddRange(
-                new Studio { StudioName = "Universal Pictures" },
-                new Studio { StudioName = "Warner Bros. Pictures" },
-                new Studio { StudioName = "Legendary Entertainment" },
-                new Studio { StudioName = "Paramount Pictures" },
-                new Studio { StudioName = "20th Century Studios" },
-                new Studio { StudioName = "A24" },
-                new Studio { StudioName = "Columbia Pictures" },
-                new Studio { StudioName = "Marvel Studios" },
-                new Studio { StudioName = "Pixar Animation Studios" },
-                new Studio { StudioName = "Netflix Studios" },
-                new Studio { StudioName = "Sony Pictures" },
-                new Studio { StudioName = "Lionsgate" }
+                new Studio { Name = "Universal Pictures" },
+                new Studio { Name = "Warner Bros. Pictures" },
+                new Studio { Name = "Legendary Entertainment" },
+                new Studio { Name = "Paramount Pictures" },
+                new Studio { Name = "20th Century Studios" },
+                new Studio { Name = "A24" },
+                new Studio { Name = "Columbia Pictures" },
+                new Studio { Name = "Marvel Studios" },
+                new Studio { Name = "Pixar Animation Studios" },
+                new Studio { Name = "Netflix Studios" },
+                new Studio { Name = "Sony Pictures" },
+                new Studio { Name = "Lionsgate" }
             );
             await context.SaveChangesAsync();
         }
@@ -32,19 +95,19 @@ public static class DataSeeder
         if (!await context.Set<Genre>().AnyAsync())
         {
             context.Set<Genre>().AddRange(
-                new Genre { GenreName = "Наукова фантастика" },
-                new Genre { GenreName = "Драма" },
-                new Genre { GenreName = "Біографія" },
-                new Genre { GenreName = "Екшн" },
-                new Genre { GenreName = "Трилер" },
-                new Genre { GenreName = "Пригоди" },
-                new Genre { GenreName = "Кримінал" },
-                new Genre { GenreName = "Фентезі" },
-                new Genre { GenreName = "Жахи" },
-                new Genre { GenreName = "Комедія" },
-                new Genre { GenreName = "Романтика" },
-                new Genre { GenreName = "Анімація" },
-                new Genre { GenreName = "Містика" }
+                new Genre { Name = "Наукова фантастика" },
+                new Genre { Name = "Драма" },
+                new Genre { Name = "Біографія" },
+                new Genre { Name = "Екшн" },
+                new Genre { Name = "Трилер" },
+                new Genre { Name = "Пригоди" },
+                new Genre { Name = "Кримінал" },
+                new Genre { Name = "Фентезі" },
+                new Genre { Name = "Жахи" },
+                new Genre { Name = "Комедія" },
+                new Genre { Name = "Романтика" },
+                new Genre { Name = "Анімація" },
+                new Genre { Name = "Містика" }
             );
             await context.SaveChangesAsync();
         }
@@ -54,21 +117,21 @@ public static class DataSeeder
         if (!await context.Set<Actor>().AnyAsync())
         {
             context.Set<Actor>().AddRange(
-                new Actor { ActorName = "Кілліан Мерфі" },
-                new Actor { ActorName = "Тімоті Шаламе" },
-                new Actor { ActorName = "Зендея" },
-                new Actor { ActorName = "Роберт Дауні-молодший" },
-                new Actor { ActorName = "Хоакін Фенікс" },
-                new Actor { ActorName = "Меттью Макконагі" },
-                new Actor { ActorName = "Енн Гетевей" },
-                new Actor { ActorName = "Леонардо Ді Капріо" },
-                new Actor { ActorName = "Марго Роббі" },
-                new Actor { ActorName = "Бред Пітт" },
-                new Actor { ActorName = "Крістіан Бейл" },
-                new Actor { ActorName = "Том Гарді" },
-                new Actor { ActorName = "Емма Стоун" },
-                new Actor { ActorName = "Раян Гослінг" },
-                new Actor { ActorName = "Кіану Рівз" }
+                new Actor { Name = "Кілліан Мерфі" },
+                new Actor { Name = "Тімоті Шаламе" },
+                new Actor { Name = "Зендея" },
+                new Actor { Name = "Роберт Дауні-молодший" },
+                new Actor { Name = "Хоакін Фенікс" },
+                new Actor { Name = "Меттью Макконагі" },
+                new Actor { Name = "Енн Гетевей" },
+                new Actor { Name = "Леонардо Ді Капріо" },
+                new Actor { Name = "Марго Роббі" },
+                new Actor { Name = "Бред Пітт" },
+                new Actor { Name = "Крістіан Бейл" },
+                new Actor { Name = "Том Гарді" },
+                new Actor { Name = "Емма Стоун" },
+                new Actor { Name = "Раян Гослінг" },
+                new Actor { Name = "Кіану Рівз" }
             );
             await context.SaveChangesAsync();
         }
@@ -83,61 +146,61 @@ public static class DataSeeder
             {
                 new()
                 {
-                    MovieTitleORG = "Oppenheimer",
-                    MovieTitleUKR = "Оппенгеймер",
+                    TitleOrg = "Oppenheimer",
+                    TitleUkr = "Оппенгеймер",
                     Description = "Історія людини, яка створила атомну бомбу.",
                     Duration = 180,
                     ReleaseDate = CreateUtcDate(2023, 7, 21),
                     FinishDate = CreateUtcDate(2026, 12, 31),
-                    IMDBRating = 8.4m,
+                    ImdbRating = 8.4m,
                     Director = "Крістофер Нолан",
                     Country = "США",
-                    StudioId = studios.First(s => s.StudioName == "Universal Pictures").Id,
+                    StudioId = studios.First(s => s.Name == "Universal Pictures").Id,
                     AgeRating = AgeRating._16Plus,
                     Subtitles = true
                 },
                 new()
                 {
-                    MovieTitleORG = "Dune: Part Two",
-                    MovieTitleUKR = "Дюна: Частина друга",
+                    TitleOrg = "Dune: Part Two",
+                    TitleUkr = "Дюна: Частина друга",
                     Description = "Пол Атрідес стає лідером фрименів.",
                     Duration = 166,
                     ReleaseDate = CreateUtcDate(2024, 3, 1),
                     FinishDate = CreateUtcDate(2026, 11, 30),
-                    IMDBRating = 8.6m,
+                    ImdbRating = 8.6m,
                     Director = "Дені Вільнев",
                     Country = "США, Канада",
-                    StudioId = studios.First(s => s.StudioName == "Legendary Entertainment").Id,
+                    StudioId = studios.First(s => s.Name == "Legendary Entertainment").Id,
                     AgeRating = AgeRating._12Plus,
                     Subtitles = true
                 },
                 new()
                 {
-                    MovieTitleORG = "Interstellar",
-                    MovieTitleUKR = "Інтерстеллар",
+                    TitleOrg = "Interstellar",
+                    TitleUkr = "Інтерстеллар",
                     Description = "Подорож крізь простір і час заради людства.",
                     Duration = 169,
                     ReleaseDate = CreateUtcDate(2014, 11, 7),
                     FinishDate = CreateUtcDate(2026, 12, 31),
-                    IMDBRating = 8.7m,
+                    ImdbRating = 8.7m,
                     Director = "Крістофер Нолан",
                     Country = "США",
-                    StudioId = studios.First(s => s.StudioName == "Paramount Pictures").Id,
+                    StudioId = studios.First(s => s.Name == "Paramount Pictures").Id,
                     AgeRating = AgeRating._12Plus,
                     Subtitles = true
                 },
                 new()
                 {
-                    MovieTitleORG = "Joker",
-                    MovieTitleUKR = "Джокер",
+                    TitleOrg = "Joker",
+                    TitleUkr = "Джокер",
                     Description = "Психологічна історія становлення лиходія.",
                     Duration = 122,
                     ReleaseDate = CreateUtcDate(2019, 10, 4),
                     FinishDate = CreateUtcDate(2026, 6, 30),
-                    IMDBRating = 8.5m,
+                    ImdbRating = 8.5m,
                     Director = "Тодд Філліпс",
                     Country = "США",
-                    StudioId = studios.First(s => s.StudioName == "Warner Bros. Pictures").Id,
+                    StudioId = studios.First(s => s.Name == "Warner Bros. Pictures").Id,
                     AgeRating = AgeRating._18Plus,
                     Subtitles = true
                 }
@@ -175,7 +238,7 @@ public static class DataSeeder
                             HallId = hall.Id,
                             RowNumber = row,
                             SeatNumber = seat,
-                            SeatType = row == 1 ? SeatType.VIP : SeatType.REGULAR,
+                            SeatType = row == 1 ? SeatType.Vip : SeatType.Regular,
                             IsReserved = false
                         });
                     }
@@ -207,8 +270,8 @@ public static class DataSeeder
                     await context.SaveChangesAsync();
 
                     context.Prices.AddRange(
-                        new Price { SessionId = session.Id, SeatType = SeatType.REGULAR, Value = 220 },
-                        new Price { SessionId = session.Id, SeatType = SeatType.VIP, Value = 380 }
+                        new Price { SessionId = session.Id, SeatType = SeatType.Regular, Value = 220 },
+                        new Price { SessionId = session.Id, SeatType = SeatType.Vip, Value = 380 }
                     );
                     await context.SaveChangesAsync();
                 }
@@ -220,10 +283,45 @@ public static class DataSeeder
         if (!await context.Set<Discount>().AnyAsync())
         {
             context.Set<Discount>().AddRange(
+                new Discount { Type = DiscountType.REGULAR, Percentage = 0, IsActive = true },
                 new Discount { Type = DiscountType.STUDENT, Percentage = 20, IsActive = true },
                 new Discount { Type = DiscountType.MILITARY, Percentage = 30, IsActive = true },
                 new Discount { Type = DiscountType.PROMOCODE, Percentage = 25, IsActive = true }
             );
+            await context.SaveChangesAsync();
+        }
+        #endregion
+        
+        #region Bookings (Initial History)
+        if (!await context.Bookings.AnyAsync())
+        {
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            var firstSession = await context.Sessions.FirstAsync();
+            var firstSeat = await context.Seats.FirstAsync(s => s.HallId == firstSession.HallId);
+            var regularDiscount = await context.Set<Discount>().FirstAsync(d => d.Type == DiscountType.REGULAR);
+            var price = await context.Prices.FirstAsync(p => p.SessionId == firstSession.Id && p.SeatType == firstSeat.SeatType);
+
+            var historicBooking = new Booking
+            {
+                ApplicationUserId = adminUser!.Id,
+                SessionId = firstSession.Id,
+                BookingTime = DateTime.UtcNow.AddDays(-1),
+                ExpirationTime = DateTime.UtcNow.AddDays(-1).AddMinutes(15),
+                Status = BookingStatus.CONFIRMED,
+                PaymentIntentId = "pi_seeder_mock_123",
+                ConfirmationTime = DateTime.UtcNow.AddDays(-1).AddMinutes(5)
+            };
+
+            historicBooking.Tickets.Add(new Ticket
+            {
+                SeatId = firstSeat.Id,
+                PriceId = price.Id,
+                DiscountId = regularDiscount.Id,
+                FinalPrice = price.Value,
+                PurchaseTime = DateTime.UtcNow.AddDays(-1)
+            });
+
+            context.Bookings.Add(historicBooking);
             await context.SaveChangesAsync();
         }
         #endregion
@@ -237,25 +335,25 @@ public static class DataSeeder
         var genres = await context.Set<Genre>().ToListAsync();
         var actors = await context.Set<Actor>().ToListAsync();
 
-        void AddMG(Movie m, params string[] g) =>
+        void AddMg(Movie m, params string[] g) =>
             context.MovieGenres.AddRange(g.Select(x =>
-                new MovieGenre { MovieId = m.Id, GenreId = genres.First(y => y.GenreName == x).Id }));
+                new MovieGenre { MovieId = m.Id, GenreId = genres.First(y => y.Name == x).Id }));
 
-        void AddMA(Movie m, params string[] a) =>
+        void AddMa(Movie m, params string[] a) =>
             context.MovieActors.AddRange(a.Select(x =>
-                new MovieActor { MovieId = m.Id, ActorId = actors.First(y => y.ActorName == x).Id }));
+                new MovieActor { MovieId = m.Id, ActorId = actors.First(y => y.Name == x).Id }));
 
-        AddMG(movies[0], "Біографія", "Драма");
-        AddMA(movies[0], "Кілліан Мерфі", "Роберт Дауні-молодший");
+        AddMg(movies[0], "Біографія", "Драма");
+        AddMa(movies[0], "Кілліан Мерфі", "Роберт Дауні-молодший");
 
-        AddMG(movies[1], "Наукова фантастика", "Пригоди");
-        AddMA(movies[1], "Тімоті Шаламе", "Зендея");
+        AddMg(movies[1], "Наукова фантастика", "Пригоди");
+        AddMa(movies[1], "Тімоті Шаламе", "Зендея");
 
-        AddMG(movies[2], "Наукова фантастика", "Драма");
-        AddMA(movies[2], "Меттью Макконагі", "Енн Гетевей");
+        AddMg(movies[2], "Наукова фантастика", "Драма");
+        AddMa(movies[2], "Меттью Макконагі", "Енн Гетевей");
 
-        AddMG(movies[3], "Драма", "Кримінал", "Трилер");
-        AddMA(movies[3], "Хоакін Фенікс");
+        AddMg(movies[3], "Драма", "Кримінал", "Трилер");
+        AddMa(movies[3], "Хоакін Фенікс");
 
         await context.SaveChangesAsync();
     }

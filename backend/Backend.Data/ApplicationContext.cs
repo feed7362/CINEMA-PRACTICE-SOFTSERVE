@@ -1,5 +1,4 @@
-﻿using Backend.Data.Configurations;
-using Backend.Domain.Entities;
+﻿using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -21,8 +20,10 @@ namespace Backend.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationContext).Assembly);
             base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfigurationsFromAssembly(
+                typeof(ApplicationContext).Assembly
+            );
         }
     }
 }

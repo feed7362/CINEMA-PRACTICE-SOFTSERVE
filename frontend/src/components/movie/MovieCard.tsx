@@ -10,18 +10,18 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, isBlurred }) => {
   return (
     <div 
       onClick={goToMovieDetails} 
-      className={`flex flex-col group cursor-pointer w-full max-w-[240px] mx-auto ${
+      className={`flex flex-col group cursor-pointer w-full max-w-60 mx-auto ${
         isBlurred ? 'opacity-50 blur-sm pointer-events-none' : ''
       }`}
     >
-      <article className="relative aspect-[2/3] w-full rounded-[18px] overflow-hidden shadow-md bg-zinc-800">
+      <article className="relative aspect-2/3 w-full rounded-[18px] overflow-hidden shadow-md bg-zinc-800">
         <img 
           className="w-full h-full object-cover transition-all duration-500 group-hover:brightness-50" 
           src={poster} 
           alt={title} 
         />
         
-        <div className="absolute top-2 right-2 bg-[#D9D9D9]/90 backdrop-blur-sm px-1.5 py-0.5 rounded-[5px] text-black text-[12px] font-bold z-20 min-w-[28px] text-center">
+        <div className="absolute top-2 right-2 bg-[#D9D9D9]/90 backdrop-blur-sm px-1.5 py-0.5 rounded-[5px] text-black text-[12px] font-bold z-20 min-w-7 text-center">
           {ageRating}
         </div>
 
@@ -35,7 +35,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, isBlurred }) => {
               <button 
                 key={time} 
                 onClick={(e) => goToBooking(e, time)} 
-                className="bg-[#0545BB] hover:bg-[#032d7b] text-white text-[15px] px-4 py-2.5 rounded-[12px] transition-colors duration-300 font-bold shadow-md active:scale-95"
+                className="bg-[#0545BB] hover:bg-[#032d7b] text-white text-[15px] px-4 py-2.5 rounded-xl transition-colors duration-300 font-bold shadow-md active:scale-95"
               >
                 {time}
               </button>

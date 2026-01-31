@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Backend.Data;
-using Backend.Data.Configurations;
+using Backend.Domain.Entities;
 
 namespace Backend.API.Extensions;
 
 public static class IdentityExtensions
 {
-    public static IServiceCollection AddIdentityServices(this IServiceCollection services)
+    public static void AddIdentityServices(this IServiceCollection services)
     {
         services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
             {
@@ -25,7 +25,5 @@ public static class IdentityExtensions
             })
             .AddEntityFrameworkStores<ApplicationContext>()
             .AddDefaultTokenProviders();
-
-        return services;
     }
 }

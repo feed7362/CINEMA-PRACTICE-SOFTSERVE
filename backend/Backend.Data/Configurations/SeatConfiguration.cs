@@ -20,7 +20,7 @@ public class SeatConfiguration : IEntityTypeConfiguration<Seat>
             .HasConversion<short>()
             .HasColumnType("smallint")
             .IsRequired()
-            .HasDefaultValue(SeatType.REGULAR);
+            .HasDefaultValue(SeatType.Regular);
 
         builder.Property(s => s.SeatNumber)
             .IsRequired();
@@ -36,8 +36,10 @@ public class SeatConfiguration : IEntityTypeConfiguration<Seat>
             .HasForeignKey(s => s.HallId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasCheckConstraint("CK_Seat_RowNumber", "\"RowNumber\" >= 1 AND \"RowNumber\" <= 100");
-        builder.HasCheckConstraint("CK_Seat_SeatNumber", "\"SeatNumber\" >= 1 AND \"SeatNumber\" <= 100");
-
+        builder.ToTable(t =>
+        {
+            t.HasCheckConstraint("CK_Seat_RowNumber", "\"RowNumber\" >= 1 AND \"RowNumber\" <= 100");
+            t.HasCheckConstraint("CK_Seat_SeatNumber", "\"SeatNumber\" >= 1 AND \"SeatNumber\" <= 100");
+        });
     }
 }

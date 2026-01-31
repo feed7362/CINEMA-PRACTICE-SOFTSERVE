@@ -7,12 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Repositories\"/>
-        <Folder Include="QueryRecords\"/>
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Ardalis.Specification" Version="9.3.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.2" />
     </ItemGroup>
 
 </Project>

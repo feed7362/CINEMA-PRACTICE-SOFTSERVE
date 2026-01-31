@@ -16,9 +16,9 @@ public class Movie : IEntity
 
     public int StudioId { get; set; }
 
-    public string MovieTitleORG { get; set; } = null!;
+    public string TitleOrg { get; set; } = null!;
 
-    public string MovieTitleUKR { get; set; } = null!;
+    public string TitleUkr { get; set; } = null!;
 
     public string? Description { get; set; }
 
@@ -30,7 +30,7 @@ public class Movie : IEntity
 
     public AgeRating AgeRating { get; set; } = AgeRating._0Plus;
 
-    public decimal? IMDBRating { get; set; }
+    public decimal? ImdbRating { get; set; }
 
     public string? Director { get; set; }
 
@@ -38,9 +38,9 @@ public class Movie : IEntity
 
     public bool Subtitles { get; set; }
 
-    public string? ImageURL { get; set; }
+    public string? ImageUrl { get; set; }
 
-    public string? TrailerURL { get; set; }
+    public string? TrailerUrl { get; set; }
 
     public Studio Studio { get; set; } = null!;
 
