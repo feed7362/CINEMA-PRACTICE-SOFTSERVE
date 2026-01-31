@@ -25,9 +25,6 @@ public class HallService(IRepository<Hall> hallRepository) : IHallService
             {
                 var seatChar = rowString[c];
 
-                // Walkways in ui ???
-                if (seatChar == '_') continue;
-
                 var type = seatChar switch
                 {
                     'V' => SeatType.Vip,
@@ -39,8 +36,7 @@ public class HallService(IRepository<Hall> hallRepository) : IHallService
                 {
                     RowNumber = actualRowNumber,
                     SeatNumber = c + 1,
-                    SeatType = type,
-                    IsReserved = false
+                    SeatType = type
                 });
             }
         }
