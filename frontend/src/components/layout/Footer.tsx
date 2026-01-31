@@ -5,7 +5,7 @@ import { FOOTER_LINKS } from '@/constants/navigation';
 const Footer: React.FC = () => {
   return (
     <footer className="w-full bg-[#020617] border-t border-white/5 py-6 px-6 mt-auto font-['Inter']">
-      <div className="max-w-[1440px] mx-auto">
+      <div className="max-w-360 mx-auto">
         <nav className="flex flex-wrap justify-start items-center gap-x-8 gap-y-4">
           {FOOTER_LINKS.map((link) => (
             <Link 
