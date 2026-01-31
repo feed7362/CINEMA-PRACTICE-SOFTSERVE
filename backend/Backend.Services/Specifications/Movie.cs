@@ -1,6 +1,5 @@
 ﻿using Ardalis.Specification;
 using Backend.Domain.Entities;
-using Backend.Services.DTOs.Movie;
 
 namespace Backend.Services.Specifications
 {
@@ -18,18 +17,6 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public class All : Specification<Movie>
-    {
-        public All()
-        {
-            Query
-                .Include(m => m.Studio)
-                .Include(m => m.MovieActors)
-                .ThenInclude(ma => ma.Actor)
-                .Include(m => m.MovieGenres)
-                .ThenInclude(mg => mg.Genre);
-        }
-    }
 
     public class MovieSearchPagedSpec : Specification<Movie>
     {
@@ -37,7 +24,7 @@ namespace Backend.Services.Specifications
         {
             var pageNumber = filter.PageNumber ?? 1;
             var pageSize = filter.PageSize ?? 10;
-            
+
             Query
                 .Include(m => m.Studio)
                 .Include(m => m.MovieActors).ThenInclude(ma => ma.Actor)
@@ -60,13 +47,15 @@ namespace Backend.Services.Specifications
                 Query.Where(m => m.ReleaseDate > DateTime.UtcNow);
             }
 
+            MovieSorting.ApplySorting(Query, filter);
+
+
             Query
-                .OrderByDescending(m => m.ReleaseDate)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize);
         }
     }
-    
+
     public class MovieSearchFilterSpec : Specification<Movie>
     {
         public MovieSearchFilterSpec(MovieFilterDto filter)
@@ -82,7 +71,7 @@ namespace Backend.Services.Specifications
             {
                 Query.Where(m => m.MovieGenres.Any(mg => mg.GenreId == filter.GenreId));
             }
-            
+
             if (filter.StudioId.HasValue)
             {
                 Query.Where(m => m.StudioId == filter.StudioId);
@@ -93,8 +82,49 @@ namespace Backend.Services.Specifications
             {
                 Query.Where(m => m.ReleaseDate > DateTime.UtcNow);
             }
+
+            MovieSorting.ApplySorting(Query, filter);
         }
     }
 
+    internal static class MovieSorting
+    {
+        public static void ApplySorting(
+            ISpecificationBuilder<Movie> query,
+            MovieFilterDto filter)
+        {
+            var desc = filter.SortDirection == SortDirection.Desc;
 
+            switch (filter.SortBy)
+            {
+                case MovieSortBy.Title:
+                    if (desc)
+                        query.OrderByDescending(m => m.TitleOrg);
+                    else
+                        query.OrderBy(m => m.TitleOrg);
+                    break;
+
+                case MovieSortBy.ImdbRating:
+                    if (desc)
+                        query.OrderByDescending(m => m.ImdbRating);
+                    else
+                        query.OrderBy(m => m.ImdbRating);
+                    break;
+
+                case MovieSortBy.Duration:
+                    if (desc)
+                        query.OrderByDescending(m => m.Duration);
+                    else
+                        query.OrderBy(m => m.Duration);
+                    break;
+
+                case MovieSortBy.ReleaseDate:
+                    if (desc)
+                        query.OrderByDescending(m => m.ReleaseDate);
+                    else
+                        query.OrderBy(m => m.ReleaseDate);
+                    break;
+            }
+        }
+    }
 }
