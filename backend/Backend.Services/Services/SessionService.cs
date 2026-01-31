@@ -1,5 +1,6 @@
 ﻿using Backend.Domain.Entities;
 using Backend.Domain.Interfaces;
+using Backend.Services.DTOs.Seat;
 using Backend.Services.DTOs.Session;
 using Backend.Services.Interfaces;
 using Backend.Services.Specifications;
@@ -10,7 +11,9 @@ namespace Backend.Services.Services;
 public class SessionService(
     IRepository<Session> sessionRepository,
     IRepository<Movie> movieRepository,
-    IRepository<Hall> hallRepository)
+    IRepository<Hall> hallRepository,
+    IRepository<Ticket> ticketRepository,
+    IRepository<Seat> seatRepository)
     : ISessionService
 {
     public async Task<ReadSessionDto> CreateSessionAsync(CreateSessionDto dto)
@@ -63,6 +66,13 @@ public class SessionService(
             throw new Exception("Time conflict! The new time overlaps with another session.");
         }
 
+        var ticketsExist = await ticketRepository.AnyAsync(t => t.Booking.SessionId == session.Id);
+        if (ticketsExist)
+        {
+            throw new Exception("Cannot update session: tickets already sold");
+        }
+
+
         session.MovieId = dto.MovieId;
         session.HallId = dto.HallId;
         session.StartTime = dto.StartTime;
@@ -77,9 +87,7 @@ public class SessionService(
     {
         var session = await sessionRepository.GetByIdAsync(id);
 
-        if (session == null) return null;
-
-        return MapToDto(session);
+        return session == null ? null : MapToDto(session);
     }
 
     public async Task<List<ReadSessionDto>> GetAllSessionsAsync()
@@ -100,6 +108,34 @@ public class SessionService(
     {
         await sessionRepository.DeleteAsync(id);
     }
+
+    public async Task<List<SeatStatusDto>> GetSeatsBySessionAsync(int sessionId)
+    {
+        var session = await sessionRepository.GetByIdAsync(sessionId);
+        if (session == null) throw new Exception("Session not found");
+
+        var seats = await seatRepository.GetListBySpecAsync(
+            new SeatsByHallSpec(session.HallId)
+        );
+
+        var reservedTickets = await ticketRepository.GetListBySpecAsync(
+            new GetActiveTicketsForSeatsSpec(sessionId, seats.Select(s => s.Id).ToList())
+        );
+
+        var reservedSeatIds = reservedTickets.Select(t => t.SeatId).ToHashSet();
+
+
+        return seats.Select(s => new SeatStatusDto
+        {
+            Id = s.Id,
+            RowNumber = s.RowNumber,
+            SeatNumber = s.SeatNumber,
+            SeatType = s.SeatType.ToString(),
+            IsReserved = reservedSeatIds.Contains(s.Id)
+        }).ToList();
+    }
+
+
     private static ReadSessionDto MapToDto(Session s)
     {
         return new ReadSessionDto
