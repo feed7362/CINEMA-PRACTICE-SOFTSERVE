@@ -6,7 +6,6 @@ const SoonMovies: React.FC = () => {
   const { movies, loading, error } = useComingSoonMovies();
 
   return (
-  //check  
     <div className="relative w-full h-full font-['Inter']">
       
       <div className="absolute -top-50 right-0 w-150 h-150 bg-[#0753E0] rounded-full blur-[180px] opacity-30 pointer-events-none z-0" />
