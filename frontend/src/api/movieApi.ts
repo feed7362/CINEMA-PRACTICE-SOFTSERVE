@@ -1,5 +1,5 @@
 import axiosClient from './axiosClient';
-import type { IMovie } from '@/types/movie';
+import type { IMovie, MoviePreviewProps } from '@/types/movie';
 
 export const movieApi = {
   getNowPlaying: async (): Promise<IMovie[]> => {
@@ -19,4 +19,32 @@ export const movieApi = {
       return [];
     }
   },
+
+  getComingSoon: async (): Promise<MoviePreviewProps[]> => {
+    try {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+     
+      const { data } = await axiosClient.get('/movie', {
+        params: {
+          dateFrom: tomorrow.toISOString()
+        }
+      });
+
+      return data.map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        poster: item.poster || item.posterUrl || '',
+        ageRating: item.ageRating?.toString() + "+" || "0+",
+        releaseDate: item.releaseDate
+          ? new Date(item.releaseDate).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' })
+          : "Скоро у кіно",
+        isBlurred: false
+      }));
+
+    } catch (error) {
+      console.error('Failed to fetch coming soon movies:', error);
+      return [];
+    }
+  }
 };

@@ -20,7 +20,7 @@ public class PriceConfiguration : IEntityTypeConfiguration<Price>
             .HasConversion<short>()
             .HasColumnType("smallint")
             .IsRequired()
-            .HasDefaultValue(SeatType.REGULAR);
+            .HasDefaultValue(SeatType.Regular);
 
         builder.Property(p => p.Value)
             .HasColumnType("decimal(5,2)")

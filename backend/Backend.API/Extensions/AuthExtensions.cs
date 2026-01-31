@@ -6,8 +6,7 @@ namespace Backend.API.Extensions;
 
 public static class AuthExtensions
 {
-    public static IServiceCollection AddJwtAuthentication(
-        this IServiceCollection services,
+    public static void AddJwtAuthentication(this IServiceCollection services,
         IConfiguration configuration)
     {
         services.AddAuthentication(options =>
@@ -31,7 +30,5 @@ public static class AuthExtensions
         });
 
         services.AddAuthorization();
-
-        return services;
     }
 }

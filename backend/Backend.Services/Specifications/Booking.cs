@@ -1,21 +1,22 @@
 ﻿using Ardalis.Specification;
 using Backend.Domain.Entities;
+
 namespace Backend.Services.Specifications
 {
-    public class BookingByUserIdAndUserId : Specification<Domain.Entities.Booking>
+    public class BookingByUserIdAndUserId : Specification<Booking>
     {
         public BookingByUserIdAndUserId(int bookingId, int userId)
         {
             Query
                 .Where(b => b.Id == bookingId && b.ApplicationUserId == userId)
                 .Include(b => b.Session)
-                    .ThenInclude(s => s.Movie)
+                .ThenInclude(s => s.Movie)
                 .Include(b => b.Session)
-                    .ThenInclude(s => s.Hall)
+                .ThenInclude(s => s.Hall)
                 .Include(b => b.Tickets)
-                    .ThenInclude(t => t.Seat)
+                .ThenInclude(t => t.Seat)
                 .Include(b => b.Tickets)
-                    .ThenInclude(t => t.Price);
+                .ThenInclude(t => t.Price);
         }
     }
 
@@ -38,7 +39,7 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public class DiscountByTypeSpec : Specification<Domain.Entities.Discount>
+    public class DiscountByTypeSpec : Specification<Discount>
     {
         public DiscountByTypeSpec(DiscountType type)
         {
@@ -46,24 +47,24 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public class BookingWithDetailsByIdSpec : Specification<Domain.Entities.Booking>
+    public class BookingWithDetailsByIdSpec : Specification<Booking>
     {
         public BookingWithDetailsByIdSpec(int bookingId, int userId)
         {
             Query
                 .Where(b => b.Id == bookingId && b.ApplicationUserId == userId)
                 .Include(b => b.Session)
-                    .ThenInclude(s => s.Movie)
+                .ThenInclude(s => s.Movie)
                 .Include(b => b.Session)
-                    .ThenInclude(s => s.Hall)
+                .ThenInclude(s => s.Hall)
                 .Include(b => b.Tickets)
-                    .ThenInclude(t => t.Seat)
+                .ThenInclude(t => t.Seat)
                 .Include(b => b.Tickets)
-                    .ThenInclude(t => t.Discount);
+                .ThenInclude(t => t.Discount);
         }
     }
 
-    public class UserBookingHistorySpec : Specification<Domain.Entities.Booking>
+    public class UserBookingHistorySpec : Specification<Booking>
     {
         public UserBookingHistorySpec(int userId)
         {
@@ -71,7 +72,7 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public class UserBookingPagedSpec : Specification<Domain.Entities.Booking>
+    public class UserBookingPagedSpec : Specification<Booking>
     {
         public UserBookingPagedSpec(int userId, int page, int pageSize)
         {

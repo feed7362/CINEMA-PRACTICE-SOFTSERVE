@@ -1,6 +1,6 @@
 ﻿namespace Backend.Services.DTOs.Auth;
 
-public class LoginDto
+public record LoginDto
 {
     public required string Email { get; set; }
 

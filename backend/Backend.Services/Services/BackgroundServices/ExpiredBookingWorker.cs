@@ -5,23 +5,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Backend.Services.BackgroundServices;
+namespace Backend.Services.Services.BackgroundServices;
 
-public class ExpiredBookingWorker : BackgroundService
+public class ExpiredBookingWorker(IServiceProvider serviceProvider, ILogger<ExpiredBookingWorker> logger)
+    : BackgroundService
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly ILogger<ExpiredBookingWorker> _logger;
     private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(1);
-
-    public ExpiredBookingWorker(IServiceProvider serviceProvider, ILogger<ExpiredBookingWorker> logger)
-    {
-        _serviceProvider = serviceProvider;
-        _logger = logger;
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Expired Booking Worker is starting.");
+        logger.LogInformation("Expired Booking Worker is starting.");
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -31,7 +24,7 @@ public class ExpiredBookingWorker : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while canceling expired bookings.");
+                logger.LogError(ex, "Error occurred while canceling expired bookings.");
             }
 
             await Task.Delay(_checkInterval, stoppingToken);
@@ -40,10 +33,10 @@ public class ExpiredBookingWorker : BackgroundService
 
     private async Task CancelExpiredBookingsAsync()
     {
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = serviceProvider.CreateScope();
         var bookingRepository = scope.ServiceProvider.GetRequiredService<IRepository<Booking>>();
 
-        _logger.LogInformation("Checking for expired bookings at {Time}", DateTime.UtcNow);
+        logger.LogInformation("Checking for expired bookings at {Time}", DateTime.UtcNow);
 
         var expiredSpec = new Specification<Booking>();
         expiredSpec.Query
@@ -59,7 +52,7 @@ public class ExpiredBookingWorker : BackgroundService
             }
 
             await bookingRepository.SaveChangesAsync();
-            _logger.LogInformation("Successfully canceled {Count} expired bookings.", expiredBookings.Count);
+            logger.LogInformation("Successfully canceled {Count} expired bookings.", expiredBookings.Count);
         }
     }
 }

@@ -6,26 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Backend.API.Middleware;
 
-public class ExceptionHandlingMiddleware
+public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred during transaction processing.");
+            logger.LogError(ex, "An error occurred during transaction processing.");
             await HandleExceptionAsync(context, ex);
         }
     }
@@ -42,7 +33,7 @@ public class ExceptionHandlingMiddleware
             InvalidOperationException => (HttpStatusCode.Conflict, exception.Message),
 
             // Handle Postgres Serialization Failures (Code 40001)
-            DbUpdateException ex when ex.InnerException is PostgresException { SqlState: "40001" }
+            DbUpdateException { InnerException: PostgresException { SqlState: "40001" } } 
                 => (HttpStatusCode.ServiceUnavailable, "Concurrency conflict: Please try again."),
 
             // Handle Missing Resources

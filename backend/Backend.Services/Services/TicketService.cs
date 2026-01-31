@@ -3,38 +3,29 @@ using Backend.Domain.Entities;
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs;
 using Backend.Services.DTOs.Ticket;
+using Backend.Services.Interfaces;
 using Backend.Services.Specifications;
 
-namespace Backend.Services;
+namespace Backend.Services.Services;
 
-public class TicketService : ITicketService
+public class TicketService(IRepository<Ticket> ticketRepository) : ITicketService
 {
-    private readonly IRepository<Ticket> _ticketRepository;
-
-    public TicketService(
-        IRepository<Ticket> ticketRepository
-        )
-    {
-        _ticketRepository = ticketRepository;
-    }
     public async Task<TicketResponseDto?> GetTicketByIdAsync(int ticketId, int userId)
     {
-        var ticket = await _ticketRepository.GetFirstBySpecAsync(new TicketByIdAndUserSpec(ticketId, userId));
+        var ticket = await ticketRepository.GetFirstBySpecAsync(new TicketByIdAndUserSpec(ticketId, userId));
 
-        if (ticket == null) return null;
-
-        return MapToTicketResponse(ticket);
+        return ticket == null ? null : MapToTicketResponse(ticket);
     }
 
     public async Task<PagedResponse<TicketResponseDto>> GetUserTicketsAsync(int userId, int page = 1, int pageSize = 10)
     {
         var countSpec = new Specification<Ticket>();
         countSpec.Query.Where(t => t.Booking.ApplicationUserId == userId);
-        int totalCount = await _ticketRepository.CountAsync(countSpec);
+        var totalCount = await ticketRepository.CountAsync(countSpec);
 
         
         var pagedSpec = new UserTicketsPagedSpec(userId, page, pageSize);
-        var tickets = await _ticketRepository.GetListBySpecAsync(pagedSpec);
+        var tickets = await ticketRepository.GetListBySpecAsync(pagedSpec);
 
         
         var items = tickets.Select(MapToTicketResponse).ToList();
@@ -46,7 +37,7 @@ public class TicketService : ITicketService
     {
         return new TicketResponseDto(
             ticket.Id,
-            ticket.Booking.Session.Movie.TitleUKR,
+            ticket.Booking.Session.Movie.TitleUkr,
             ticket.Booking.Session.Hall.Name,
             ticket.Seat.RowNumber,
             ticket.Seat.SeatNumber,

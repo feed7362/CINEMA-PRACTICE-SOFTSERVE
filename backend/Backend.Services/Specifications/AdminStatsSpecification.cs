@@ -7,17 +7,17 @@ namespace Backend.Services.Specifications;
 public class AdminStatsSpecification : Specification<Ticket>
 {
     public AdminStatsSpecification(
-        AdminStatsFilterDto filter, 
-        int? movieId = null, 
-        int? sessionId = null, 
+        AdminStatsFilterDto filter,
+        int? movieId = null,
+        int? sessionId = null,
         int? hallId = null)
     {
         Query
             .Include(t => t.Booking)
-                .ThenInclude(b => b.Session)
-                .ThenInclude(s => s.Movie)
-                .ThenInclude(m => m.MovieGenres)
-                .ThenInclude(mg => mg.Genre)
+            .ThenInclude(b => b.Session)
+            .ThenInclude(s => s.Movie)
+            .ThenInclude(m => m.MovieGenres)
+            .ThenInclude(mg => mg.Genre)
             .Include(t => t.Seat)
             .Include(t => t.Discount)
             .Where(t => t.Booking.Status == BookingStatus.CONFIRMED);
@@ -33,14 +33,16 @@ public class AdminStatsSpecification : Specification<Ticket>
             Query.Where(t => t.Booking.Session.Movie.MovieGenres.Any(mg => mg.GenreId == filter.GenreId.Value));
 
         if (!string.IsNullOrEmpty(filter.Director))
-            Query.Where(t => t.Booking.Session.Movie.Director.Contains(filter.Director));
+            Query.Where(t =>
+                t.Booking.Session.Movie.Director != null && t.Booking.Session.Movie.Director.Contains(filter.Director));
 
         if (!string.IsNullOrEmpty(filter.Country))
-            Query.Where(t => t.Booking.Session.Movie.Country.Contains(filter.Country));
+            Query.Where(t =>
+                t.Booking.Session.Movie.Country != null && t.Booking.Session.Movie.Country.Contains(filter.Country));
 
-        if (filter.MinIMDBRating.HasValue)
-            Query.Where(t => t.Booking.Session.Movie.IMDBRating >= filter.MinIMDBRating.Value);
-            
+        if (filter.MinImdbRating.HasValue)
+            Query.Where(t => t.Booking.Session.Movie.ImdbRating >= filter.MinImdbRating.Value);
+
         if (filter.AgeRatingValue.HasValue)
             Query.Where(t => (int)t.Booking.Session.Movie.AgeRating == filter.AgeRatingValue.Value);
 

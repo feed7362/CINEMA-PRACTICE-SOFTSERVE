@@ -12,7 +12,7 @@ public class AdminStatsFilterDto
     public int? GenreId { get; set; }
     public string? Director { get; set; }
     public string? Country { get; set; }
-    public decimal? MinIMDBRating { get; set; }
+    public decimal? MinImdbRating { get; set; }
     public int? AgeRatingValue { get; set; } 
 
     public int? Amount { get; set; } 
