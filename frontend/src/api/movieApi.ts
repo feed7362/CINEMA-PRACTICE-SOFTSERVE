@@ -11,7 +11,7 @@ export const movieApi = {
         title: item.title,
         poster: item.poster || item.posterUrl || '',
         ageRating: item.ageRating?.toString() + "+" || "0+", 
-        sessions: item.sessions || ["10:00", "12:00"]
+        sessions: item.sessions || ["Немає сеансів"]
       }));
 
     } catch (error) {
