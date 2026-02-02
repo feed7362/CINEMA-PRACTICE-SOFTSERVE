@@ -95,8 +95,7 @@ const MovieDetails: React.FC = () => {
           </div>
         </div>
 
-        <MovieTrailer ref={playerRef} poster={posterSrc} />
-
+        <MovieTrailer ref={playerRef} poster={posterSrc} trailerUrl={movie.trailerUrl} />
         <MovieRecommendations movies={recommendations} currentMovieId={movie.id.toString()} />
 
        </div>
