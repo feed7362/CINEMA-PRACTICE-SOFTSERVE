@@ -40,12 +40,12 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, isBlurred }) => {
           {ageRating}
         </div>
 
-        <div className="absolute inset-0 bg-zinc-900/70 flex flex-col justify-end p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-          <span className="text-white text-[16px] font-bold mb-3 drop-shadow-lg">
+        <div className="absolute inset-0 bg-zinc-900/70 flex flex-col justify-end items-start p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+          <span className="text-white text-[16px] font-bold mb-3 drop-shadow-lg text-left">
             Сеанси на сьогодні
           </span>
           
-          <div className="flex flex-wrap gap-2 justify-center">
+          <div className="flex flex-wrap gap-2 justify-start w-full">
             {hasActiveSessions ? (
               sessions.slice(0, 3).map((time: string) => (
                 <button 
@@ -57,7 +57,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, isBlurred }) => {
                 </button>
               ))
             ) : (
-              <span className="text-white text-[15px] font-bold bg-linear-to-tr from-[#0753E0] to-[#032D7B] px-4 py-2.5 rounded-xl cursor-default shadow-md w-full text-center">
+              <span className="text-white text-[15px] font-bold bg-linear-to-tr from-[#0753E0] to-[#032D7B] px-4 py-2.5 rounded-xl cursor-default shadow-md">
                 Немає сеансів
               </span>
             )}
@@ -65,9 +65,12 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, isBlurred }) => {
         </div>
       </article>
       
-      <h3 className="mt-3 text-white text-[20px] font-normal text-center leading-tight">
-        {title}
-      </h3>
+      <div className="mt-3 h-13.5 flex items-start justify-center overflow-hidden px-1">
+        <h3 className="text-white text-[20px] font-normal text-center leading-tight line-clamp-2 text-ellipsis">
+          {title}
+        </h3>
+      </div>
+
     </div>
   );
 };
