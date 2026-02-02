@@ -91,7 +91,7 @@ const MovieDetails: React.FC = () => {
           </div>
 
           <div className="lg:col-span-3">
-             <MovieSchedule schedule={movie.schedule} movieId={movie.id.toString()} />
+             <MovieSchedule schedule={movie.schedule || []} movieId={movie.id.toString()} />
           </div>
         </div>
 

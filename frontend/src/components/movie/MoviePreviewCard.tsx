@@ -32,7 +32,7 @@ const MoviePreviewCard: React.FC<MoviePreviewProps> = ({ id, title, poster, rele
         </div>
 
         <div className="absolute inset-0 bg-[#D9D9D9]/30 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-          <div className="absolute inset-0 bg-black/40 z-[-1]" />
+          <div className="absolute inset-0 bg-zinc-900/70 z-[-1]" />
           <span className="text-white text-[16px] font-bold mb-2 uppercase tracking-wider text-center w-full">
             Прем’єра
           </span>

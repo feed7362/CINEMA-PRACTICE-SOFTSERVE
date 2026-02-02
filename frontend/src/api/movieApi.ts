@@ -1,20 +1,44 @@
 import axiosClient from './axiosClient';
-import type { IMovie, MoviePreviewProps, IMovieDetails } from '@/types/movie';
+import type { IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem } from '@/types/movie';
+
+interface SessionDto {
+  id: number;
+  movieId: number;
+  hallId: number;
+  startTime: string; 
+  endTime: string;
+}
 
 export const movieApi = {
   getNowPlaying: async (): Promise<IMovie[]> => {
     try {
-      const { data } = await axiosClient.get('/movie');
-      const movies = data.items || [];
+      const [moviesResponse, sessionsResponse] = await Promise.all([
+        axiosClient.get('/movie', { params: { SortDirection: 0 } }),
+        axiosClient.get('/session')
+      ]);
+      const movies = moviesResponse.data.items || [];
+      const allSessions: SessionDto[] = sessionsResponse.data || [];
 
-      return movies.map((item: any) => ({
-        id: item.id,
-        title: item.TitleUkr || item.titleUkr || item.title || "Без назви",
-        poster: item.poster || item.posterUrl || '',
-        ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
-        sessions: item.sessions || [],
-        hall: item.hall || item.hallName || "Не вказано"
-      }));
+      return movies.map((item: any) => {
+        const movieSessions = allSessions.filter(
+          (session) => String(session.movieId) === String(item.id)
+        );
+        const formattedSessions = Array.from(new Set(movieSessions
+            .map(session => {
+                const date = new Date(session.startTime);
+                return date.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
+            })))
+            .sort();
+
+        return {
+          id: item.id,
+          title: item.titleUkr || "Без назви",
+          poster: item.imageUrl || '',
+          ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
+          sessions: formattedSessions.length > 0 ? formattedSessions : [],
+          hall: item.hall || item.hallName || "Зал 1"
+        };
+      });
     } catch (error) {
       console.error('Failed to fetch movies:', error);
       return [];
@@ -25,19 +49,14 @@ export const movieApi = {
     try {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-
       const { data } = await axiosClient.get('/movie', {
-        params: {
-          dateFrom: tomorrow.toISOString()
-        }
+        params: { dateFrom: tomorrow.toISOString(), SortDirection: 0 }
       });
-
       const movies = data.items || [];
-
       return movies.map((item: any) => ({
         id: item.id,
-        title: item.TitleUkr || item.titleUkr || item.title || "Без назви",
-        poster: item.poster || item.posterUrl || '',
+        title: item.titleUkr || "Без назви",
+        poster: item.imageUrl || '',
         ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
         releaseDate: item.releaseDate
           ? new Date(item.releaseDate).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' })
@@ -52,24 +71,54 @@ export const movieApi = {
 
   getMovieById: async (id: string): Promise<IMovieDetails | null> => {
     try {
-      const { data } = await axiosClient.get(`/movie/${id}`);
+      const [movieResponse, sessionsResponse] = await Promise.all([
+        axiosClient.get(`/movie/${id}`),
+        axiosClient.get('/session')
+      ]);
+
+      const data = movieResponse.data;
+      const allSessions: SessionDto[] = sessionsResponse.data || [];
+
+      const movieSessions = allSessions.filter(s => String(s.movieId) === String(id));
+
+      const scheduleMap = new Map<string, string[]>();
+
+      movieSessions.forEach(session => {
+        const dateObj = new Date(session.startTime);
+        
+        const dateKey = dateObj.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' });
+
+        const timeVal = dateObj.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
+
+        if (!scheduleMap.has(dateKey)) {
+            scheduleMap.set(dateKey, []);
+        }
+        scheduleMap.get(dateKey)?.push(timeVal);
+      });
+
+      const schedule: IMovieScheduleItem[] = Array.from(scheduleMap.entries()).map(([date, times]) => ({
+        date,
+        times: Array.from(new Set(times)).sort()
+      }));
+      
+      schedule.sort((a, b) => a.date.localeCompare(b.date));
 
       return {
         id: data.id,
-        title: data.TitleUkr || data.titleUkr || data.title || "Без назви",
-        poster: data.poster || data.posterUrl || '',
+        title: data.titleUkr || "Без назви",
+        poster: data.imageUrl || '',
         ageRating: data.ageRating ? `${data.ageRating}+` : "0+",
-        originalTitle: data.originalTitle || "",
+        originalTitle: data.TitleOrg || data.originalTitle || "",
         director: data.director || "Не вказано",
         year: data.year || new Date().getFullYear(),
         country: data.country || "Невідомо",
         genre: data.genre || "Не вказано",
-        rating: data.rating || "Відсутній",
+        rating: data.imdbRating || "Відсутній",
         language: data.language || "Українська",
-        subtitles: data.subtitles || "-",
-        cast: data.cast || [], 
+        subtitles: data.subtitles ? "Так" : "Ні",
+        cast: data.actorNames || data.cast || [], 
         description: data.description || "Опис наразі відсутній.",
-        schedule: data.schedule || [] 
+        schedule: schedule 
       };
     } catch (error) {
       console.error('Failed to fetch movie details:', error);
