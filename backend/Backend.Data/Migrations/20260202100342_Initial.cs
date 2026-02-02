@@ -239,8 +239,7 @@ namespace Backend.Data.Migrations
                     HallId = table.Column<int>(type: "integer", nullable: false),
                     SeatType = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
                     SeatNumber = table.Column<int>(type: "integer", nullable: false),
-                    RowNumber = table.Column<int>(type: "integer", nullable: false),
-                    IsReserved = table.Column<bool>(type: "boolean", nullable: false)
+                    RowNumber = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -262,25 +261,25 @@ namespace Backend.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     StudioId = table.Column<int>(type: "integer", nullable: false),
-                    TitleORG = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
-                    TitleUKR = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
+                    TitleOrg = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
+                    TitleUkr = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false),
                     Description = table.Column<string>(type: "text", nullable: true),
                     Duration = table.Column<int>(type: "integer", nullable: false),
                     ReleaseDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     FinishDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     AgeRating = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
-                    IMDBRating = table.Column<decimal>(type: "numeric(3,1)", nullable: true),
+                    ImdbRating = table.Column<decimal>(type: "numeric(3,1)", nullable: true),
                     Director = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     Country = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     Subtitles = table.Column<bool>(type: "boolean", nullable: false),
-                    ImageURL = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true),
-                    TrailerURL = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true)
+                    ImageUrl = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true),
+                    TrailerUrl = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Movies", x => x.Id);
                     table.CheckConstraint("CK_Movie_Duration", "\"Duration\" >= 1 AND \"Duration\" <= 600");
-                    table.CheckConstraint("CK_Movie_IMDBRating", "\"IMDBRating\" >= 0 AND \"IMDBRating\" <= 10");
+                    table.CheckConstraint("CK_Movie_ImdbRating", "\"ImdbRating\" >= 0 AND \"ImdbRating\" <= 10");
                     table.ForeignKey(
                         name: "FK_Movies_Studio_StudioId",
                         column: x => x.StudioId,
