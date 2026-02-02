@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Input from '@/components/ui/Input';
 import PasswordInput from '@/components/ui/PasswordInput';
 import BaseButton from '@/components/ui/BaseButton';
-import { login } from '@/api/auth.api';
+import { login } from '@/api/authApi';
 import { Link } from 'react-router-dom';
 
 const Auth: React.FC = () => {
@@ -24,8 +24,8 @@ const Auth: React.FC = () => {
     try {
       const data = await login(email, password);
 
-      localStorage.setItem('token', data.Token);
-      localStorage.setItem('email', data.Email);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('email', data.email);
 
       navigate('/profile/1');
 
