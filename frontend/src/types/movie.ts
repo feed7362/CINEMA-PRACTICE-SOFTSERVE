@@ -1,39 +1,10 @@
-export interface ISession {
-  time: string;
-  price?: number;
-}
-
-export interface IScheduleEntry {
-  date: string;
-  times: string[];
-}
-
 export interface IMovie {
-  id: number;
+  id: string;
   title: string;
   poster: string;
   ageRating: string;
-  sessions: string[];
-  fullSchedule?: IScheduleEntry[];
-}
-
-export interface IMovieDetails {
-  id: number;
-  title: string;
-  poster: string;
-  ageRating: string;
-  originalTitle: string;
-  director: string;
-  year: number;
-  country: string;
-  genre: string;
-  rating: number;
-  language: string;
-  subtitles: string;
-  cast: string;
-  description: string;
-  trailerUrl?: string;
-  schedule: IScheduleEntry[];
+  sessions?: string[];
+  hall?: string;
 }
 
 export interface MovieCardProps {
@@ -41,15 +12,35 @@ export interface MovieCardProps {
   isBlurred?: boolean;
 }
 
-export interface MovieScheduleProps {
-  schedule: IScheduleEntry[];
-}
-
 export interface MoviePreviewProps {
-  id: number;
+  id: string;
   title: string;
   poster: string;
   releaseDate: string;
   ageRating: string;
   isBlurred?: boolean;
+}
+
+export interface IMovieScheduleItem {
+  date: string;
+  times: string[];
+}
+
+export interface IMovieDetails {
+  id: string;
+  title: string;
+  poster: string;
+  ageRating: string;
+  originalTitle: string;
+  director: string;
+  year: number | string;
+  country: string;
+  genre: string;
+  rating: number;
+  language: string;
+  subtitles: string;
+  cast: string[] | string;
+  description: string;
+  schedule: IMovieScheduleItem[];
+  trailerUrl?: string;
 }

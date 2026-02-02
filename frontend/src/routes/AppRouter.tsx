@@ -11,6 +11,7 @@ import Shares from '@/pages/Shares';
 import SignUp from '@/pages/SignUp';
 import SoonMovies from '@/pages/SoonMovies';
 import Example from '@/pages/Example';
+import Contacts from '@/pages/Contacts';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -26,6 +27,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/soon" element={<SoonMovies />} />
         <Route path="/example" element={<Example />} />
+        <Route path="/contacts" element={<Contacts />} />
       <Route path="*" element={<div className="text-white p-10">Сторінку не знайдено</div>} />
     </Routes>
   );

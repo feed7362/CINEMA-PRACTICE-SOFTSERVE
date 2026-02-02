@@ -92,8 +92,8 @@ public class MovieConfiguration : IEntityTypeConfiguration<Movie>
                 "\"Duration\" >= 1 AND \"Duration\" <= 600"
             );
             t.HasCheckConstraint(
-                "CK_Movie_IMDBRating",
-                "\"IMDBRating\" >= 0 AND \"IMDBRating\" <= 10"
+                "CK_Movie_ImdbRating",
+                "\"ImdbRating\" >= 0 AND \"ImdbRating\" <= 10"
             );
         });
     }

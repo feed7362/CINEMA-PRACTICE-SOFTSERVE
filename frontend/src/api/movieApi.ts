@@ -5,15 +5,16 @@ export const movieApi = {
   getNowPlaying: async (): Promise<IMovie[]> => {
     try {
       const { data } = await axiosClient.get('/movie');
-      
-      return data.map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        poster: item.poster || item.posterUrl || '',
-        ageRating: item.ageRating?.toString() + "+" || "0+", 
-        sessions: item.sessions || ["Немає сеансів"]
-      }));
+      const movies = data.items || [];
 
+      return movies.map((item: any) => ({
+        id: item.id,
+        title: item.TitleUkr || item.titleUkr || item.title || "Без назви",
+        poster: item.poster || item.posterUrl || '',
+        ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
+        sessions: item.sessions || [],
+        hall: item.hall || item.hallName || "Не вказано"
+      }));
     } catch (error) {
       console.error('Failed to fetch movies:', error);
       return [];
@@ -21,56 +22,54 @@ export const movieApi = {
   },
 
   getComingSoon: async (): Promise<MoviePreviewProps[]> => {
-    try {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-     
-      const { data } = await axiosClient.get('/movie', {
-        params: {
-          dateFrom: tomorrow.toISOString()
-        }
-      });
+    try {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
 
-      return data.map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        poster: item.poster || item.posterUrl || '',
-        ageRating: item.ageRating?.toString() + "+" || "0+",
-        releaseDate: item.releaseDate
-          ? new Date(item.releaseDate).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' })
-          : "Скоро у кіно",
-        isBlurred: false
-      }));
+      const { data } = await axiosClient.get('/movie', {
+        params: {
+          dateFrom: tomorrow.toISOString()
+        }
+      });
 
-    } catch (error) {
-      console.error('Failed to fetch coming soon movies:', error);
-      return [];
-    }
-  },
+      const movies = data.items || [];
 
-getMovieById: async (id: string): Promise<IMovieDetails | null> => {
+      return movies.map((item: any) => ({
+        id: item.id,
+        title: item.TitleUkr || item.titleUkr || item.title || "Без назви",
+        poster: item.poster || item.posterUrl || '',
+        ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
+        releaseDate: item.releaseDate
+          ? new Date(item.releaseDate).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' })
+          : "Скоро",
+        isBlurred: false
+      }));
+    } catch (error) {
+      console.error('Failed to fetch coming soon movies:', error);
+      return [];
+    }
+  },
+
+  getMovieById: async (id: string): Promise<IMovieDetails | null> => {
     try {
       const { data } = await axiosClient.get(`/movie/${id}`);
-      
+
       return {
         id: data.id,
-        title: data.title,
+        title: data.TitleUkr || data.titleUkr || data.title || "Без назви",
         poster: data.poster || data.posterUrl || '',
-        ageRating: data.ageRating?.toString() + "+" || "12+",
-        originalTitle: data.originalTitle || "Unknown Original Title",
-        director: data.director || "Кріс Коламбус",
-        year: data.year || 2026,
-        country: data.country || "США",
-        genre: data.genre || "Пригоди, Фентезі",
-        rating: data.rating || 8.2,
-        language: data.language || "українська мова",
-        subtitles: data.subtitles || "—",
-        cast: data.cast || "Актори...",
-        description: data.description || "Опис фільму відсутній...",
-        schedule: data.schedule || [ // Тимчасовий розклад, якщо бек не шле
-          { date: "Пт, 16 січня", times: ["10:00", "14:00", "21:00"] },
-          { date: "Сб, 17 січня", times: ["11:00", "15:00", "22:00"] }
-        ]
+        ageRating: data.ageRating ? `${data.ageRating}+` : "0+",
+        originalTitle: data.originalTitle || "",
+        director: data.director || "Не вказано",
+        year: data.year || new Date().getFullYear(),
+        country: data.country || "Невідомо",
+        genre: data.genre || "Не вказано",
+        rating: data.rating || "Відсутній",
+        language: data.language || "Українська",
+        subtitles: data.subtitles || "-",
+        cast: data.cast || [], 
+        description: data.description || "Опис наразі відсутній.",
+        schedule: data.schedule || [] 
       };
     } catch (error) {
       console.error('Failed to fetch movie details:', error);
