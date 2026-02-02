@@ -1,27 +1,28 @@
-import React, { useState } from 'react';
-import Input from '@/components/ui/Input';
+import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
-interface PasswordInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-}
-
-const PasswordInput: React.FC<PasswordInputProps> = (props) => {
+const PasswordInput = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="relative w-full">
-      <Input
-        {...props}
-        type={showPassword ? 'text' : 'password'}
-      />
-      <button
-        type="button"
-        onClick={() => setShowPassword(!showPassword)}
-        className="absolute right-4 top-11.25 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
-      >
-        {showPassword ? <EyeOff size={24} /> : <Eye size={24} />}
-      </button>
+    <div className="flex flex-col gap-2 w-full max-w-md">
+      <label className="text-white/70 text-sm pl-1">Пароль</label>
+      
+      <div className="relative">
+        <input
+          type={showPassword ? "text" : "password"}
+          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-12 text-white outline-none focus:border-[#0753E0] transition-colors"
+          placeholder="••••••••"
+        />
+        
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors cursor-pointer p-1"
+        >
+          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+        </button>
+      </div>
     </div>
   );
 };
