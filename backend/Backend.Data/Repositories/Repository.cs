@@ -3,6 +3,7 @@ using Backend.Domain.Interfaces;
 using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
 using System.Data;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Backend.Data.Repositories
@@ -17,7 +18,7 @@ namespace Backend.Data.Repositories
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<TEntity?> GetByIdAsync(int id)
+        public async Task<TEntity?> GetByIdAsync(int? id)
         {
             return await _dbSet.FindAsync(id);
         }
@@ -57,6 +58,11 @@ namespace Backend.Data.Repositories
         public TEntity? GetFirstBySpec(ISpecification<TEntity> specification)
         {
             return ApplySpecification(specification).FirstOrDefault();
+        }
+        
+        public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _dbSet.AnyAsync(predicate);
         }
 
         public async Task<TEntity> AddAsync(TEntity entity)

@@ -1,4 +1,5 @@
-﻿using Backend.Services.DTOs.Session;
+﻿using Backend.Services.DTOs.Seat;
+using Backend.Services.DTOs.Session;
 
 namespace Backend.Services.Interfaces;
 
@@ -13,4 +14,7 @@ public interface ISessionService
     Task<List<ReadSessionDto>> GetAllSessionsAsync();
 
     Task DeleteSessionAsync(int id);
+
+    Task<List<SeatStatusDto>> GetSeatsBySessionAsync(int sessionId);
+
 }

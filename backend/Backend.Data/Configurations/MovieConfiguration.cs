@@ -58,12 +58,10 @@ public class MovieConfiguration : IEntityTypeConfiguration<Movie>
             .IsRequired();
 
         builder.Property(m => m.ImageUrl)
-            .HasMaxLength(200)
-            .HasColumnType("varchar(200)");
+            .HasColumnType("text");
 
         builder.Property(m => m.TrailerUrl)
-            .HasMaxLength(200)
-            .HasColumnType("varchar(200)");
+            .HasColumnType("text");
 
         builder.HasOne(m => m.Studio)
             .WithMany(s => s.Movies)

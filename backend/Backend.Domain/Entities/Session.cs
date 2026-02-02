@@ -6,9 +6,9 @@ public class Session : IEntity
 {
     public int Id { get; set; }
 
-    public int MovieId { get; set; }
+    public int? MovieId { get; set; }
 
-    public int HallId { get; set; }
+    public int? HallId { get; set; }
 
     public DateTime StartTime { get; set; } = DateTime.UtcNow;
 
