@@ -11,7 +11,7 @@ public class SessionOverlapSpec : Specification<Domain.Entities.Session>
             .Where(s => s.StartTime < newEnd && s.EndTime > newStart);
     }
 
-    public SessionOverlapSpec(int hallId, DateTime newStart, DateTime newEnd, int excludeSessionId)
+    public SessionOverlapSpec(int? hallId, DateTime newStart, DateTime newEnd, int excludeSessionId)
     {
         Query
             .Where(s => s.Id != excludeSessionId)

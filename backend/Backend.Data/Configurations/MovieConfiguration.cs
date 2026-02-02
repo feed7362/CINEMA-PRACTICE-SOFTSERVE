@@ -58,12 +58,10 @@ public class MovieConfiguration : IEntityTypeConfiguration<Movie>
             .IsRequired();
 
         builder.Property(m => m.ImageUrl)
-            .HasMaxLength(200)
-            .HasColumnType("varchar(200)");
+            .HasColumnType("text");
 
         builder.Property(m => m.TrailerUrl)
-            .HasMaxLength(200)
-            .HasColumnType("varchar(200)");
+            .HasColumnType("text");
 
         builder.HasOne(m => m.Studio)
             .WithMany(s => s.Movies)
@@ -92,8 +90,8 @@ public class MovieConfiguration : IEntityTypeConfiguration<Movie>
                 "\"Duration\" >= 1 AND \"Duration\" <= 600"
             );
             t.HasCheckConstraint(
-                "CK_Movie_IMDBRating",
-                "\"IMDBRating\" >= 0 AND \"IMDBRating\" <= 10"
+                "CK_Movie_ImdbRating",
+                "\"ImdbRating\" >= 0 AND \"ImdbRating\" <= 10"
             );
         });
     }

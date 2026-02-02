@@ -70,5 +70,14 @@ internal static class SessionEndpoints
             .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteSession")
             .WithSummary("Delete session by Id");
+
+
+        group.MapGet("/{id:int}/seats", async (int id, ISessionService sessionService) =>
+            {
+                var seats = await sessionService.GetSeatsBySessionAsync(id);
+                return Results.Ok(seats);
+            })
+            .WithName("GetSeatsBySession")
+            .WithSummary("Get all seats for a session with reservation status");
     }
 }

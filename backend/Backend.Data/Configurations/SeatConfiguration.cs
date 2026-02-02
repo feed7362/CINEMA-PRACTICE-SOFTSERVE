@@ -28,9 +28,6 @@ public class SeatConfiguration : IEntityTypeConfiguration<Seat>
         builder.Property(s => s.RowNumber)
             .IsRequired();
 
-        builder.Property(s => s.IsReserved)
-            .IsRequired();
-
         builder.HasOne(s => s.Hall)
             .WithMany(h => h.Seats)
             .HasForeignKey(s => s.HallId)

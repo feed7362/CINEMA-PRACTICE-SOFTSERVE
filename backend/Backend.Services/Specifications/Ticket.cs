@@ -52,4 +52,16 @@ namespace Backend.Services.Specifications
                 );
         }
     }
+    
+
+    public class ReservedSeatsBySessionSpec : Specification<Ticket>
+    {
+        public ReservedSeatsBySessionSpec(int sessionId)
+        {
+            Query
+                .Where(t => t.Booking.SessionId == sessionId)
+                .Include(t => t.Seat); 
+        }
+    }
+
 }
