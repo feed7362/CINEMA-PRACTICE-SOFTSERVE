@@ -272,8 +272,8 @@ namespace Backend.Data.Migrations
                     Director = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     Country = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     Subtitles = table.Column<bool>(type: "boolean", nullable: false),
-                    ImageUrl = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true),
-                    TrailerUrl = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true)
+                    ImageUrl = table.Column<string>(type: "text", nullable: true),
+                    TrailerUrl = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {

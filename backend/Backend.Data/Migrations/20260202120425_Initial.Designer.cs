@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20260202100342_Initial")]
+    [Migration("20260202120425_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -255,8 +255,7 @@ namespace Backend.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ImageUrl")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
+                        .HasColumnType("text");
 
                     b.Property<decimal?>("ImdbRating")
                         .HasColumnType("decimal(3,1)");
@@ -281,8 +280,7 @@ namespace Backend.Data.Migrations
                         .HasColumnType("varchar(150)");
 
                     b.Property<string>("TrailerUrl")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

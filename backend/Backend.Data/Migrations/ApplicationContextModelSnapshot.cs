@@ -252,8 +252,7 @@ namespace Backend.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ImageUrl")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
+                        .HasColumnType("text");
 
                     b.Property<decimal?>("ImdbRating")
                         .HasColumnType("decimal(3,1)");
@@ -278,8 +277,7 @@ namespace Backend.Data.Migrations
                         .HasColumnType("varchar(150)");
 
                     b.Property<string>("TrailerUrl")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

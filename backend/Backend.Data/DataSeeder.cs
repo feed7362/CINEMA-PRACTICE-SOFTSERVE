@@ -174,91 +174,186 @@ public static class DataSeeder
             {
                 new()
                 {
-                    TitleOrg = "Oppenheimer", TitleUkr = "Оппенгеймер",
+                    TitleOrg = "Oppenheimer",
+                    TitleUkr = "Оппенгеймер",
                     Description =
                         "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.",
-                    Duration = 180, ReleaseDate = CreateUtcDate(2023, 7, 21), FinishDate = CreateUtcDate(2026, 12, 31),
-                    ImdbRating = 8.4m, Director = "Christopher Nolan", Country = "USA",
-                    StudioId = GetSid("Universal Pictures"), AgeRating = AgeRating._16Plus, Subtitles = true
+                    Duration = 180,
+                    ReleaseDate = CreateUtcDate(2023, 7, 21),
+                    FinishDate = CreateUtcDate(2026, 12, 31),
+                    ImdbRating = 8.4m,
+                    Director = "Christopher Nolan",
+                    Country = "USA",
+                    StudioId = GetSid("Universal Pictures"),
+                    AgeRating = AgeRating._16Plus,
+                    Subtitles = true,
+                    ImageUrl =
+                        "https://upload.wikimedia.org/wikipedia/ru/b/bf/%D0%9E%D0%BF%D0%BF%D0%B5%D0%BD%D0%B3%D0%B5%D0%B9%D0%BC%D0%B5%D1%80_%D1%84%D0%B8%D0%BB%D1%8C%D0%BC_%D0%BF%D0%BE%D1%81%D1%82%D0%B5%D1%80.jpg",
+                    TrailerUrl = "https://youtube.com/watch?v=keydELfWuMQ"
                 },
                 new()
                 {
-                    TitleOrg = "Dune: Part Two", TitleUkr = "Дюна: Частина друга",
+                    TitleOrg = "Dune: Part Two",
+                    TitleUkr = "Дюна: Частина друга",
                     Description =
                         "Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family.",
-                    Duration = 166, ReleaseDate = CreateUtcDate(2024, 3, 1), FinishDate = CreateUtcDate(2026, 11, 30),
-                    ImdbRating = 8.6m, Director = "Denis Villeneuve", Country = "USA",
-                    StudioId = GetSid("Legendary Entertainment"), AgeRating = AgeRating._12Plus, Subtitles = true
+                    Duration = 166,
+                    ReleaseDate = CreateUtcDate(2024, 3, 1),
+                    FinishDate = CreateUtcDate(2026, 11, 30),
+                    ImdbRating = 8.6m,
+                    Director = "Denis Villeneuve",
+                    Country = "USA",
+                    StudioId = GetSid("Legendary Entertainment"),
+                    AgeRating = AgeRating._12Plus,
+                    Subtitles = true,
+                    ImageUrl =
+                        "https://upload.wikimedia.org/wikipedia/uk/3/39/%D0%94%D1%8E%D0%BD%D0%B0_%D0%A7%D0%B0%D1%81%D1%82%D0%B8%D0%BD%D0%B0_%D0%B4%D1%80%D1%83%D0%B3%D0%B0.jpg",
+                    TrailerUrl = "https://youtube.com/watch?v=ygtS6q3EL7Y"
                 },
                 new()
                 {
-                    TitleOrg = "Interstellar", TitleUkr = "Інтерстеллар",
+                    TitleOrg = "Interstellar",
+                    TitleUkr = "Інтерстеллар",
                     Description =
                         "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
-                    Duration = 169, ReleaseDate = CreateUtcDate(2014, 11, 7), FinishDate = CreateUtcDate(2026, 12, 31),
-                    ImdbRating = 8.7m, Director = "Christopher Nolan", Country = "USA",
-                    StudioId = GetSid("Paramount Pictures"), AgeRating = AgeRating._12Plus, Subtitles = true
+                    Duration = 169,
+                    ReleaseDate = CreateUtcDate(2014, 11, 7),
+                    FinishDate = CreateUtcDate(2026, 12, 31),
+                    ImdbRating = 8.7m,
+                    Director = "Christopher Nolan",
+                    Country = "USA",
+                    StudioId = GetSid("Paramount Pictures"),
+                    AgeRating = AgeRating._12Plus,
+                    Subtitles = true,
+                    ImageUrl = "https://upload.wikimedia.org/wikipedia/ru/c/c3/Interstellar_2014.jpg",
+                    TrailerUrl = "https://youtube.com/watch?v=qcPfI0y7wRU"
                 },
                 new()
                 {
-                    TitleOrg = "Joker", TitleUkr = "Джокер",
+                    TitleOrg = "Joker",
+                    TitleUkr = "Джокер",
                     Description =
                         "In Gotham City, mentally troubled comedian Arthur Fleck is disregarded and mistreated by society.",
-                    Duration = 122, ReleaseDate = CreateUtcDate(2019, 10, 4), FinishDate = CreateUtcDate(2026, 6, 30),
-                    ImdbRating = 8.4m, Director = "Todd Phillips", Country = "USA",
-                    StudioId = GetSid("Warner Bros. Pictures"), AgeRating = AgeRating._18Plus, Subtitles = true
+                    Duration = 122,
+                    ReleaseDate = CreateUtcDate(2019, 10, 4),
+                    FinishDate = CreateUtcDate(2026, 6, 30),
+                    ImdbRating = 8.4m,
+                    Director = "Todd Phillips",
+                    Country = "USA",
+                    StudioId = GetSid("Warner Bros. Pictures"),
+                    AgeRating = AgeRating._18Plus,
+                    Subtitles = true,
+                    ImageUrl =
+                        "https://upload.wikimedia.org/wikipedia/ru/6/6f/%D0%94%D0%B6%D0%BE%D0%BA%D0%B5%D1%80_%28%D1%84%D0%B8%D0%BB%D1%8C%D0%BC_%D0%A2%D0%BE%D0%B4%D0%B4%D0%B0_%D0%A4%D0%B8%D0%BB%D0%BB%D0%B8%D0%BF%D1%81%D0%B0%29.jpg",
+                    TrailerUrl = "https://youtube.com/watch?v=jGfiPs9zuhE"
                 },
                 new()
                 {
-                    TitleOrg = "Barbie", TitleUkr = "Барбі",
+                    TitleOrg = "Barbie",
+                    TitleUkr = "Барбі",
                     Description = "Barbie suffers a crisis that leads her to question her world and her existence.",
-                    Duration = 114, ReleaseDate = CreateUtcDate(2023, 7, 21), FinishDate = CreateUtcDate(2026, 8, 15),
-                    ImdbRating = 6.9m, Director = "Greta Gerwig", Country = "USA",
-                    StudioId = GetSid("Warner Bros. Pictures"), AgeRating = AgeRating._12Plus, Subtitles = false
+                    Duration = 114,
+                    ReleaseDate = CreateUtcDate(2023, 7, 21),
+                    FinishDate = CreateUtcDate(2026, 8, 15),
+                    ImdbRating = 6.9m,
+                    Director = "Greta Gerwig",
+                    Country = "USA",
+                    StudioId = GetSid("Warner Bros. Pictures"),
+                    AgeRating = AgeRating._12Plus,
+                    Subtitles = false,
+                    ImageUrl = "https://upload.wikimedia.org/wikipedia/ru/4/4b/Barbie_2023_poster.jpeg",
+                    TrailerUrl = "https://youtube.com/watch?v=8zIf0XvoL9Y"
                 },
                 new()
                 {
-                    TitleOrg = "Avatar: The Way of Water", TitleUkr = "Аватар: Шлях води",
+                    TitleOrg = "Avatar: The Way of Water",
+                    TitleUkr = "Аватар: Шлях води",
                     Description = "Jake Sully lives with his newfound family formed on the extrasolar moon Pandora.",
-                    Duration = 192, ReleaseDate = CreateUtcDate(2022, 12, 16), FinishDate = CreateUtcDate(2026, 12, 31),
-                    ImdbRating = 7.6m, Director = "James Cameron", Country = "USA",
-                    StudioId = GetSid("20th Century Studios"), AgeRating = AgeRating._12Plus, Subtitles = true
+                    Duration = 192,
+                    ReleaseDate = CreateUtcDate(2022, 12, 16),
+                    FinishDate = CreateUtcDate(2026, 12, 31),
+                    ImdbRating = 7.6m,
+                    Director = "James Cameron",
+                    Country = "USA",
+                    StudioId = GetSid("20th Century Studios"),
+                    AgeRating = AgeRating._12Plus,
+                    Subtitles = true,
+                    ImageUrl =
+                        "https://upload.wikimedia.org/wikipedia/uk/4/4d/%D0%9F%D0%BE%D1%81%D1%82%D0%B5%D1%80_%D1%81%D1%82%D1%80%D1%96%D1%87%D0%BA%D0%B8_%C2%AB%D0%90%D0%B2%D0%B0%D1%82%D0%B0%D1%80._%D0%A8%D0%BB%D1%8F%D1%85_%D0%B2%D0%BE%D0%B4%D0%B8%C2%BB.jpg",
+                    TrailerUrl = "https://youtube.com/watch?v=E8Qe0vS_I3I"
                 },
                 new()
                 {
-                    TitleOrg = "The Batman", TitleUkr = "Бетмен",
+                    TitleOrg = "The Batman",
+                    TitleUkr = "Бетмен",
                     Description =
                         "When a sadistic serial killer begins murdering key political figures in Gotham, Batman is forced to investigate.",
-                    Duration = 176, ReleaseDate = CreateUtcDate(2022, 3, 4), FinishDate = CreateUtcDate(2026, 5, 20),
-                    ImdbRating = 7.8m, Director = "Matt Reeves", Country = "USA",
-                    StudioId = GetSid("Warner Bros. Pictures"), AgeRating = AgeRating._16Plus, Subtitles = true
+                    Duration = 176,
+                    ReleaseDate = CreateUtcDate(2022, 3, 4),
+                    FinishDate = CreateUtcDate(2026, 5, 20),
+                    ImdbRating = 7.8m,
+                    Director = "Matt Reeves",
+                    Country = "USA",
+                    StudioId = GetSid("Warner Bros. Pictures"),
+                    AgeRating = AgeRating._16Plus,
+                    Subtitles = true,
+                    ImageUrl = "https://upload.wikimedia.org/wikipedia/ru/b/b2/The_Batman_Poster.jpg",
+                    TrailerUrl = "https://youtube.com/watch?v=LTA-a5hOyks"
                 },
                 new()
                 {
-                    TitleOrg = "Spider-Man: Across the Spider-Verse", TitleUkr = "Людина-павук: Крізь Всесвіт",
+                    TitleOrg = "Spider-Man: Across the Spider-Verse",
+                    TitleUkr = "Людина-павук: Крізь Всесвіт",
                     Description =
                         "Miles Morales catapults across the Multiverse, where he encounters a team of Spider-People.",
-                    Duration = 140, ReleaseDate = CreateUtcDate(2023, 6, 2), FinishDate = CreateUtcDate(2026, 10, 10),
-                    ImdbRating = 8.6m, Director = "Joaquim Dos Santos", Country = "USA",
-                    StudioId = GetSid("Sony Pictures"), AgeRating = AgeRating._0Plus, Subtitles = false
+                    Duration = 140,
+                    ReleaseDate = CreateUtcDate(2023, 6, 2),
+                    FinishDate = CreateUtcDate(2026, 10, 10),
+                    ImdbRating = 8.6m,
+                    Director = "Joaquim Dos Santos",
+                    Country = "USA",
+                    StudioId = GetSid("Sony Pictures"),
+                    AgeRating = AgeRating._0Plus,
+                    Subtitles = false,
+                    ImageUrl =
+                        "https://upload.wikimedia.org/wikipedia/uk/b/bc/%D0%9B%D1%8E%D0%B4%D0%B8%D0%BD%D0%B0_%D0%BF%D0%B0%D0%B2%D1%83%D0%BA%2C_%D0%9A%D1%80%D1%96%D0%B7%D1%8C_%D0%92%D1%81%D0%B5%D1%81%D0%B2%D1%96%D1%82.jpg",
+                    TrailerUrl = "https://youtube.com/watch?v=JKXPIDKvsiY"
                 },
                 new()
                 {
-                    TitleOrg = "Pulp Fiction", TitleUkr = "Кримінальне чтиво",
+                    TitleOrg = "Pulp Fiction",
+                    TitleUkr = "Кримінальне чтиво",
                     Description =
                         "The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence and redemption.",
-                    Duration = 154, ReleaseDate = CreateUtcDate(1994, 10, 14), FinishDate = CreateUtcDate(2026, 12, 31),
-                    ImdbRating = 8.9m, Director = "Quentin Tarantino", Country = "USA", StudioId = GetSid("Miramax"),
-                    AgeRating = AgeRating._18Plus, Subtitles = true
+                    Duration = 154,
+                    ReleaseDate = CreateUtcDate(1994, 10, 14),
+                    FinishDate = CreateUtcDate(2026, 12, 31),
+                    ImdbRating = 8.9m,
+                    Director = "Quentin Tarantino",
+                    Country = "USA",
+                    StudioId = GetSid("Miramax"),
+                    AgeRating = AgeRating._18Plus,
+                    Subtitles = true,
+                    ImageUrl = "https://upload.wikimedia.org/wikipedia/uk/8/82/Pulp_Fiction_cover.jpg",
+                    TrailerUrl = "https://youtube.com/watch?v=dDxXH9xAJ6Q"
                 },
                 new()
                 {
-                    TitleOrg = "Inception", TitleUkr = "Початок",
+                    TitleOrg = "Inception",
+                    TitleUkr = "Початок",
                     Description =
                         "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea.",
-                    Duration = 148, ReleaseDate = CreateUtcDate(2010, 7, 16), FinishDate = CreateUtcDate(2026, 12, 31),
-                    ImdbRating = 8.8m, Director = "Christopher Nolan", Country = "USA",
-                    StudioId = GetSid("Warner Bros. Pictures"), AgeRating = AgeRating._12Plus, Subtitles = true
+                    Duration = 148,
+                    ReleaseDate = CreateUtcDate(2010, 7, 16),
+                    FinishDate = CreateUtcDate(2026, 12, 31),
+                    ImdbRating = 8.8m,
+                    Director = "Christopher Nolan",
+                    Country = "USA",
+                    StudioId = GetSid("Warner Bros. Pictures"),
+                    AgeRating = AgeRating._12Plus,
+                    Subtitles = true,
+                    ImageUrl = "https://upload.wikimedia.org/wikipedia/ru/b/bc/Poster_Inception_film_2010.jpg",
+                    TrailerUrl = "https://youtube.com/watch?v=85Zz1CCXyDI"
                 }
             };
 
@@ -464,34 +559,34 @@ public static class DataSeeder
         void AddMa(Movie m, params string[] a) =>
             context.MovieActors.AddRange(a.Select(x => new MovieActor { MovieId = m.Id, ActorId = GetA(x) }));
 
-        AddMg(movies[0], "Biography", "Drama");
+        AddMg(movies[0], "Біографія", "Драма");
         AddMa(movies[0], "Cillian Murphy", "Robert Downey Jr.", "Matt Damon", "Emily Blunt");
 
-        AddMg(movies[1], "Sci-Fi", "Adventure");
+        AddMg(movies[1], "Наукова фантастика", "Пригоди");
         AddMa(movies[1], "Timothée Chalamet", "Zendaya", "Rebecca Ferguson");
 
-        AddMg(movies[2], "Sci-Fi", "Drama");
+        AddMg(movies[2], "Наукова фантастика", "Драма");
         AddMa(movies[2], "Matthew McConaughey", "Anne Hathaway", "Jessica Chastain");
 
-        AddMg(movies[3], "Drama", "Crime", "Thriller");
+        AddMg(movies[3], "Драма", "Кримінал", "Трилер");
         AddMa(movies[3], "Joaquin Phoenix", "Robert De Niro");
 
-        AddMg(movies[4], "Comedy", "Fantasy");
+        AddMg(movies[4], "Комедія", "Фентезі");
         AddMa(movies[4], "Margot Robbie", "Ryan Gosling");
 
-        AddMg(movies[5], "Sci-Fi", "Action", "Adventure");
+        AddMg(movies[5], "Наукова фантастика", "Екшн", "Пригоди");
         AddMa(movies[5], "Sam Worthington", "Zoe Saldana");
 
-        AddMg(movies[6], "Action", "Crime", "Drama");
+        AddMg(movies[6], "Екшн", "Кримінал", "Драма");
         AddMa(movies[6], "Robert Pattinson", "Zoe Saldana");
 
-        AddMg(movies[7], "Animation", "Action", "Adventure");
-        AddMa(movies[7], "Shameik Moore",
-            "Hailee Steinfeld");
-        AddMg(movies[8], "Crime", "Drama");
+        AddMg(movies[7], "Анімація", "Екшн", "Пригоди");
+        AddMa(movies[7], "Shameik Moore", "Hailee Steinfeld");
+
+        AddMg(movies[8], "Кримінал", "Драма");
         AddMa(movies[8], "Samuel L. Jackson", "John Travolta", "Uma Thurman");
 
-        AddMg(movies[9], "Sci-Fi", "Action", "Thriller");
+        AddMg(movies[9], "Наукова фантастика", "Екшн", "Трилер");
         AddMa(movies[9], "Leonardo DiCaprio", "Tom Hardy", "Cillian Murphy");
 
         await context.SaveChangesAsync();
