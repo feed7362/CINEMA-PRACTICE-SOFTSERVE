@@ -8,7 +8,7 @@ public static class CorsExtensions
         {
             options.AddPolicy("Default", p =>
             {
-                p.WithOrigins("https://localhost:5122")
+                p.WithOrigins("http://localhost:5173")
                  .WithMethods("GET", "POST")
                  .WithHeaders("Content-Type", "Authorization");
             });
