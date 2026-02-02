@@ -6,11 +6,12 @@ public static class CorsExtensions
     {
         services.AddCors(options =>
         {
-            options.AddPolicy("Default", p =>
+            options.AddPolicy("Default", policy =>
             {
-                p.WithOrigins("https://localhost:5122")
-                 .WithMethods("GET", "POST")
-                 .WithHeaders("Content-Type", "Authorization");
+                policy.WithOrigins("http://localhost:5173")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
             });
         });
 
