@@ -1,6 +1,7 @@
 ﻿using Backend.Services;
 using Backend.Services.Interfaces;
 using Backend.Services.Services;
+using Backend.Services.Services.BackgroundServices;
 using Backend.Services.Validators.Hall;
 using FluentValidation;
 
@@ -17,6 +18,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IMovieService, MovieService>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAdminStatsService, AdminStatsService>();
+        services.AddHostedService<ExpiredBookingWorker>();
 
         services.AddValidatorsFromAssemblyContaining<CreateHallDtoValidator>();
 
