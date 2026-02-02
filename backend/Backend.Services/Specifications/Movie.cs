@@ -124,6 +124,10 @@ namespace Backend.Services.Specifications
                     else
                         query.OrderBy(m => m.ReleaseDate);
                     break;
+                case null:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }

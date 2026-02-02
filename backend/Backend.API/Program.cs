@@ -31,7 +31,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<Backend.API.Middleware.ExceptionHandlingMiddleware>();
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseCors("Default");
 
 app.UseAuthentication();
