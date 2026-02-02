@@ -20,7 +20,7 @@ public record MovieFilterDto
     public bool? IsComingSoon { get; set; }
 
     public MovieSortBy? SortBy { get; set; }
-    public SortDirection SortDirection { get; set; } = SortDirection.Desc;
+    public SortDirection? SortDirection { get; set; }
 
     public int? PageNumber { get; set; }
     public int? PageSize { get; set; }

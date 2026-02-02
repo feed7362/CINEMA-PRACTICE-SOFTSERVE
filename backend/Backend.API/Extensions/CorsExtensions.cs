@@ -6,7 +6,7 @@ public static class CorsExtensions
     {
         services.AddCors(options =>
         {
-            options.AddPolicy("Default", p =>
+            options.AddPolicy("Default", policy =>
             {
                 p.WithOrigins("http://localhost:5173")
                  .WithMethods("GET", "POST")
