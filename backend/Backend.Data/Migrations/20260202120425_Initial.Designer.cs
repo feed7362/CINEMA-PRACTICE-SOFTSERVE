@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20260130101901_Initial")]
+    [Migration("20260202120425_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -254,12 +254,11 @@ namespace Backend.Data.Migrations
                     b.Property<DateTime>("FinishDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal?>("IMDBRating")
-                        .HasColumnType("decimal(3,1)");
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
 
-                    b.Property<string>("ImageURL")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
+                    b.Property<decimal?>("ImdbRating")
+                        .HasColumnType("decimal(3,1)");
 
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("timestamp with time zone");
@@ -270,19 +269,18 @@ namespace Backend.Data.Migrations
                     b.Property<bool>("Subtitles")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("TitleORG")
+                    b.Property<string>("TitleOrg")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("varchar(150)");
 
-                    b.Property<string>("TitleUKR")
+                    b.Property<string>("TitleUkr")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("varchar(150)");
 
-                    b.Property<string>("TrailerURL")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
+                    b.Property<string>("TrailerUrl")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -292,7 +290,7 @@ namespace Backend.Data.Migrations
                         {
                             t.HasCheckConstraint("CK_Movie_Duration", "\"Duration\" >= 1 AND \"Duration\" <= 600");
 
-                            t.HasCheckConstraint("CK_Movie_IMDBRating", "\"IMDBRating\" >= 0 AND \"IMDBRating\" <= 10");
+                            t.HasCheckConstraint("CK_Movie_ImdbRating", "\"ImdbRating\" >= 0 AND \"ImdbRating\" <= 10");
                         });
                 });
 
@@ -380,9 +378,6 @@ namespace Backend.Data.Migrations
 
                     b.Property<int>("HallId")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsReserved")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("RowNumber")
                         .HasColumnType("integer");
