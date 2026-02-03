@@ -26,8 +26,8 @@ const SeatSelectionPage: React.FC = () => {
             try {
                 const response = await api.get<SeatDto[]>(`/session/${sessionId}/seats`);
                 setSeats(response.data);
-            } catch (err) {
-                const backendMessage = parseBackendError(err);
+            } catch (err: any) {
+                const backendMessage = parseBackendError(err.response?.data);
                 setError(backendMessage);
             } finally {
                 setIsLoading(false);
@@ -53,7 +53,7 @@ const SeatSelectionPage: React.FC = () => {
             navigate('/checkout', { state: response.data });
 
         } catch (err: any) {
-            const backendMessage = parseBackendError(err);
+            const backendMessage = parseBackendError(err.response?.data);
             setError(backendMessage);
 
             if (err.response?.status === 401) {

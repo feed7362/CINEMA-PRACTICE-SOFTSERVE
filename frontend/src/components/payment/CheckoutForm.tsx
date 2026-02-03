@@ -67,7 +67,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ bookingId, expirationTime }
                     navigate("/tickets/success");
                 }
             } catch (err: any) {
-                const backendMessage = parseBackendError(err);
+                const backendMessage = parseBackendError(err.response?.data);
                 setMessage(backendMessage);
             } finally {
                 setIsProcessing(false);
