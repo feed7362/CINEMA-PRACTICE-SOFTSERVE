@@ -12,11 +12,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 //Services
 builder.Services
-.AddApplicationServices() //Hall, Ticket, Movie, Booking, Session, TokenService
-.AddInfrastructure(builder.Configuration) //Database, Identity, Repositories
-.AddSwaggerWithJwt() //OpenAPI + JWT security
-.AddCorsPolicy() //CORS
-.AddJwtAuthentication(builder.Configuration); //JWT auth
+    .AddApplicationServices() //Hall, Ticket, Movie, Booking, Session, TokenService
+    .AddInfrastructure(builder.Configuration) //Database, Identity, Repositories
+    .AddSwaggerWithJwt() //OpenAPI + JWT security
+    .AddCorsPolicy() //CORS
+    .AddJwtAuthentication(builder.Configuration); //JWT auth
 
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
@@ -31,7 +31,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<Backend.API.Middleware.ExceptionHandlingMiddleware>();
 
-// app.UseHttpsRedirection();
 app.UseCors("Default");
 
 app.UseAuthentication();

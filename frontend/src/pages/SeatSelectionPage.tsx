@@ -5,16 +5,15 @@
 //
 
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import type { SeatDto, LockBookingResponse } from '../types/booking';
+import React, {useEffect, useState} from 'react';
+import {useParams, useNavigate} from 'react-router-dom';
+import type {SeatDto, LockBookingResponse} from '../types/booking';
 import api from "@/api/axiosClient.ts";
 import {parseBackendError} from "@/utils/parseBackendError.ts";
 
 
-
 const SeatSelectionPage: React.FC = () => {
-    const { sessionId } = useParams<{ sessionId: string }>();
+    const {sessionId} = useParams<{ sessionId: string }>();
     const navigate = useNavigate();
     const [seats, setSeats] = useState<SeatDto[]>([]);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -50,7 +49,7 @@ const SeatSelectionPage: React.FC = () => {
                 seatIds: selectedIds
             });
 
-            navigate('/checkout', { state: response.data });
+            navigate('/checkout', {state: response.data});
 
         } catch (err: any) {
             const backendMessage = parseBackendError(err.response?.data);
@@ -95,7 +94,8 @@ const SeatSelectionPage: React.FC = () => {
 
                 {/* Screen Visualization */}
                 <div className="relative mb-20">
-                    <div className="w-full h-2 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full shadow-[0_10px_30px_rgba(59,130,246,0.5)]"></div>
+                    <div
+                        className="w-full h-2 bg-linear-to-r from-transparent via-blue-500 to-transparent rounded-full shadow-[0_10px_30px_rgba(59,130,246,0.5)]"></div>
                     <p className="text-center text-xs text-blue-400 mt-4 tracking-[1em] uppercase">Екран</p>
                 </div>
 
@@ -103,7 +103,8 @@ const SeatSelectionPage: React.FC = () => {
                 <div className="flex flex-col gap-4 items-center mb-32">
                     {Object.entries(seatsByRow).map(([row, rowSeats]) => (
                         <div key={row} className="flex items-center gap-3">
-                            <span className="w-12 text-right text-[10px] font-bold text-gray-500 mr-2 uppercase tracking-tighter">Ряд {row}</span>
+                            <span
+                                className="w-12 text-right text-[10px] font-bold text-gray-500 mr-2 uppercase tracking-tighter">Ряд {row}</span>
                             <div className="flex gap-2">
                                 {rowSeats.map(seat => (
                                     <button
@@ -122,22 +123,28 @@ const SeatSelectionPage: React.FC = () => {
                 </div>
 
                 {/* Legend & Footer */}
-                <div className="fixed bottom-0 left-0 right-0 bg-neutral-900/95 backdrop-blur-md border-t border-white/10 p-6 z-50">
+                <div
+                    className="fixed bottom-0 left-0 right-0 bg-neutral-900/95 backdrop-blur-md border-t border-white/10 p-6 z-50">
                     <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
 
                         {/* Legend */}
-                        <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-[10px] uppercase tracking-widest text-gray-400">
+                        <div
+                            className="grid grid-cols-2 gap-x-6 gap-y-2 text-[10px] uppercase tracking-widest text-gray-400">
                             <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 bg-slate-600 rounded-t-sm"></div> Звичайні
+                                <div className="w-3 h-3 bg-slate-600 rounded-t-sm"></div>
+                                Звичайні
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 bg-amber-600 rounded-t-sm"></div> VIP
+                                <div className="w-3 h-3 bg-amber-600 rounded-t-sm"></div>
+                                VIP
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 bg-green-500 rounded-t-sm"></div> Обрано
+                                <div className="w-3 h-3 bg-green-500 rounded-t-sm"></div>
+                                Обрано
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 bg-gray-800 rounded-t-sm"></div> Зайнято
+                                <div className="w-3 h-3 bg-gray-800 rounded-t-sm"></div>
+                                Зайнято
                             </div>
                         </div>
 
