@@ -1,5 +1,6 @@
 import axiosClient from './axiosClient';
 import type { IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem } from '@/types/movie';
+import { parseBackendError } from '@/utils/errorUtils'; // 👈 Імпортуємо функцію обробки помилок
 
 interface SessionDto {
   id: number;
@@ -39,8 +40,9 @@ export const movieApi = {
           hall: item.hall || item.hallName || "Зал 1"
         };
       });
-    } catch (error) {
-      console.error('Failed to fetch movies:', error);
+    } catch (error: any) {
+      const errorMessage = parseBackendError(error.response?.data);
+      console.error('Failed to fetch movies:', errorMessage);
       return [];
     }
   },
@@ -55,16 +57,17 @@ export const movieApi = {
       const movies = data.items || [];
       return movies.map((item: any) => ({
         id: item.id,
-        title: item.titleUkr || "Без назви",
-        poster: item.imageUrl || '',
+        title: item.TitleUkr || item.titleUkr || item.title || "Без назви",
+        poster: item.imageUrl || item.ImageUrl || item.poster || '',
         ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
         releaseDate: item.releaseDate
           ? new Date(item.releaseDate).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' })
           : "Скоро",
         isBlurred: false
       }));
-    } catch (error) {
-      console.error('Failed to fetch coming soon movies:', error);
+    } catch (error: any) {
+      const errorMessage = parseBackendError(error.response?.data);
+      console.error('Failed to fetch coming soon movies:', errorMessage);
       return [];
     }
   },
@@ -87,7 +90,6 @@ export const movieApi = {
         const dateObj = new Date(session.startTime);
         
         const dateKey = dateObj.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' });
-
         const timeVal = dateObj.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
 
         if (!scheduleMap.has(dateKey)) {
@@ -105,23 +107,25 @@ export const movieApi = {
 
       return {
         id: data.id,
-        title: data.titleUkr || "Без назви",
-        poster: data.imageUrl || '',
+        title: data.TitleUkr || data.titleUkr || data.title || "Без назви",
+        poster: data.imageUrl || data.ImageUrl || data.poster || '',
         ageRating: data.ageRating ? `${data.ageRating}+` : "0+",
         originalTitle: data.TitleOrg || data.originalTitle || "",
         director: data.director || "Не вказано",
         year: data.year || new Date().getFullYear(),
         country: data.country || "Невідомо",
         genre: data.genre || "Не вказано",
-        rating: data.imdbRating || "Відсутній",
+        rating: data.imdbRating || data.rating || "Відсутній",
         language: data.language || "Українська",
         subtitles: data.subtitles ? "Так" : "Ні",
         cast: data.actorNames || data.cast || [], 
         description: data.description || "Опис наразі відсутній.",
-        schedule: schedule 
+        schedule: schedule,
+        trailerUrl: data.trailerUrl || "",
       };
-    } catch (error) {
-      console.error('Failed to fetch movie details:', error);
+    } catch (error: any) {
+      const errorMessage = parseBackendError(error.response?.data);
+      console.error('Failed to fetch movie details:', errorMessage);
       return null;
     }
   }
