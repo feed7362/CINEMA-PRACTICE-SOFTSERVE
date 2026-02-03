@@ -21,5 +21,5 @@ public class Hall : IEntity
 
     public ICollection<Seat> Seats { get; set; } = new List<Seat>();
     public ICollection<Session> Sessions { get; set; } = new List<Session>();
-
+    public bool IsDeleted { get; set; } = false;
 }
