@@ -1,25 +1,25 @@
 import React from 'react';
-import { useLocation, Navigate } from 'react-router-dom';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements } from '@stripe/react-stripe-js';
+import {useLocation, Navigate} from 'react-router-dom';
+import {loadStripe} from '@stripe/stripe-js';
+import {Elements} from '@stripe/react-stripe-js';
 import CheckoutForm from '../components/payment/CheckoutForm.tsx';
-import type { LockBookingResponse } from '@/types/booking';
+import type {LockBookingResponse} from '@/types/booking';
 
-const stripePromise = loadStripe('pk_test.....скину_в_дс.пізніше добавити в .env');
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string);
 
 const CheckoutPage: React.FC = () => {
     const location = useLocation();
     const lockData = location.state as LockBookingResponse | null;
 
     if (!lockData || !lockData.clientSecret) {
-        return <Navigate to="/" replace />;
+        return <Navigate to="/" replace/>;
     }
 
     const options = {
         clientSecret: lockData.clientSecret,
         appearance: {
             theme: 'night' as const,
-            variables: { colorPrimary: '#2563eb' }
+            variables: {colorPrimary: '#2563eb'}
         },
     };
 

@@ -6,7 +6,6 @@ import BaseButton from '@/components/ui/BaseButton';
 import {useRecaptcha} from '@/hooks/useRecaptcha';
 import {register} from '@/api/authApi';
 
-const SITE_KEY = '6LfbhFosAAAAAMCZYTFvO8bG3EbOj5a3uBi4_XOW';
 const CAPTCHA_CONTAINER_ID = 'recaptcha-container';
 
 const SignUp: React.FC = () => {
@@ -15,7 +14,7 @@ const SignUp: React.FC = () => {
     const [loading, setLoading] = useState(false);
 
     const {token, resetCaptcha} = useRecaptcha({
-        siteKey: SITE_KEY,
+        siteKey: import.meta.env.VITE_CAPTCHA_SITE_KEY as string,
         elementId: CAPTCHA_CONTAINER_ID,
     });
 
@@ -52,7 +51,7 @@ const SignUp: React.FC = () => {
         try {
             setLoading(true);
 
-            await register(name, email, password, confirmPassword, token);
+            await register(email, password, confirmPassword);
 
             alert('Реєстрація успішна');
             navigate('/auth');
