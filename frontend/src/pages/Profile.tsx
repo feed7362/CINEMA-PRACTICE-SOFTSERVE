@@ -43,7 +43,7 @@ const Profile: React.FC = () => {
     <div className="text-white p-10">
       <div className="max-w-6xl mx-auto space-y-12">
 
-        <div className="bg-gradient-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 flex flex-col md:flex-row justify-between gap-6">
+        <div className="bg-linear-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 flex flex-col md:flex-row justify-between gap-6">
 
           <div className="flex gap-6">
             <div className="w-20 h-20 rounded-full bg-blue-700 flex items-center justify-center text-3xl font-bold">
@@ -76,7 +76,7 @@ const Profile: React.FC = () => {
           </EditButton>
         </div>
 
-        <div className="bg-gradient-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 space-y-6">
+        <div className="bg-linear-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 space-y-6">
           <h3 className="text-3xl font-bold">Активні квитки</h3>
 
           <div className="bg-black/30 rounded-2xl p-6 flex justify-between items-center gap-6">
