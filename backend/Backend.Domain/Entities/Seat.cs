@@ -5,8 +5,7 @@ namespace Backend.Domain.Entities;
 public enum SeatType : short
 {
     Regular = 0,
-    Premium = 1,
-    Vip = 2
+    Vip = 1
 }
 
 public class Seat : IEntity

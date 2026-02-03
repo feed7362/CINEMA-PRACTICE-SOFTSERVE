@@ -28,7 +28,6 @@ public class HallService(IRepository<Hall> hallRepository) : IHallService
                 var type = seatChar switch
                 {
                     'V' => SeatType.Vip,
-                    'P' => SeatType.Premium,
                     _ => SeatType.Regular,
                 };
 
