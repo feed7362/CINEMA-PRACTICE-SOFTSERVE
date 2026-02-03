@@ -1,10 +1,3 @@
-//
-//
-// ПРИКЛАД ВИКОРИСТАННЯ ПРИ ВИБОРІ МІСЦЬ
-//
-//
-
-
 import React, {useEffect, useState} from 'react';
 import {useParams, useNavigate} from 'react-router-dom';
 import type {SeatDto, LockBookingResponse} from '../types/booking';
