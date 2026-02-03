@@ -41,6 +41,8 @@ public static class DataSeeder
         RoleManager<IdentityRole<int>> roleManager
     )
     {
+        context.UseAuditing = false;
+
         #region Identity (Roles & Admin)
 
         string[] roleNames = ["Admin", "Customer"];
@@ -541,6 +543,8 @@ public static class DataSeeder
         }
 
         #endregion
+
+        context.UseAuditing = true; // enabled logs listening
     }
 
     private static async Task SeedMovieRelationships(ApplicationContext context, List<Movie> movies)
