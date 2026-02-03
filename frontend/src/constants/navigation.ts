@@ -1,6 +1,7 @@
 export const FOOTER_LINKS = [
   { title: 'Контакти', path: '/contacts' },
   { title: 'Акції', path: '/shares' },
-  { title: 'Повернення квитків', path: '/refund' },
-  { title: 'Скоро в прокаті', path: '/soon' },
+  { title: 'Скоро в кіно', path: '/soon' },
+  { title: 'Приєднатись до нас', path: '/signup' },
+  {title: 'Розклад сеансів', path: '/schedule'} 
 ];

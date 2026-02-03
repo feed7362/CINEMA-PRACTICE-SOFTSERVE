@@ -63,6 +63,7 @@ public class BookingService(
                 booking.ApplicationUserId,
                 booking.SessionId,
                 booking.BookingTime,
+                booking.ExpirationTime,
                 booking.Status.ToString(),
                 intent.ClientSecret,
                 intent.Id
@@ -133,6 +134,7 @@ public class BookingService(
             booking.ApplicationUserId,
             booking.SessionId,
             booking.BookingTime,
+            booking.ExpirationTime,
             booking.Status.ToString(),
             clientSecret,
             booking.PaymentIntentId
@@ -193,6 +195,7 @@ public class BookingService(
                 booking.ApplicationUserId,
                 booking.SessionId,
                 booking.BookingTime,
+                booking.ExpirationTime,
                 booking.Status.ToString(),
                 clientSecret,
                 booking.PaymentIntentId
@@ -206,6 +209,7 @@ public class BookingService(
             booking.ApplicationUserId,
             booking.SessionId,
             booking.BookingTime,
+            booking.ExpirationTime,
             booking.Status.ToString(),
             clientSecret,
             booking.PaymentIntentId
