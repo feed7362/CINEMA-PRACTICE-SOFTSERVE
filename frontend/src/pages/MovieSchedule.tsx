@@ -49,13 +49,15 @@ const MovieSchedule: React.FC = () => {
             {error}
           </div>
         )}
-
+       
         {!loading && !error && (
           <>
             {scheduleMovies.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
                 {scheduleMovies.map((movie) => (
-                  <ScheduleMovieCard key={movie.id} movie={movie} />
+                  <ScheduleMovieCard 
+                  key={movie.id} 
+                  movie={{ ...movie, id: movie.id.toString() }} />
                 ))}
               </div>
             ) : (
