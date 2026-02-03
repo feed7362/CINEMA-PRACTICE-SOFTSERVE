@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "-": "^0.0.1",
+    "@stripe/react-stripe-js": "^5.6.0",
+    "@stripe/stripe-js": "^8.7.0",
     "@tailwindcss/postcss": "^4.1.18",
     "axios": "^1.13.2",
     "lucide-react": "^0.562.0",
