@@ -41,7 +41,7 @@ const Home: React.FC = () => {
                 setError(null);
 
                 const filters = {
-                    GenreIds: selectedGenres.length > 0 ? selectedGenres : undefined,
+                    GenreId: selectedGenres.length > 0 ? selectedGenres : undefined,
                     StudioId: selectedStudio ?? undefined,
                     MinRating: selectedRating ?? undefined
                 };

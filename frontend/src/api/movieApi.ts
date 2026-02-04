@@ -15,8 +15,7 @@ export const movieApi = {
         try {
             const [moviesResponse, sessionsResponse] = await Promise.all([
                 axiosClient.get('/movie', {
-                    // 👇 FIX: Use PascalCase for SortDirection too
-                    params: { SortDirection: 0, ...filterParams },
+                    params: {SortDirection: 0, ...filterParams},
 
                     paramsSerializer: (params) => {
                         const searchParams = new URLSearchParams();
@@ -27,8 +26,6 @@ export const movieApi = {
                             if (value === undefined || value === null) return;
 
                             if (Array.isArray(value)) {
-                                // 👇 CHANGE: Join array with commas instead of repeating keys
-                                // Converts [1, 2] -> "GenreIds=1,2"
                                 searchParams.append(key, value.join(','));
                             } else {
                                 searchParams.append(key, value);
