@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Input from '@/components/ui/Input';
 import BaseButton from '@/components/ui/BaseButton';
 import EditButton from '@/components/ui/EditProfileButton';
@@ -6,6 +7,8 @@ import EditButton from '@/components/ui/EditProfileButton';
 import { MOCK_MOVIES } from '@/constants/mockMovies';
 
 const Profile: React.FC = () => {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState({
     name: 'John Doe',
     email: 'john.doe@example.com',
@@ -15,8 +18,8 @@ const Profile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const activeMovie = MOCK_MOVIES[0];
-  const activeSessionTime = activeMovie.sessions[0];
+  const activeMovie = MOCK_MOVIES.length > 0 ? MOCK_MOVIES[0] : null;
+  const activeSessionTime = activeMovie?.sessions?.[0] || 'Час не визначено';
 
   const handleEditToggle = () => {
     if (isEditing) {
@@ -37,6 +40,11 @@ const Profile: React.FC = () => {
   const handleRefund = () => {
     setShowConfirm(false);
     console.log('Ticket refunded');
+  };
+
+  const handleLogout = () => {
+    console.log('User logged out');
+    navigate('/signup');
   };
 
   return (
@@ -67,48 +75,64 @@ const Profile: React.FC = () => {
             </div>
           </div>
 
-          <EditButton
-            className="px-6 py-3 rounded-xl font-semibold self-start"
-            onClick={handleEditToggle}
-          >
-
-            {isEditing ? 'Закрити редагування' : 'Редагувати'}
-          </EditButton>
+          <div className="flex flex-col gap-3 self-start">
+            <EditButton
+              className="px-6 py-3 rounded-xl font-semibold w-full"
+              onClick={handleEditToggle}
+            >
+              {isEditing ? 'Закрити редагування' : 'Редагувати'}
+            </EditButton>
+            
+            {!isEditing && (
+              <BaseButton
+                className="px-6 py-3 rounded-xl font-semibold bg-white/10 hover:bg-white/20 text-red-400 border border-white/10 transition-colors"
+                onClick={handleLogout}
+              >
+                Вийти з акаунту
+              </BaseButton>
+            )}
+          </div>
         </div>
 
         <div className="bg-linear-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 space-y-6">
           <h3 className="text-3xl font-bold">Активні квитки</h3>
 
-          <div className="bg-black/30 rounded-2xl p-6 flex justify-between items-center gap-6">
-            <div className="flex gap-6 items-center">
-              <img
-                src={activeMovie.poster}
-                alt={activeMovie.title}
-                className="w-20 rounded-xl"
-              />
+          {activeMovie ? (
+            <div className="bg-black/30 rounded-2xl p-6 flex justify-between items-center gap-6">
+              <div className="flex gap-6 items-center">
+                <img
+                  src={activeMovie.poster}
+                  alt={activeMovie.title}
+                  className="w-20 rounded-xl"
+                />
 
-              <div className="space-y-2">
-                <h4 className="text-xl font-bold">
-                  {activeMovie.title}
-                </h4>
+                <div className="space-y-2">
+                  <h4 className="text-xl font-bold">
+                    {activeMovie.title}
+                  </h4>
 
-                <p className="text-zinc-300 text-sm">
-                  Сеанс: {activeSessionTime} · Вік: {activeMovie.ageRating}
-                </p>
+                  <p className="text-zinc-300 text-sm">
+                    Сеанс: {activeSessionTime} · Вік: {activeMovie.ageRating}+
+                  </p>
 
-                <span className="inline-block bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                  ACTIVE
-                </span>
+                  <span className="inline-block bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    ACTIVE
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <BaseButton
-              className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 font-semibold"
-              onClick={() => setShowConfirm(true)}
-            >
-              Повернути
-            </BaseButton>
-          </div>
+              <BaseButton
+                className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 font-semibold"
+                onClick={() => setShowConfirm(true)}
+              >
+                Повернути
+              </BaseButton>
+            </div>
+          ) : (
+            <div className="text-zinc-400 text-center py-10">
+              У вас немає активних квитків
+            </div>
+          )}
         </div>
 
       </div>
