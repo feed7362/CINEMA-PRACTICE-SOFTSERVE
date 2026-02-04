@@ -1,6 +1,16 @@
 import axiosClient from './axiosClient';
 import type { IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem } from '@/types/movie';
-import { parseBackendError } from '@/utils/errorUtils'; // 👈 Імпортуємо функцію обробки помилок
+import { parseBackendError } from '@/utils/errorUtils';
+
+export interface MovieQueryParams {
+  SearchTerm?: string;
+  GenreIds?: number[];
+  StudioId?: number;
+  IsComingSoon?: boolean;
+  SortBy?: string;
+  SortDirection?: number;
+  MinRating?: number;
+}
 
 interface SessionDto {
   id: number;
@@ -11,10 +21,15 @@ interface SessionDto {
 }
 
 export const movieApi = {
-  getNowPlaying: async (): Promise<IMovie[]> => {
+  getNowPlaying: async (queryParams?: MovieQueryParams): Promise<IMovie[]> => {
     try {
+      const params = {
+        SortDirection: 0,
+        IsComingSoon: false,
+        ...queryParams
+      }
       const [moviesResponse, sessionsResponse] = await Promise.all([
-        axiosClient.get('/movie', { params: { SortDirection: 0 } }),
+        axiosClient.get('/movie', { params }),
         axiosClient.get('/session')
       ]);
       const movies = moviesResponse.data.items || [];
@@ -37,7 +52,8 @@ export const movieApi = {
           poster: item.imageUrl || '',
           ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
           sessions: formattedSessions.length > 0 ? formattedSessions : [],
-          hall: item.hall || item.hallName || "Зал 1"
+          hall: item.hall || item.hallName || "Зал 1",
+          rating: item.imdbRating || 0 
         };
       });
     } catch (error: any) {
@@ -63,7 +79,8 @@ export const movieApi = {
         releaseDate: item.releaseDate
           ? new Date(item.releaseDate).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' })
           : "Скоро",
-        isBlurred: false
+        isBlurred: false,
+        rating: item.imdbRating || 0
       }));
     } catch (error: any) {
       const errorMessage = parseBackendError(error.response?.data);
@@ -110,12 +127,12 @@ export const movieApi = {
         title: data.TitleUkr || data.titleUkr || data.title || "Без назви",
         poster: data.imageUrl || data.ImageUrl || data.poster || '',
         ageRating: data.ageRating ? `${data.ageRating}+` : "0+",
-        originalTitle: data.TitleOrg || data.originalTitle || "",
+        originalTitle: data.titleOrg || "",
         director: data.director || "Не вказано",
         year: data.year || new Date().getFullYear(),
         country: data.country || "Невідомо",
         genre: data.genre || "Не вказано",
-        rating: data.imdbRating || data.rating || "Відсутній",
+        rating: data.imdbRating || "Відсутній",
         language: data.language || "Українська",
         subtitles: data.subtitles ? "Так" : "Ні",
         cast: data.actorNames || data.cast || [], 

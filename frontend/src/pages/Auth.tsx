@@ -23,31 +23,28 @@ const Auth: React.FC = () => {
 
     try {
       const data = await login(email, password);
-
       localStorage.setItem('token', data.token);
       localStorage.setItem('email', data.email);
-
       navigate('/profile/1');
-
     } catch {
       setError('Невірна пошта або пароль');
     }
   };
 
   return (
-    <div className="text-white p-10">
+    <div className="text-white p-4">
       <div className="min-h-[70vh] flex items-center justify-center">
         <div
           id="auth-card"
-          className="w-full max-w-md bg-white/5 border border-white/10 rounded-3xl p-10 space-y-8"
+          className="w-full max-w-sm bg-white/5 border border-white/10 rounded-3xl p-8 space-y-6"
         >
 
           <div className="text-center space-y-2">
-            <h1 id="auth-title" className="text-3xl font-bold">Вхід</h1>
-            <p className="text-zinc-400">Увійди в акаунт, щоб продовжити</p>
+            <h1 id="auth-title" className="text-2xl font-bold">Вхід</h1>
+            <p className="text-zinc-400 text-sm">Увійди в акаунт, щоб продовжити</p>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
 
             <Input
               id="auth-email"
@@ -70,23 +67,22 @@ const Auth: React.FC = () => {
 
             <BaseButton
               onClick={handleSubmit}
-              className="w-full py-4 rounded-xl text-lg font-bold"
+              className="w-full py-3 rounded-xl text-base font-bold"
             >
               Увійти
             </BaseButton>
 
           </div>
 
-          <div className="text-center text-zinc-400 space-y-2">
+          <div className="text-center text-zinc-400 space-y-2 text-sm">
             <div>
               Немаєте акаунта?{' '}
               <Link
-  to="/signup"
-  className="text-white font-semibold underline hover:text-white/80 transition-colors"
->
-  Зареєструватися
-</Link>
-
+                to="/signup"
+                className="text-white font-semibold underline hover:text-white/80 transition-colors"
+              >
+                Зареєструватися
+              </Link>
             </div>
           </div>
 

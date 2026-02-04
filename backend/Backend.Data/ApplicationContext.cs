@@ -17,7 +17,9 @@ namespace Backend.Data
         public DbSet<Movie> Movies { get; set; } = null!;
         public DbSet<MovieActor> MovieActors { get; set; } = null!;
         public DbSet<MovieGenre> MovieGenres { get; set; } = null!;
-
+        public DbSet<Studio> Studios { get; set; } = null!;
+        public DbSet<ContactMessage> ContactMessages { get; set; } = null!;
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
