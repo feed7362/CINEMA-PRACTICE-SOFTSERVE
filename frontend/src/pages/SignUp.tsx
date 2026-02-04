@@ -52,9 +52,7 @@ const SignUp: React.FC = () => {
 
         try {
             setLoading(true);
-
-            await register(email, password, confirmPassword);
-
+            await register(email, password, confirmPassword); // Assuming register handles the name or it's separate
             alert('Реєстрація успішна');
             navigate('/auth');
         } catch (err: any) {
@@ -74,10 +72,7 @@ const SignUp: React.FC = () => {
     const handleGoogleSuccess = async (credentialResponse: any) => {
         try {
             const user = await externalLogin(credentialResponse.credential);
-            // local storage set inside externalLogin as it should
-
             console.log('Successfully logged in via Google:', user);
-
             navigate('/');
         } catch (error: any) {
             console.error('Login with Google failed. Please try again.');
@@ -87,21 +82,22 @@ const SignUp: React.FC = () => {
 
     return (
         <div className="text-white p-4 h-screen flex items-center justify-center overflow-y-auto no-scrollbar">
-            <div className="w-full max-w-100 bg-white/5 border border-white/10 rounded-2xl p-8 shadow-2xl backdrop-blur-md">
+            <div
+                className="w-full max-w-100 bg-white/5 border border-white/10 rounded-2xl p-8 shadow-2xl backdrop-blur-md">
 
                 <div className="text-center mb-6">
                     <h1 className="text-2xl font-bold tracking-wide">Реєстрація</h1>
                 </div>
 
                 <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-                    
+
                     <div className="flex flex-col gap-3">
                         <Input
                             id="signup-name"
                             name="name"
                             label="Імʼя"
                             placeholder="Ваше ім'я"
-                            className="text-sm" 
+                            className="text-sm"
                         />
 
                         <Input
@@ -118,7 +114,6 @@ const SignUp: React.FC = () => {
                             name="password"
                             label="Пароль"
                             placeholder="••••••••"
-                            className="text-sm"
                         />
 
                         <PasswordInput
@@ -126,50 +121,47 @@ const SignUp: React.FC = () => {
                             name="confirmPassword"
                             label="Підтвердження"
                             placeholder="••••••••"
-                            className="text-sm"
                         />
                     </div>
 
-                        {/* Captcha */}
-                        <div className="flex justify-center">
-                            <div id={CAPTCHA_CONTAINER_ID}/>
-                        </div>
+                    {/* Captcha */}
+                    <div className="flex justify-center my-2">
+                        <div id={CAPTCHA_CONTAINER_ID}/>
+                    </div>
 
-                        {error && (
-                            <div className="text-red-400 text-sm text-center font-medium bg-red-500/10 p-2 rounded">
-                                {error}
-                            </div>
-                        )}
-
-                        <BaseButton
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-4 rounded-xl text-lg font-bold"
-                        >
-                            {loading ? 'Обробка...' : 'Зареєструватися'}
-                        </BaseButton>
-
-                        <GoogleLogin
-                            onSuccess={handleGoogleSuccess}
-                            onError={() => setError("Не вдалося увійти через гугл")}
-                            useOneTap
-                        />
-
-                    </form>
-
+                    {/* Error Message */}
                     {error && (
-                        <div className="text-red-400 text-xs text-center font-medium bg-red-500/10 py-2 px-3 rounded-lg border border-red-500/20">
+                        <div
+                            className="text-red-400 text-xs text-center font-medium bg-red-500/10 py-2 px-3 rounded-lg border border-red-500/20">
                             {error}
                         </div>
                     )}
 
+                    {/* Submit Button */}
                     <BaseButton
                         type="submit"
                         disabled={loading}
-                        className="w-full py-3 rounded-xl text-sm font-bold bg-[#0753E0] hover:bg-[#0642b5] transition-colors mt-2"
+                        className="w-full py-3 rounded-xl text-sm font-bold bg-[#0753E0] hover:bg-[#0642b5] transition-colors"
                     >
                         {loading ? 'Обробка...' : 'Створити акаунт'}
                     </BaseButton>
+
+                    <div className="relative flex py-2 items-center">
+                        <div className="grow border-t border-white/10"></div>
+                        <span className="shrink-0 px-2 text-xs text-zinc-500">або</span>
+                        <div className="grow border-t border-white/10"></div>
+                    </div>
+
+                    {/* Google Login */}
+                    <div className="flex justify-center">
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => setError("Не вдалося увійти через гугл")}
+                            useOneTap
+                            theme="filled_black"
+                            shape="circle"
+                        />
+                    </div>
                 </form>
 
                 <div className="text-center mt-6 pt-4 border-t border-white/10">

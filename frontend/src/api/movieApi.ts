@@ -1,16 +1,4 @@
 import axiosClient from './axiosClient';
-import type { IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem } from '@/types/movie';
-import { parseBackendError } from '@/utils/errorUtils';
-
-export interface MovieQueryParams {
-  SearchTerm?: string;
-  GenreIds?: number[];
-  StudioId?: number;
-  IsComingSoon?: boolean;
-  SortBy?: string;
-  SortDirection?: number;
-  MinRating?: number;
-}
 import type {IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem, Session} from '@/types/movie';
 import {parseBackendError} from '@/utils/errorUtils';
 
@@ -23,10 +11,33 @@ interface SessionDto {
 }
 
 export const movieApi = {
-    getNowPlaying: async (): Promise<IMovie[]> => {
+    getNowPlaying: async (filterParams?: any): Promise<IMovie[]> => {
         try {
             const [moviesResponse, sessionsResponse] = await Promise.all([
-                axiosClient.get('/movie', {params: {SortDirection: 0}}),
+                axiosClient.get('/movie', {
+                    // 👇 FIX: Use PascalCase for SortDirection too
+                    params: { SortDirection: 0, ...filterParams },
+
+                    paramsSerializer: (params) => {
+                        const searchParams = new URLSearchParams();
+
+                        Object.keys(params).forEach(key => {
+                            const value = params[key];
+
+                            if (value === undefined || value === null) return;
+
+                            if (Array.isArray(value)) {
+                                // 👇 CHANGE: Join array with commas instead of repeating keys
+                                // Converts [1, 2] -> "GenreIds=1,2"
+                                searchParams.append(key, value.join(','));
+                            } else {
+                                searchParams.append(key, value);
+                            }
+                        });
+
+                        return searchParams.toString();
+                    }
+                }),
                 axiosClient.get('/session')
             ]);
 
@@ -40,14 +51,14 @@ export const movieApi = {
             endOfDay.setHours(23, 59, 59, 999);
 
             return movies.map((item: any) => {
-                const todaySessions = allSessions.filter((session: any) => {
+                const todaysSessions = allSessions.filter((session: any) => {
                     const sessionTime = new Date(session.startTime);
                     return String(session.movieId) === String(item.id) &&
                         sessionTime >= startOfDay &&
                         sessionTime <= endOfDay;
                 });
 
-                const formattedSessions = todaySessions
+                const formattedSessions = todaysSessions
                     .map((session: any) => {
                         const date = new Date(session.startTime);
                         return {
@@ -68,6 +79,32 @@ export const movieApi = {
             });
         } catch (error: any) {
             console.error('Failed to fetch movies:', error);
+            return [];
+        }
+    },
+
+    getComingSoon: async (): Promise<MoviePreviewProps[]> => {
+        try {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const {data} = await axiosClient.get('/movie', {
+                params: {dateFrom: tomorrow.toISOString(), SortDirection: 0}
+            });
+            const movies = data.items || [];
+            return movies.map((item: any) => ({
+                id: item.id,
+                title: item.TitleUkr || item.titleUkr || item.title || "Без назви",
+                poster: item.imageUrl || item.ImageUrl || item.poster || '',
+                ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
+                releaseDate: item.releaseDate
+                    ? new Date(item.releaseDate).toLocaleDateString('uk-UA', {day: 'numeric', month: 'long'})
+                    : "Скоро",
+                isBlurred: false,
+                rating: item.imdbRating || 0
+            }));
+        } catch (error: any) {
+            const errorMessage = parseBackendError(error.response?.data);
+            console.error('Failed to fetch coming soon movies:', errorMessage);
             return [];
         }
     },
@@ -127,31 +164,6 @@ export const movieApi = {
         }
     },
 
-    getComingSoon: async (): Promise<MoviePreviewProps[]> => {
-        try {
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const {data} = await axiosClient.get('/movie', {
-                params: {dateFrom: tomorrow.toISOString(), SortDirection: 0}
-            });
-            const movies = data.items || [];
-            return movies.map((item: any) => ({
-                id: item.id,
-                title: item.TitleUkr || item.titleUkr || item.title || "Без назви",
-                poster: item.imageUrl || item.ImageUrl || item.poster || '',
-                ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
-                releaseDate: item.releaseDate
-                    ? new Date(item.releaseDate).toLocaleDateString('uk-UA', {day: 'numeric', month: 'long'})
-                    : "Скоро",
-                isBlurred: false
-            }));
-        } catch (error: any) {
-            const errorMessage = parseBackendError(error.response?.data);
-            console.error('Failed to fetch coming soon movies:', errorMessage);
-            return [];
-        }
-    },
-
     getMovieById: async (id: string): Promise<IMovieDetails | null> => {
         try {
             const [movieResponse, sessionsResponse] = await Promise.all([
@@ -198,7 +210,9 @@ export const movieApi = {
                 director: data.director || "Не вказано",
                 year: data.year || new Date().getFullYear(),
                 country: data.country || "Невідомо",
-                genre: data.genre || "Не вказано",
+                genre: Array.isArray(data.genreNames)
+                    ? data.genreNames.join(', ')
+                    : (data.genre || "Не вказано"),
                 rating: data.imdbRating || data.rating || "Відсутній",
                 language: data.language || "Українська",
                 subtitles: data.subtitles ? "Так" : "Ні",

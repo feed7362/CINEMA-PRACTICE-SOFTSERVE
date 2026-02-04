@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20260204103858_Initial")]
+    [Migration("20260204120851_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -192,6 +192,34 @@ namespace Backend.Data.Migrations
                     b.HasIndex("SessionId");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.ContactMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ContactMessages");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Discount", b =>
@@ -527,7 +555,7 @@ namespace Backend.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Studio");
+                    b.ToTable("Studios");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Ticket", b =>
