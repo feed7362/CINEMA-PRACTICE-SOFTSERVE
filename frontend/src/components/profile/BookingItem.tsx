@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import BaseButton from '@/components/ui/BaseButton';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import { getBookingDetails } from '@/api/profileApi';
+import {getBookingDetails} from '@/api/profileApi';
 
 export interface BookingSummaryDto {
     id: number;
@@ -28,10 +28,10 @@ export interface BookingDetailsDto extends BookingSummaryDto {
 interface BookingItemProps {
     booking: BookingSummaryDto;
     onRefund: (id: number) => void;
-    isHistory?: boolean; 
+    isHistory?: boolean;
 }
 
-const BookingItem: React.FC<BookingItemProps> = ({ booking, onRefund, isHistory = false }) => {
+const BookingItem: React.FC<BookingItemProps> = ({booking, onRefund, isHistory = false}) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [seats, setSeats] = useState<TicketDetailDto[]>([]);
     const [loadingDetails, setLoadingDetails] = useState(false);
@@ -58,7 +58,8 @@ const BookingItem: React.FC<BookingItemProps> = ({ booking, onRefund, isHistory 
     };
 
     return (
-        <div className="bg-zinc-900/50 hover:bg-zinc-900/80 transition-all rounded-2xl p-6 border border-white/10 shadow-lg mb-4">
+        <div
+            className="bg-zinc-900/50 hover:bg-zinc-900/80 transition-all rounded-2xl p-6 border border-white/10 shadow-lg mb-4">
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div className="space-y-2 text-white">
@@ -71,7 +72,7 @@ const BookingItem: React.FC<BookingItemProps> = ({ booking, onRefund, isHistory 
                             🗓 {date.toLocaleDateString('uk-UA')}
                         </span>
                         <span className="bg-white/5 px-2 py-1 rounded-md border border-white/10 text-white font-bold">
-                            🕒 {date.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })}
+                            🕒 {date.toLocaleTimeString('uk-UA', {hour: '2-digit', minute: '2-digit'})}
                         </span>
                         <span>
                            🎟 {booking.ticketCount} шт.
@@ -82,11 +83,12 @@ const BookingItem: React.FC<BookingItemProps> = ({ booking, onRefund, isHistory 
                     </div>
 
                     <div className="pt-1">
-                        <span className={`inline-block text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border ${
-                            booking.status === 'CONFIRMED'
-                                ? 'bg-green-500/10 text-green-400 border-green-500/30'
-                                : 'bg-zinc-500/10 text-zinc-400 border-zinc-500/30'
-                        }`}>
+                        <span
+                            className={`inline-block text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border ${
+                                booking.status === 'CONFIRMED'
+                                    ? 'bg-green-500/10 text-green-400 border-green-500/30'
+                                    : 'bg-zinc-500/10 text-zinc-400 border-zinc-500/30'
+                            }`}>
                             {booking.status === 'CONFIRMED' ? 'АКТИВНИЙ' : booking.status}
                         </span>
                     </div>
@@ -117,12 +119,14 @@ const BookingItem: React.FC<BookingItemProps> = ({ booking, onRefund, isHistory 
                     <h5 className="text-sm font-bold text-zinc-400 mb-3">Деталі квитків:</h5>
 
                     {loadingDetails ? (
-                        <div className="flex justify-center py-4"><LoadingSpinner /></div>
+                        <div className="flex justify-center py-4"><LoadingSpinner/></div>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                             {seats.map(seat => (
-                                <div key={seat.id} className="bg-black/40 p-3 rounded-xl text-center border border-white/5">
-                                    <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Ряд {seat.rowNumber}</div>
+                                <div key={seat.id}
+                                     className="bg-black/40 p-3 rounded-xl text-center border border-white/5">
+                                    <div
+                                        className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Ряд {seat.rowNumber}</div>
                                     <div className="text-lg font-black text-white">Місце {seat.seatNumber}</div>
                                     <div className="text-[10px] text-zinc-600 mt-1">{seat.seatType}</div>
                                 </div>

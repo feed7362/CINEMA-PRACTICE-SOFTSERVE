@@ -3,7 +3,6 @@ import {Eye, EyeOff} from 'lucide-react';
 
 interface PasswordInputProps {
     id: string;
-    name: string;
     label?: string;
     placeholder?: string;
 }
@@ -12,9 +11,8 @@ interface PasswordInputProps {
 const PasswordInput: React.FC<PasswordInputProps> = (
     {
         id,
-        name,
         label = 'Пароль',
-        placeholder,
+        placeholder
     }) => {
     const [showPassword, setShowPassword] = useState(false);
 
@@ -27,7 +25,6 @@ const PasswordInput: React.FC<PasswordInputProps> = (
             <div className="relative">
                 <input
                     id={id}
-                    name={name}
                     type={showPassword ? 'text' : 'password'}
                     placeholder={placeholder}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-12 text-white outline-none focus:border-[#0753E0] transition-colors"

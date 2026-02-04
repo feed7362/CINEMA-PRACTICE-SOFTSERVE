@@ -5,7 +5,6 @@ import EditButton from '@/components/ui/EditProfileButton';
 interface UserData {
   name: string;
   email: string;
-  phone: string;
 }
 
 interface UserProfileCardProps {
@@ -51,18 +50,11 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({ user, onUpdate }) => 
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
               />
-              <Input 
-                id="edit-phone" 
-                label="Телефон" 
-                value={formData.phone}
-                onChange={(e) => setFormData({...formData, phone: e.target.value})}
-              />
             </>
           ) : (
             <>
               <h2 className="text-2xl font-bold">{user.name}</h2>
               <p className="text-zinc-300 text-sm">Email: {user.email}</p>
-              <p className="text-zinc-300 text-sm">Тел: {user.phone}</p>
             </>
           )}
         </div>

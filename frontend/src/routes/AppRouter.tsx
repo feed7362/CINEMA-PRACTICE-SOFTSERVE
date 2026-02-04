@@ -23,7 +23,7 @@ const AppRoutes: React.FC = () => {
             <Route path="/auth" element={<Auth/>}/>
             <Route path="/movie/:id" element={<MovieDetails/>}/>
             <Route path="/schedule" element={<MovieSchedule/>}/>
-            <Route path="/profile/:id" element={<Profile/>}/>
+            <Route path="/profile" element={<Profile/>}/>
             <Route path="/shares" element={<Shares/>}/>
             <Route path="/signup" element={<SignUp/>}/>
             <Route path="/soon" element={<SoonMovies/>}/>
