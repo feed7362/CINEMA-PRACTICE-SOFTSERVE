@@ -20,6 +20,14 @@ const Profile: React.FC = () => {
         try {
             setLoading(true);
 
+  const handleLogout = () => {
+    console.log('User logged out');
+    navigate('/signup');
+  };
+
+  return (
+    <div className="text-white p-10">
+      <div className="max-w-6xl mx-auto space-y-12">
             const [me, bookingsData] = await Promise.all([
                 getMe(),
                 getMyBookings()

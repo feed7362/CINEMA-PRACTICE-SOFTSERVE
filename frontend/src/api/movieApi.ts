@@ -1,4 +1,16 @@
 import axiosClient from './axiosClient';
+import type { IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem } from '@/types/movie';
+import { parseBackendError } from '@/utils/errorUtils';
+
+export interface MovieQueryParams {
+  SearchTerm?: string;
+  GenreIds?: number[];
+  StudioId?: number;
+  IsComingSoon?: boolean;
+  SortBy?: string;
+  SortDirection?: number;
+  MinRating?: number;
+}
 import type {IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem, Session} from '@/types/movie';
 import {parseBackendError} from '@/utils/errorUtils';
 

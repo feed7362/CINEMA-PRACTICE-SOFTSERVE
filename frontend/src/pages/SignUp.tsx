@@ -57,10 +57,8 @@ const SignUp: React.FC = () => {
 
             alert('Реєстрація успішна');
             navigate('/auth');
-
         } catch (err: any) {
             resetCaptcha();
-
             const data = err?.response?.data;
             if (data?.errors) {
                 const messages = Object.values(data.errors).flat().join(' • ');
@@ -88,28 +86,31 @@ const SignUp: React.FC = () => {
     };
 
     return (
-        <div className="text-white p-10">
-            <div className="min-h-[70vh] flex items-center justify-center">
-                <div className="w-full max-w-md bg-white/5 border border-white/10 rounded-3xl p-10 space-y-8">
+        <div className="text-white p-4 h-screen flex items-center justify-center overflow-y-auto no-scrollbar">
+            <div className="w-full max-w-100 bg-white/5 border border-white/10 rounded-2xl p-8 shadow-2xl backdrop-blur-md">
 
-                    <div className="text-center space-y-2">
-                        <h1 className="text-3xl font-bold">Реєстрація</h1>
-                    </div>
+                <div className="text-center mb-6">
+                    <h1 className="text-2xl font-bold tracking-wide">Реєстрація</h1>
+                </div>
 
-                    <form className="space-y-6" onSubmit={handleSubmit}>
+                <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+                    
+                    <div className="flex flex-col gap-3">
                         <Input
                             id="signup-name"
                             name="name"
                             label="Імʼя"
                             placeholder="Ваше ім'я"
+                            className="text-sm" 
                         />
 
                         <Input
                             id="signup-email"
                             name="email"
                             type="email"
-                            label="Електронна пошта"
-                            placeholder="example@mail.com"
+                            label="Email"
+                            placeholder="mail@ex.com"
+                            className="text-sm"
                         />
 
                         <PasswordInput
@@ -117,14 +118,17 @@ const SignUp: React.FC = () => {
                             name="password"
                             label="Пароль"
                             placeholder="••••••••"
+                            className="text-sm"
                         />
 
                         <PasswordInput
                             id="signup-confirm-password"
                             name="confirmPassword"
-                            label="Підтвердіть пароль"
+                            label="Підтвердження"
                             placeholder="••••••••"
+                            className="text-sm"
                         />
+                    </div>
 
                         {/* Captcha */}
                         <div className="flex justify-center">
@@ -153,17 +157,33 @@ const SignUp: React.FC = () => {
 
                     </form>
 
-                    <div className="text-center text-zinc-400">
-                        Вже маєте акаунт?{' '}
+                    {error && (
+                        <div className="text-red-400 text-xs text-center font-medium bg-red-500/10 py-2 px-3 rounded-lg border border-red-500/20">
+                            {error}
+                        </div>
+                    )}
+
+                    <BaseButton
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-3 rounded-xl text-sm font-bold bg-[#0753E0] hover:bg-[#0642b5] transition-colors mt-2"
+                    >
+                        {loading ? 'Обробка...' : 'Створити акаунт'}
+                    </BaseButton>
+                </form>
+
+                <div className="text-center mt-6 pt-4 border-t border-white/10">
+                    <p className="text-zinc-400 text-xs">
+                        Вже є акаунт?{' '}
                         <Link
                             to="/auth"
-                            className="text-white font-semibold underline hover:text-white/80 transition-colors"
+                            className="text-white font-semibold hover:text-[#0753E0] transition-colors ml-1"
                         >
                             Увійти
                         </Link>
-                    </div>
-
+                    </p>
                 </div>
+
             </div>
         </div>
     );
