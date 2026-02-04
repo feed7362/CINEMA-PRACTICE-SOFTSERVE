@@ -2,10 +2,11 @@
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs.Hall;
 using Backend.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Services.Services;
 
-public class HallService(IRepository<Hall> hallRepository) : IHallService
+public class HallService(IRepository<Hall> hallRepository, IRepository<Session> sessionRepository) : IHallService
 {
     public async Task<ReadHallDto> CreateHallAsync(CreateHallDto dto)
     {
@@ -102,7 +103,19 @@ public class HallService(IRepository<Hall> hallRepository) : IHallService
 
     public async Task DeleteHallAsync(int id)
     {
-        await hallRepository.DeleteAsync(id);
+        //Soft delete cause sql blocks this to prevent data corruption(ticket and seats relations)
+        var hall = await hallRepository.GetByIdAsync(id);
+        if (hall == null) return;
 
+        var hasActiveBookings = await sessionRepository.AnyAsync(s =>
+            s.HallId == id && s.EndTime > DateTime.UtcNow);
+
+        if (hasActiveBookings)
+        {
+            throw new Exception("Неможливо видалити зал: є заплановані сессії");
+        }
+
+        hall.IsDeleted = true;
+        await hallRepository.UpdateAsync(hall);
     }
 }
