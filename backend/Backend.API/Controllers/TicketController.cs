@@ -19,7 +19,8 @@ internal static class TicketEndpoints
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
             return Results.Ok(await service.GetUserTicketsAsync(userId, page, pageSize));
-        });
+        })
+            .RequireAuthorization(p => p.RequireRole("Admin"));
 
         group.MapGet("/{id:int}", async (
             int id,
