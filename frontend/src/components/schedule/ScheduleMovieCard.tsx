@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import type {Session} from "@/types/movie.ts";
 
 interface ScheduleMovie {
   id: string;
   title: string;
   poster: string;
   hall: string;
-  times: string[];
+  sessions: Session[];
 }
 
 interface ScheduleMovieCardProps {
@@ -40,13 +41,13 @@ const ScheduleMovieCard: React.FC<ScheduleMovieCardProps> = ({ movie }) => {
         <p className="text-xl text-zinc-400 mb-6">{movie.hall}</p>
 
         <div className="flex flex-wrap gap-4">
-          {movie.times.map((time) => (
+          {movie.sessions.map((session) => (
             <Link
-              key={time}
-              to={`/booking/${movie.id}/${time}`}
+              key={session.id}
+              to={`/booking/${session.id}`}
               className="px-6 py-2 rounded-xl border border-[#0753E0] text-[#60A5FA] font-mono text-lg font-bold hover:bg-[#0753E0] hover:text-white transition-all duration-300 shadow-[0_0_10px_transparent] hover:shadow-[0_0_15px_#0753E0]"
             >
-              {time}
+              {session.time}
             </Link>
           ))}
         </div>

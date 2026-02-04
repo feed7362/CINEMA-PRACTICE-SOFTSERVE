@@ -4,9 +4,10 @@ import Input from '@/components/ui/Input';
 import PasswordInput from '@/components/ui/PasswordInput';
 import BaseButton from '@/components/ui/BaseButton';
 import {useRecaptcha} from '@/hooks/useRecaptcha';
-import {register} from '@/api/authApi';
+import {externalLogin, register} from '@/api/authApi';
+import {GoogleLogin} from "@react-oauth/google";
+import {parseBackendError} from "@/utils/errorUtils.ts";
 
-const SITE_KEY = '6LfbhFosAAAAAMCZYTFvO8bG3EbOj5a3uBi4_XOW';
 const CAPTCHA_CONTAINER_ID = 'recaptcha-container';
 
 const SignUp: React.FC = () => {
@@ -15,7 +16,7 @@ const SignUp: React.FC = () => {
     const [loading, setLoading] = useState(false);
 
     const {token, resetCaptcha} = useRecaptcha({
-        siteKey: SITE_KEY,
+        siteKey: import.meta.env.VITE_CAPTCHA_SITE_KEY as string,
         elementId: CAPTCHA_CONTAINER_ID,
     });
 
@@ -51,7 +52,9 @@ const SignUp: React.FC = () => {
 
         try {
             setLoading(true);
-            await register(name, email, password, confirmPassword, token);
+
+            await register(email, password, confirmPassword);
+
             alert('Реєстрація успішна');
             navigate('/auth');
         } catch (err: any) {
@@ -65,6 +68,20 @@ const SignUp: React.FC = () => {
             }
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleGoogleSuccess = async (credentialResponse: any) => {
+        try {
+            const user = await externalLogin(credentialResponse.credential);
+            // local storage set inside externalLogin as it should
+
+            console.log('Successfully logged in via Google:', user);
+
+            navigate('/');
+        } catch (error: any) {
+            console.error('Login with Google failed. Please try again.');
+            setError(parseBackendError(error));
         }
     };
 
@@ -113,9 +130,32 @@ const SignUp: React.FC = () => {
                         />
                     </div>
 
-                    <div className="flex justify-center scale-90 origin-center -my-2">
-                        <div id={CAPTCHA_CONTAINER_ID}/>
-                    </div>
+                        {/* Captcha */}
+                        <div className="flex justify-center">
+                            <div id={CAPTCHA_CONTAINER_ID}/>
+                        </div>
+
+                        {error && (
+                            <div className="text-red-400 text-sm text-center font-medium bg-red-500/10 p-2 rounded">
+                                {error}
+                            </div>
+                        )}
+
+                        <BaseButton
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-4 rounded-xl text-lg font-bold"
+                        >
+                            {loading ? 'Обробка...' : 'Зареєструватися'}
+                        </BaseButton>
+
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => setError("Не вдалося увійти через гугл")}
+                            useOneTap
+                        />
+
+                    </form>
 
                     {error && (
                         <div className="text-red-400 text-xs text-center font-medium bg-red-500/10 py-2 px-3 rounded-lg border border-red-500/20">
