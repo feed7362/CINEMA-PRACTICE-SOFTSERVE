@@ -1,41 +1,56 @@
 import React from 'react';
 import BaseButton from '@/components/ui/BaseButton';
 
-interface TicketMovie {
-  title: string;
-  poster: string;
-  ageRating: string;
-}
+export type TicketDto = {
+  ticketId: number;
+  movieTitle: string;
+  hallName: string;
+  rowNumber: number;
+  seatNumber: number;
+  seatType: string;
+  startTime: string;
+  status: string;
+};
 
 interface TicketItemProps {
-  movie: TicketMovie;
-  sessionTime: string;
-  onRefund: () => void;
+  ticket: TicketDto;
+  onRefund: (ticketId: number) => void;
 }
 
-const TicketItem: React.FC<TicketItemProps> = ({ movie, sessionTime, onRefund }) => {
+const TicketItem: React.FC<TicketItemProps> = ({ ticket, onRefund }) => {
+  const date = new Date(ticket.startTime);
+
   return (
-    <div className="bg-black/30 rounded-2xl p-6 flex flex-col sm:flex-row justify-between items-center gap-6 border border-white/5">
-      <div className="flex gap-6 items-center w-full">
-        <img
-          src={movie.poster}
-          alt={movie.title}
-          className="w-20 h-28 object-cover rounded-xl shadow-lg"
-        />
-        <div className="space-y-2 text-white">
-          <h4 className="text-xl font-bold">{movie.title}</h4>
-          <p className="text-zinc-300 text-sm">
-            Сеанс: {sessionTime} · Вік: {movie.ageRating}
-          </p>
-          <span className="inline-block bg-green-600/20 text-green-400 border border-green-600/50 text-xs font-bold px-3 py-1 rounded-full">
-            ACTIVE
-          </span>
-        </div>
+    <div
+      id={`ticket-item-${ticket.ticketId}`}
+      className="bg-black/30 rounded-2xl p-6 flex flex-col sm:flex-row justify-between items-center gap-6 border border-white/5"
+    >
+      <div className="space-y-2 text-white">
+        <h4 className="text-xl font-bold">
+          {ticket.movieTitle}
+        </h4>
+
+        <p className="text-zinc-300 text-sm">
+          🎬 {ticket.hallName}
+        </p>
+
+        <p className="text-zinc-300 text-sm">
+          💺 Ряд {ticket.rowNumber}, місце {ticket.seatNumber}
+        </p>
+
+        <p className="text-zinc-300 text-sm">
+          🕒 {date.toLocaleDateString()} —{" "}
+          {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </p>
+
+        <span className="inline-block bg-green-600/20 text-green-400 border border-green-600/50 text-xs font-bold px-3 py-1 rounded-full">
+          {ticket.status}
+        </span>
       </div>
-      
+
       <BaseButton
-        className="w-full sm:w-auto px-6 py-3 rounded-xl bg-red-600/80 hover:bg-red-600 font-semibold transition-all duration-300 shadow-lg shadow-red-900/20"
-        onClick={onRefund}
+        className="px-5 py-2 rounded-lg text-sm font-semibold"
+        onClick={() => onRefund(ticket.ticketId)}
       >
         Повернути
       </BaseButton>
