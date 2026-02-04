@@ -1,4 +1,4 @@
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, useLocation } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import AppRoutes from '@/routes/AppRouter';
@@ -7,11 +7,15 @@ import '@/App.css';
 import bgEffectTopLeft from '@/assets/images/backgroundEffects/effect1.png';
 import bgEffectCenterRight from '@/assets/images/backgroundEffects/effect2.png';
 
-function App() {
+function Layout() {
+  const location = useLocation();
+  
+  const isAdminPage = location.pathname.startsWith('/admin');
+
   return (
-    <Router>
-      <div className="relative min-h-screen bg-[#020617] flex flex-col overflow-hidden font-['Inter']">
-        
+    <div className="relative min-h-screen bg-[#020617] flex flex-col overflow-hidden font-['Inter']">
+      
+      {!isAdminPage && (
         <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
           <img
             src={bgEffectTopLeft}
@@ -24,16 +28,26 @@ function App() {
             className="absolute top-[25%] right-[-10%] w-[85%] max-w-275 opacity-70 mix-blend-screen"
           />
         </div>
+      )}
 
-        <div className="relative z-10 flex flex-col min-h-screen">
-          <Header />
-          <main className="grow">
-            <AppRoutes />
-          </main>
-          <Footer />
-        </div>
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {!isAdminPage && <Header />}
         
+        <main className="grow">
+          <AppRoutes />
+        </main>
+        
+        {!isAdminPage && <Footer />}
       </div>
+      
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Layout />
     </Router>
   );
 }
