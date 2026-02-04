@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 import UserProfileCard from '@/components/profile/UserProfileCard';
 import BookingItem, {type BookingSummaryDto} from '@/components/profile/BookingItem';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
@@ -7,6 +8,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import {getMe, getMyBookings, refundBooking} from '@/api/profileApi';
 
 const Profile: React.FC = () => {
+    const navigate = useNavigate();
     const [user, setUser] = useState<any>(null);
     const [bookings, setBookings] = useState<BookingSummaryDto[]>([]);
     const [loading, setLoading] = useState(true);
@@ -20,14 +22,6 @@ const Profile: React.FC = () => {
         try {
             setLoading(true);
 
-  const handleLogout = () => {
-    console.log('User logged out');
-    navigate('/signup');
-  };
-
-  return (
-    <div className="text-white p-10">
-      <div className="max-w-6xl mx-auto space-y-12">
             const [me, bookingsData] = await Promise.all([
                 getMe(),
                 getMyBookings()
@@ -45,6 +39,11 @@ const Profile: React.FC = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        navigate('/auth');
     };
 
     const {activeBookings, historyBookings} = useMemo(() => {
@@ -65,7 +64,6 @@ const Profile: React.FC = () => {
         });
 
         active.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-
         history.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
 
         return {activeBookings: active, historyBookings: history};
@@ -80,7 +78,6 @@ const Profile: React.FC = () => {
 
         try {
             await refundBooking(refundId);
-
             setBookings(prev => prev.filter(b => b.id !== refundId));
             setRefundId(null);
         } catch (error) {
@@ -102,6 +99,7 @@ const Profile: React.FC = () => {
                 <UserProfileCard
                     user={user}
                     onUpdate={setUser}
+                    onLogout={handleLogout}
                 />
 
                 <div

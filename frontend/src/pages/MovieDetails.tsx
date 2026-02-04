@@ -78,8 +78,8 @@ const MovieDetails: React.FC = () => {
                             <InfoRow label="Режисер" value={movie.director}/>
                             <InfoRow label="Рік" value={movie.year}/>
                             <InfoRow label="Країна" value={movie.country}/>
-                            <InfoRow label="Жанр" value={movie.genre}/>
-                            <InfoRow label="Рейтинг" value={movie.rating}/>
+                            <InfoRow label="Жанр"
+                                     value={Array.isArray(movie.genre) ? movie.genre.join(', ') : movie.genre}/>                            <InfoRow label="Рейтинг" value={movie.rating}/>
                             <InfoRow label="Мова" value={movie.language}/>
                             <InfoRow label="Субтитри" value={movie.subtitles}/>
                             <InfoRow label="У головних ролях"
