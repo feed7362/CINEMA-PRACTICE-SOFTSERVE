@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
-import { useNavigate } from 'react-router-dom';
+import React, {useState, useEffect} from 'react';
+import {useStripe, useElements, PaymentElement} from '@stripe/react-stripe-js';
+import {useNavigate} from 'react-router-dom';
 import api from '@/api/axiosClient.ts';
-import {parseBackendError} from "@/utils/errorUtils.ts";
+import {parseBackendError} from "@/utils/parseBackendError.ts";
+
 interface CheckoutFormProps {
     bookingId: number;
     expirationTime: string;
 }
 
-const CheckoutForm: React.FC<CheckoutFormProps> = ({ bookingId, expirationTime }) => {
+const CheckoutForm: React.FC<CheckoutFormProps> = ({bookingId, expirationTime}) => {
     const stripe = useStripe();
     const elements = useElements();
     const navigate = useNavigate();
@@ -43,7 +44,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ bookingId, expirationTime }
 
         setIsProcessing(true);
 
-        const { error, paymentIntent } = await stripe.confirmPayment({
+        const {error, paymentIntent} = await stripe.confirmPayment({
             elements,
             redirect: 'if_required',
         });
@@ -63,8 +64,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ bookingId, expirationTime }
                     paymentIntentId: paymentIntent.id
                 });
 
+                // temporary for now remake when will be profile and 
                 if (response.status === 200) {
-                    navigate("/tickets/success");
+                    navigate("/tickets/success", {
+                        state: {
+                            id: bookingId,
+                            expirationTime
+                        }
+                    });
                 }
             } catch (err: any) {
                 const backendMessage = parseBackendError(err.response?.data);
@@ -77,7 +84,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ bookingId, expirationTime }
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <div className={`text-center py-2 rounded bg-white/5 border border-white/10 font-mono text-sm ${timeLeft === "EXPIRED" ? "text-red-500" : "text-amber-500"}`}>
+            <div
+                className={`text-center py-2 rounded bg-white/5 border 
+                border-white/10 font-mono text-sm ${timeLeft === "EXPIRED" ? "text-red-500" : "text-amber-500"}`}>
                 {timeLeft === "EXPIRED"
                     ? "Час бронювання вичерпано!"
                     : `Залишилося часу: ${timeLeft}`
@@ -85,7 +94,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ bookingId, expirationTime }
             </div>
 
             <div className="bg-gray-900 p-4 rounded-md">
-                <PaymentElement />
+                <PaymentElement/>
             </div>
 
             <button

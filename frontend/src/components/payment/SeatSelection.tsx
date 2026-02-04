@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, {useState, useEffect} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
 import api from "@/api/axiosClient.ts";
-import type { BookingResponseDto, LockBookingPayload, Seat } from "@/types/booking.ts";
-import {parseBackendError} from "@/utils/errorUtils.ts";
+import type {BookingResponseDto, LockBookingPayload, Seat} from "@/types/booking.ts";
+import {parseBackendError} from "@/utils/parseBackendError.ts";
 
 const SeatSelection: React.FC = () => {
-    const { sessionId } = useParams<{ sessionId: string }>();
+    const {sessionId} = useParams<{ sessionId: string }>();
     const navigate = useNavigate();
 
     const [seats, setSeats] = useState<Seat[]>([]);
@@ -40,7 +40,7 @@ const SeatSelection: React.FC = () => {
         try {
             const response = await api.post<BookingResponseDto>('/booking/lock', payload);
 
-            navigate('/checkout', { state: response.data });
+            navigate('/checkout', {state: response.data});
         } catch (err: any) {
             const message = parseBackendError(err.response?.data);
             setError(message);
@@ -68,7 +68,7 @@ const SeatSelection: React.FC = () => {
                 </div>
             )}
 
-            <div className="seat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: '10px' }}>
+            <div className="seat-grid" style={{display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: '10px'}}>
                 {seats.map(seat => (
                     <button
                         key={seat.id}
@@ -95,7 +95,11 @@ const SeatSelection: React.FC = () => {
             <button
                 onClick={handleLock}
                 disabled={selectedIds.length === 0}
-                style={{ marginTop: '20px', padding: '10px 20px', cursor: selectedIds.length === 0 ? 'not-allowed' : 'pointer' }}
+                style={{
+                    marginTop: '20px',
+                    padding: '10px 20px',
+                    cursor: selectedIds.length === 0 ? 'not-allowed' : 'pointer'
+                }}
             >
                 Pay for {selectedIds.length} Seats
             </button>
