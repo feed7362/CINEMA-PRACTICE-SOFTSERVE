@@ -3,7 +3,6 @@ using Backend.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using System.Diagnostics;
 using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
@@ -23,7 +22,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
             {
                 var path = context.Request.Path.Value?.ToLower();
 
-                // Don't log  common bot targets or browser noise
+                // Don't log common bot targets or browser noise
                 if (path != null && !path.Contains("favicon") && !path.Contains(".php") && !path.Contains(".env"))
                 {
                     await LogErrorToDb(context, errorRepo, new Exception("404 Not Found: " + path));
@@ -46,7 +45,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
             StackTrace = ex.StackTrace,
             Path = context.Request.Path,
             Method = context.Request.Method,
-            UserEmail = context.User?.FindFirstValue(ClaimTypes.Email) ?? "Guest",
+            UserEmail = context.User.FindFirstValue(ClaimTypes.Email) ?? "Guest",
             Timestamp = DateTime.UtcNow
         };
 
@@ -68,17 +67,13 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
 
         var (statusCode, message) = exception switch
         {
-            // Handle Business Rule Violations
             InvalidOperationException => (HttpStatusCode.Conflict, exception.Message),
 
-            // Handle Postgres Serialization Failures (Code 40001)
             DbUpdateException { InnerException: PostgresException { SqlState: "40001" } } 
                 => (HttpStatusCode.ServiceUnavailable, "Concurrency conflict: Please try again."),
 
-            // Handle Missing Resources
             KeyNotFoundException => (HttpStatusCode.NotFound, exception.Message),
 
-            // Default fallback
             _ => (HttpStatusCode.InternalServerError, "An unexpected server error occurred.")
         };
 
