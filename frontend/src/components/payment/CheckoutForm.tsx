@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import { useNavigate } from 'react-router-dom';
 import api from '@/api/axiosClient.ts';
-import {parseBackendError} from "@/utils/parseBackendError.ts";
+import {parseBackendError} from "@/utils/errorUtils.ts";
 interface CheckoutFormProps {
     bookingId: number;
     expirationTime: string;

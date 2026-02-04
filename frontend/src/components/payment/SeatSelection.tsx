@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from "@/api/axiosClient.ts";
 import type { BookingResponseDto, LockBookingPayload, Seat } from "@/types/booking.ts";
-import {parseBackendError} from "@/utils/parseBackendError.ts";
+import {parseBackendError} from "@/utils/errorUtils.ts";
 
 const SeatSelection: React.FC = () => {
     const { sessionId } = useParams<{ sessionId: string }>();
