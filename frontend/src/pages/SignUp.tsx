@@ -4,7 +4,9 @@ import Input from '@/components/ui/Input';
 import PasswordInput from '@/components/ui/PasswordInput';
 import BaseButton from '@/components/ui/BaseButton';
 import {useRecaptcha} from '@/hooks/useRecaptcha';
-import {register} from '@/api/authApi';
+import {externalLogin, register} from '@/api/authApi';
+import {GoogleLogin} from "@react-oauth/google";
+import {parseBackendError} from "@/utils/errorUtils.ts";
 
 const SITE_KEY = '6LfbhFosAAAAAMCZYTFvO8bG3EbOj5a3uBi4_XOW';
 const CAPTCHA_CONTAINER_ID = 'recaptcha-container';
@@ -72,6 +74,20 @@ const SignUp: React.FC = () => {
         }
     };
 
+    const handleGoogleSuccess = async (credentialResponse: any) => {
+        try {
+            const user = await externalLogin(credentialResponse.credential);
+            // local storage set inside externalLogin as it should
+
+            console.log('Successfully logged in via Google:', user);
+
+            navigate('/');
+        } catch (error: any) {
+            console.error('Login with Google failed. Please try again.');
+            setError(parseBackendError(error));
+        }
+    };
+
     return (
         <div className="text-white p-10">
             <div className="min-h-[70vh] flex items-center justify-center">
@@ -129,6 +145,13 @@ const SignUp: React.FC = () => {
                         >
                             {loading ? 'Обробка...' : 'Зареєструватися'}
                         </BaseButton>
+
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => setError("Не вдалося увійти через гугл")}
+                            useOneTap
+                        />
+
                     </form>
 
                     <div className="text-center text-zinc-400">

@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import Input from '@/components/ui/Input';
 import PasswordInput from '@/components/ui/PasswordInput';
 import BaseButton from '@/components/ui/BaseButton';
-import { login } from '@/api/authApi';
+import {externalLogin, login} from '@/api/authApi';
 import { Link } from 'react-router-dom';
+import {parseBackendError} from "@/utils/errorUtils.ts";
+import {GoogleLogin} from "@react-oauth/google";
 
 const Auth: React.FC = () => {
   const navigate = useNavigate();
@@ -29,8 +31,22 @@ const Auth: React.FC = () => {
 
       navigate('/profile/1');
 
-    } catch {
-      setError('Невірна пошта або пароль');
+    } catch (error: any) {
+      setError(parseBackendError(error.data));
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      const user = await externalLogin(credentialResponse.credential);
+      // local storage set inside externalLogin as it should
+
+      console.log('Successfully logged in via Google:', user);
+
+      navigate('/');
+    } catch (error: any) {
+      console.error('Login with Google failed. Please try again.');
+      setError(parseBackendError(error));
     }
   };
 
@@ -74,6 +90,14 @@ const Auth: React.FC = () => {
             >
               Увійти
             </BaseButton>
+
+
+            <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError("Не вдалося увійти через гугл")}
+                useOneTap
+            />
+
 
           </div>
 
