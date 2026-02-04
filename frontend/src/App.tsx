@@ -18,7 +18,6 @@ function App() {
             alt=""
             className="absolute top-[-10%] left-[-15%] w-[70%] max-w-225 opacity-80 mix-blend-screen"
           />
-
           <img
             src={bgEffectCenterRight}
             alt=""
