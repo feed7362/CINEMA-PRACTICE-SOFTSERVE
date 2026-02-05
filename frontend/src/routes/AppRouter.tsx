@@ -24,6 +24,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/" element={<Home />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/add-movie" element={<AddMovie />} />
+        <Route path="/admin/edit-movie/:id" element={<AddMovie />} />
         <Route path="/admin/edit-movies" element={<EditMoviesList />} />
         <Route path="/admin/halls" element={<Halls />} />
         <Route path="/admin/sessions" element={<Sessions />} />

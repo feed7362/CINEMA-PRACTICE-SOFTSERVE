@@ -1,5 +1,3 @@
-// src/types/movie.ts
-
 export interface IMovie {
   id: string | number; // Дозволяємо number, бо з БД приходить int
   title: string;
