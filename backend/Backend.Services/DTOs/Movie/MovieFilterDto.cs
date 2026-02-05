@@ -1,27 +1,15 @@
-﻿public enum MovieSortBy
-{
-    ReleaseDate,
-    Title,
-    ImdbRating,
-    Duration
-}
+﻿namespace Backend.Services.DTOs.Movie;
 
-public enum SortDirection
-{
-    Asc,
-    Desc
-}
-
-public record MovieFilterDto
+public class MovieFilterDto
 {
     public string? SearchTerm { get; set; }
+    public IEnumerable<int>? GenreIds { get; set; } 
     public int? GenreId { get; set; }
     public int? StudioId { get; set; }
     public bool? IsComingSoon { get; set; }
-
-    public MovieSortBy? SortBy { get; set; }
-    public SortDirection? SortDirection { get; set; }
-
-    public int? PageNumber { get; set; }
-    public int? PageSize { get; set; }
+    public string? SortBy { get; set; }
+    public int? SortDirection { get; set; }
+    public int? MinRating { get; set; }
+    public int? PageNumber { get; set; } = 1;
+    public int? PageSize { get; set; } = 10;
 }

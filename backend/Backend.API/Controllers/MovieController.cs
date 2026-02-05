@@ -1,4 +1,5 @@
-﻿using Backend.API.Extensions;
+﻿using System.Security.Claims;
+using Backend.API.Extensions;
 using Backend.Services.DTOs.Movie;
 using Backend.Services.Interfaces;
 
@@ -77,5 +78,17 @@ internal static class MovieEndpoints
             .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteMovie")
             .WithSummary("Delete movie by Id");
+
+        group.MapGet("/me/recommendations", async (
+                ClaimsPrincipal user,
+                IMovieRecommendationService recommendationService) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var recommendations = await recommendationService.GetRecommendationsForUserAsync(userId);
+            return Results.Ok(recommendations);
+        })
+            .RequireAuthorization()
+            .WithName("GetUserRecommendations")
+            .WithSummary("Get personalized movie recommendations for the logged-in user");
     }
 }
