@@ -54,15 +54,15 @@ public static class AdminEndpoints
             .Produces(200);
 
         group.MapGet("/movies/popular", async (
-        [AsParameters] AdminStatsFilterDto filter,
-        IAdminStatsService service) =>
-        {
-            var result = await service.GetFilteredPopularMoviesAsync(filter);
-            return Results.Ok(result);
-        })
-        .WithSummary("Get Popular Movies")
-        .Produces<List<PopularMovieDto>>(200);
-            
+                [AsParameters] AdminStatsFilterDto filter,
+                IAdminStatsService service) =>
+            {
+                var result = await service.GetFilteredPopularMoviesAsync(filter);
+                return Results.Ok(result);
+            })
+            .WithSummary("Get Popular Movies")
+            .Produces<List<PopularMovieDto>>(200);
+
         group.MapGet("/heatmap/{hallId:int}", async (
                 int hallId,
                 IAdminStatsService service) =>

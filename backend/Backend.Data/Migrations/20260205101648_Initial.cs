@@ -341,6 +341,34 @@ namespace Backend.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "MoviePageViews",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    MovieId = table.Column<int>(type: "integer", nullable: false),
+                    ViewCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    LastViewedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MoviePageViews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MoviePageViews_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MoviePageViews_Movies_MovieId",
+                        column: x => x.MovieId,
+                        principalTable: "Movies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Sessions",
                 columns: table => new
                 {
@@ -532,6 +560,17 @@ namespace Backend.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_MoviePageViews_MovieId",
+                table: "MoviePageViews",
+                column: "MovieId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MoviePageViews_UserId_MovieId",
+                table: "MoviePageViews",
+                columns: new[] { "UserId", "MovieId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Movies_StudioId",
                 table: "Movies",
                 column: "StudioId");
@@ -600,6 +639,9 @@ namespace Backend.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "MovieGenres");
+
+            migrationBuilder.DropTable(
+                name: "MoviePageViews");
 
             migrationBuilder.DropTable(
                 name: "Tickets");

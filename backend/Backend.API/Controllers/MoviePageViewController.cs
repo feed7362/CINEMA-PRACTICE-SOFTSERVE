@@ -10,10 +10,10 @@ internal static class MoviePageViewController
     public static void MapMoviePageViewEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var group = endpoints
-            .MapGroup("/api/movie")
+            .MapGroup("/api/view")
             .WithTags("Movie Page View");
 
-        group.MapPost("/{id:int}/view", MoviePageViewHandler)
+        group.MapPost("/{id:int}", MoviePageViewHandler)
             .RequireAuthorization();
     }
 

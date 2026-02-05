@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20260203151853_AddMoviePageView")]
-    partial class AddMoviePageView
+    [Migration("20260205101648_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
