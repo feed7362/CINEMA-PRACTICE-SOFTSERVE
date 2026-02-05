@@ -39,43 +39,56 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
     private async Task LogErrorToDb(HttpContext context, IRepository<ErrorLog> errorRepo, Exception ex)
     {
 
-    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        var log = new ErrorLog
+        {
+            Message = ex.Message,
+            StackTrace = ex.StackTrace,
+            Path = context.Request.Path,
+            Method = context.Request.Method,
+            UserEmail = context.User.FindFirstValue(ClaimTypes.Email) ?? "Guest",
+            Timestamp = DateTime.UtcNow
+        };
+
+        try
+        {
+            errorRepo.Insert(log);
+            await errorRepo.SaveChangesAsync();
+        }
+        catch
+        {
+            Console.WriteLine($"CRITICAL: Could not log error to DB: {ex.Message}");
+        }
+    }
+    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        if (!context.Response.HasStarted)
+        context.Response.ContentType = "application/json";
+
+        var traceId = System.Diagnostics.Activity.Current?.Id ?? context.TraceIdentifier;
+
+        var (statusCode, message) = exception switch
         {
-            context.Response.Clear(); // очищаємо будь-які частково відправлені дані
-            context.Response.ContentType = "application/json";
+            InvalidOperationException => (HttpStatusCode.Conflict, exception.Message),
 
-            var traceId = System.Diagnostics.Activity.Current?.Id ?? context.TraceIdentifier;
+            DbUpdateException { InnerException: PostgresException { SqlState: "40001" } } 
+                => (HttpStatusCode.ServiceUnavailable, "Concurrency conflict: Please try again."),
 
-            var (statusCode, message) = exception switch
-            {
-                InvalidOperationException => (HttpStatusCode.Conflict, exception.Message),
-                DbUpdateException { InnerException: PostgresException { SqlState: "40001" } }
-                    => (HttpStatusCode.ServiceUnavailable, "Concurrency conflict: Please try again."),
-                KeyNotFoundException => (HttpStatusCode.NotFound, exception.Message),
-                _ => (HttpStatusCode.InternalServerError, "An unexpected server error occurred.")
-            };
+            KeyNotFoundException => (HttpStatusCode.NotFound, exception.Message),
 
-            context.Response.StatusCode = (int)statusCode;
+            _ => (HttpStatusCode.InternalServerError, "An unexpected server error occurred.")
+        };
 
-            var response = new ProblemDetails
-            {
-                Title = exception is InvalidOperationException ? "Domain Logic Conflict" : statusCode.ToString(),
-                Status = (int)statusCode,
-                Detail = message,
-                Instance = context.Request.Path
-            };
+        context.Response.StatusCode = (int)statusCode;
 
-            response.Extensions.Add("traceId", traceId);
-
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
-        }
-        else
+        var response = new ProblemDetails
         {
-            // Відповідь уже почалася → не можна змінювати заголовки
-            // Просто логування
-            Console.WriteLine($"Cannot write exception to response: {exception.Message}");
-        }
+            Title = exception is InvalidOperationException ? "Domain Logic Conflict" : statusCode.ToString(),
+            Status = (int)statusCode,
+            Detail = message,
+            Instance = context.Request.Path
+        };
+
+        response.Extensions.Add("traceId", traceId);
+
+        return context.Response.WriteAsync(JsonSerializer.Serialize(response));
     }
 }
