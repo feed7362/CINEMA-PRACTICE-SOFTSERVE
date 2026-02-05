@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { MoviePreviewProps } from '@/types/movie';
-
-const PLACEHOLDER_IMAGE = "https://placehold.co/300x450/1e293b/ffffff?text=Постер+відсутній";
+import { PLACEHOLDER_IMAGE } from '@/constants';
 
 const MoviePreviewCard: React.FC<MoviePreviewProps> = ({ id, title, poster, releaseDate, ageRating, isBlurred }) => {
   
@@ -42,9 +41,11 @@ const MoviePreviewCard: React.FC<MoviePreviewProps> = ({ id, title, poster, rele
         </div>
       </article>
       
-      <h3 className="mt-3 text-white text-[20px] font-normal text-center leading-tight">
-        {title}
-      </h3>
+      <div className="mt-3 h-13.5 flex items-start justify-center overflow-hidden px-1">
+        <h3 className="text-white text-[20px] font-normal text-center leading-tight line-clamp-2 text-ellipsis">
+          {title}
+        </h3>
+      </div>
     </Link>
   );
 };

@@ -1,9 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ContactForm from '@/components/contacts/ContactForm';
 import ContactInfo from '@/components/contacts/ContactInfo';
 import ContactMap from '@/components/contacts/ContactMap';
+import FullScreenLoader from '@/components/ui/FullScreenLoader';
 
 const Contacts: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) return <FullScreenLoader />;
+  
   return (
     <div className="min-h-screen bg-[#020617] text-white font-['Inter'] relative overflow-hidden pt-10 pb-20">
       

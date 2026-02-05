@@ -39,7 +39,6 @@ const Auth: React.FC = () => {
     const handleGoogleSuccess = async (credentialResponse: any) => {
         try {
             const user = await externalLogin(credentialResponse.credential);
-            // local storage set inside externalLogin as it should
 
             console.log('Successfully logged in via Google:', user);
 

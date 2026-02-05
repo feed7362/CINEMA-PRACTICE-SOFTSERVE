@@ -5,6 +5,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import {movieApi} from '@/api/movieApi';
 import {filterApi, type IFilterItem} from '@/api/filterApi';
 import type {IMovie} from '@/types/movie';
+import FullScreenLoader from '@/components/ui/FullScreenLoader';
 
 const Home: React.FC = () => {
     const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
@@ -65,19 +66,12 @@ const Home: React.FC = () => {
         setSelectedRating(null);
     };
 
-    if (loading && movies.length === 0) {
-        return (
-            <div className="h-screen flex items-center justify-center bg-[#020617]">
-                <LoadingSpinner/>
-            </div>
-        );
-    }
+    if (loading) return <FullScreenLoader />;
 
     return (
         <div
             className="relative w-full h-screen font-['Inter'] bg-[#020617] overflow-y-auto overflow-x-hidden no-scrollbar">
 
-            {/* Background Decor */}
             <div
                 className="absolute -top-50 -left-50 w-150 h-150 bg-[#0753E0] rounded-full blur-[180px] opacity-40 pointer-events-none z-0"/>
 
@@ -88,7 +82,6 @@ const Home: React.FC = () => {
 
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
 
-                    {/* Sidebar */}
                     <div className="w-full lg:w-64 shrink-0 lg:sticky lg:top-24 z-20">
                         <FilterSidebar
                             genres={genres}
@@ -103,7 +96,6 @@ const Home: React.FC = () => {
                         />
                     </div>
 
-                    {/* Movie Grid */}
                     <div className="grow w-full">
                         {error && (
                             <div

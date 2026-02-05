@@ -1,18 +1,12 @@
 import React from 'react';
 import MoviePreviewCard from '@/components/movie/MoviePreviewCard';
 import { useComingSoonMovies } from '@/hooks/useComingSoonMovies';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import FullScreenLoader from '@/components/ui/FullScreenLoader';
 
 const SoonMovies: React.FC = () => {
   const { movies, loading, error } = useComingSoonMovies();
 
-  if (loading) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-[#020617]">
-      <LoadingSpinner />
-    </div>
-  );
-}
+  if (loading) return <FullScreenLoader />;
 
   return (
     <div className="relative w-full h-full font-['Inter']">

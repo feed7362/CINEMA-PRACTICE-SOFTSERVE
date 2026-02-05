@@ -200,8 +200,8 @@ export const movieApi = {
 
             return {
                 id: data.id,
-                title: data.TitleUkr || data.titleUkr || data.title || "Без назви",
-                poster: data.imageUrl || data.ImageUrl || data.poster || '',
+                title: data.titleUkr|| "Без назви",
+                poster: data.imageUrl || '',
                 ageRating: data.ageRating ? `${data.ageRating}+` : "0+",
                 originalTitle: data.titleOrg || data.originalTitle || "",
                 director: data.director || "Не вказано",
@@ -210,7 +210,7 @@ export const movieApi = {
                 genre: Array.isArray(data.genreNames)
                     ? data.genreNames.join(', ')
                     : (data.genre || "Не вказано"),
-                rating: data.imdbRating || data.rating || "Відсутній",
+                rating: data.imdbRating || "Відсутній",
                 language: data.language || "Українська",
                 subtitles: data.subtitles ? "Так" : "Ні",
                 cast: data.actorNames || data.cast || [],

@@ -21,7 +21,6 @@ const MovieSchedule: React.FC<MovieScheduleProps> = ({schedule}) => {
                             <p className="text-white/90 text-sm font-medium pl-1">{day.date}</p>
 
                             <div className="grid grid-cols-3 gap-3">
-                                {/* Iterate over sessions directly */}
                                 {day.sessions.map((session) => (
                                     <Link
                                         key={session.id}

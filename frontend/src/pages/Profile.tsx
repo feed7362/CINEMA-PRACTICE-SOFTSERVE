@@ -1,95 +1,34 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import React from 'react';
 import UserProfileCard from '@/components/profile/UserProfileCard';
-import BookingItem, {type BookingSummaryDto} from '@/components/profile/BookingItem';
+import BookingItem from '@/components/profile/BookingItem';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-
-import {getMe, getMyBookings, refundBooking} from '@/api/profileApi';
+import { useProfile } from '@/hooks/useProfile';
+import { useRefundLogic } from '@/hooks/useRefundLogic';
+import type { BookingSummary } from '@/types/booking';
 
 const Profile: React.FC = () => {
-    const navigate = useNavigate();
-    const [user, setUser] = useState<any>(null);
-    const [bookings, setBookings] = useState<BookingSummaryDto[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [refundId, setRefundId] = useState<number | null>(null);
+    const { 
+        user, 
+        loading, 
+        activeBookings, 
+        historyBookings, 
+        setUser, 
+        handleLogout, 
+        removeBookingFromState 
+    } = useProfile();
 
-    useEffect(() => {
-        loadProfile();
-    }, []);
+    const { 
+        refundId, 
+        openRefundModal, 
+        closeRefundModal, 
+        confirmRefund 
+    } = useRefundLogic(removeBookingFromState);
 
-    const loadProfile = async () => {
-        try {
-            setLoading(true);
-
-            const [me, bookingsData] = await Promise.all([
-                getMe(),
-                getMyBookings()
-            ]);
-
-            setUser({
-                name: me.email,
-                email: me.email,
-            });
-
-            setBookings(bookingsData.items || []);
-
-        } catch (e) {
-            console.error("Profile load error:", e);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/auth');
-    };
-
-    const {activeBookings, historyBookings} = useMemo(() => {
-        const now = new Date();
-
-        const active: BookingSummaryDto[] = [];
-        const history: BookingSummaryDto[] = [];
-
-        bookings.forEach(b => {
-            const bookingDate = new Date(b.startTime);
-            const isConfirmed = b.status === 'CONFIRMED';
-
-            if (isConfirmed && bookingDate > now) {
-                active.push(b);
-            } else {
-                history.push(b);
-            }
-        });
-
-        active.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-        history.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
-
-        return {activeBookings: active, historyBookings: history};
-    }, [bookings]);
-
-    const handleRefund = (id: number) => {
-        setRefundId(id);
-    };
-
-    const confirmRefund = async () => {
-        if (!refundId) return;
-
-        try {
-            await refundBooking(refundId);
-            setBookings(prev => prev.filter(b => b.id !== refundId));
-            setRefundId(null);
-        } catch (error) {
-            console.error(error);
-            alert("Не вдалося повернути кошти");
-        }
-    };
-
-    if (loading) return <LoadingSpinner/>;
+    if (loading) return <LoadingSpinner />;
 
     if (!user) {
-        return <div className="text-white p-10">Не вдалося завантажити профіль</div>;
+        return <div className="text-white p-10 text-center">Не вдалося завантажити профіль</div>;
     }
 
     return (
@@ -102,45 +41,45 @@ const Profile: React.FC = () => {
                     onLogout={handleLogout}
                 />
 
-                <div
+                <section
                     id="profile-active"
                     className="bg-linear-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 space-y-6"
                 >
                     <h3 className="text-3xl font-bold">Активні бронювання</h3>
-
-                    {activeBookings.length === 0 && (
+                    
+                    {activeBookings.length === 0 ? (
                         <p className="text-zinc-400">Немає активних бронювань</p>
+                    ) : (
+                        activeBookings.map((booking: BookingSummary) => (
+                            <BookingItem
+                                key={booking.id}
+                                booking={booking}
+                                onRefund={openRefundModal}
+                                isHistory={false}
+                            />
+                        ))
                     )}
+                </section>
 
-                    {activeBookings.map(booking => (
+                <section
+                id="profile-history"
+                className="bg-linear-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 space-y-6"
+            >
+                <h3 className="text-3xl font-bold">Історія сеансів</h3>
+
+                {historyBookings.length === 0 ? (
+                    <p className="text-zinc-400">Історія порожня</p>
+                ) : (
+                    historyBookings.map((booking: BookingSummary) => (
                         <BookingItem
                             key={booking.id}
                             booking={booking}
-                            onRefund={handleRefund}
-                            isHistory={false}
-                        />
-                    ))}
-                </div>
-
-                <div
-                    id="profile-history"
-                    className="bg-linear-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 space-y-6"
-                >
-                    <h3 className="text-3xl font-bold">Історія сеансів</h3>
-
-                    {historyBookings.length === 0 && (
-                        <p className="text-zinc-400">Історія порожня</p>
-                    )}
-
-                    {historyBookings.map(booking => (
-                        <BookingItem
-                            key={booking.id}
-                            booking={booking}
-                            onRefund={handleRefund}
+                            onRefund={openRefundModal}
                             isHistory={true}
                         />
-                    ))}
-                </div>
+                    ))
+                )}
+                </section>
 
             </div>
 
@@ -148,7 +87,7 @@ const Profile: React.FC = () => {
                 isOpen={refundId !== null}
                 title="Скасувати бронювання?"
                 message="Кошти будуть повернуті на карту. Ви впевнені?"
-                onCancel={() => setRefundId(null)}
+                onCancel={closeRefundModal}
                 onConfirm={confirmRefund}
             />
         </div>

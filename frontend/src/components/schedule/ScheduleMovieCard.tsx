@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type {Session} from "@/types/movie.ts";
+import { PLACEHOLDER_IMAGE } from '@/constants';
 
 interface ScheduleMovie {
   id: string;
@@ -13,8 +14,6 @@ interface ScheduleMovie {
 interface ScheduleMovieCardProps {
   movie: ScheduleMovie;
 }
-
-const PLACEHOLDER_IMAGE = "https://placehold.co/300x450/1e293b/ffffff?text=Постер+відсутній";
 
 const ScheduleMovieCard: React.FC<ScheduleMovieCardProps> = ({ movie }) => {
   return (

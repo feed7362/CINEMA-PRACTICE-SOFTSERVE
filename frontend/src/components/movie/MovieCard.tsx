@@ -1,8 +1,7 @@
 import React from "react";
-import { useMovieNavigation } from "@/hooks/useMovieNavigation";
+import { useMovieNavigation } from "@/hooks/movies/useMovieNavigation";
 import type { MovieCardProps } from "@/types/movie";
-
-const PLACEHOLDER_IMAGE = "https://placehold.co/300x450/1e293b/ffffff?text=Постер+відсутній";
+import { PLACEHOLDER_IMAGE } from '@/constants';
 
 const MovieCard: React.FC<MovieCardProps> = ({ movie, isBlurred }) => {
     const { id, title, poster, ageRating, sessions = [] } = movie;
