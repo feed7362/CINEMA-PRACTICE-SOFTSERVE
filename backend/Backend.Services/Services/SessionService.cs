@@ -85,23 +85,14 @@ public class SessionService(
 
     public async Task<ReadSessionDto?> GetSessionByIdAsync(int id)
     {
-        var session = await sessionRepository.GetByIdAsync(id);
-
+        var session = await sessionRepository.GetFirstBySpecAsync(new SessionWithDetailsSpec(id));
         return session == null ? null : MapToDto(session);
     }
 
     public async Task<List<ReadSessionDto>> GetAllSessionsAsync()
     {
-        var session = await sessionRepository.GetAllAsync();
-
-        return session.Select(s => new ReadSessionDto()
-        {
-            Id = s.Id,
-            MovieId = s.MovieId,
-            HallId = s.HallId,
-            StartTime = s.StartTime,
-            EndTime = s.EndTime
-        }).ToList();
+        var sessions = await sessionRepository.GetListBySpecAsync(new SessionWithDetailsSpec());
+        return sessions.Select(MapToDto).ToList();
     }
 
     public async Task DeleteSessionAsync(int id)
@@ -142,7 +133,8 @@ public class SessionService(
         {
             Id = s.Id,
             MovieId = s.MovieId,
-            HallId = s.HallId,
+            HallName = s.Hall.Name,
+            HallFormat = s.Hall.Format.ToString(),
             StartTime = s.StartTime,
             EndTime = s.EndTime
         };
