@@ -299,4 +299,34 @@ public class BookingService(
             clientSecret
         );
     }
+    
+    public async Task<RefundResponseDto> RefundBookingAsync(int bookingId, int userId)
+    {
+        var booking = await bookingRepository.GetFirstBySpecAsync(
+            new BookingWithDetailsByIdSpec(bookingId, userId));
+
+        if (booking == null) throw new KeyNotFoundException("Booking not found.");
+    
+        if (booking.Status == BookingStatus.CANCELED)
+            throw new InvalidOperationException("This booking has already been refunded.");
+
+        var refundOptions = new RefundCreateOptions 
+        { 
+            PaymentIntent = booking.PaymentIntentId 
+        };
+    
+        var refundService = new RefundService();
+        var refund = await refundService.CreateAsync(refundOptions);
+
+        booking.Status = BookingStatus.CANCELED;
+        await bookingRepository.UpdateAsync(booking);
+
+        return new RefundResponseDto(
+            booking.Id,
+            booking.Status.ToString(),
+            refund.Id,
+            (decimal)refund.Amount / 100,
+            DateTime.UtcNow
+        );
+    }
 }
