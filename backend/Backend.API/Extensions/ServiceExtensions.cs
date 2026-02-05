@@ -20,6 +20,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IMovieService, MovieService>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAdminStatsService, AdminStatsService>();
+        services.AddScoped<IMovieRecommendationService, MovieRecommendationService>();
         services.AddScoped<IAdminLogService, AdminLogService>();
         services.AddScoped<IUserContext, UserContext>();
         services.AddHttpContextAccessor();
