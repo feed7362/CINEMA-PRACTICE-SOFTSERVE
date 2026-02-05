@@ -67,7 +67,7 @@ const MovieDetailsContent: React.FC<MovieDetailsContentProps> = ({
                <InfoRow label="Рейтинг" value={movie.rating} />
                <InfoRow label="Мова" value={movie.language} />
                <InfoRow label="Субтитри" value={movie.subtitles} />
-               <InfoRow label="У головних ролях" value={movie.cast.toString()} />
+               <InfoRow label="У головних ролях" value={Array.isArray(movie.cast) ? movie.cast.join(', ') : movie.cast} />
             </div>
 
             <div className="border-t border-white/10 pt-6">
@@ -79,7 +79,7 @@ const MovieDetailsContent: React.FC<MovieDetailsContentProps> = ({
           </div>
 
           <div className="lg:col-span-3">
-             <MovieSchedule schedule={movie.schedule} movieId={movie.id} />
+             <MovieSchedule schedule={movie.schedule || []} />
           </div>
         </div>
 
@@ -91,7 +91,7 @@ const MovieDetailsContent: React.FC<MovieDetailsContentProps> = ({
 
         <MovieRecommendations 
           movies={recommendations} 
-          currentMovieId={movie.id} 
+          currentMovieId={String(movie.id)} 
         />
 
        </div>

@@ -10,7 +10,7 @@ interface UserData {
 interface UserProfileCardProps {
     user: UserData;
     onUpdate: (updatedUser: UserData) => void;
-    onLogout: () => void; // 🟢 Added this prop
+    onLogout: () => void;
 }
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({user, onUpdate, onLogout}) => {
@@ -82,7 +82,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({user, onUpdate, onLogo
                             Редагувати
                         </EditButton>
 
-                        {/* 🟢 Logout Button */}
                         <button
                             onClick={onLogout}
                             className="px-6 py-3 w-full rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white transition-all text-sm font-bold"

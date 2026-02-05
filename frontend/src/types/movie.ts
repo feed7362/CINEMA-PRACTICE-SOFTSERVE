@@ -27,7 +27,7 @@ export interface MoviePreviewProps {
 }
 
 export interface IMovieScheduleItem {
-    date: string;  // "02.05" або "Понеділок"
+    date: string;
     sessions: Session[];
 }
 
