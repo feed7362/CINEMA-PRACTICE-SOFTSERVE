@@ -41,6 +41,8 @@ public static class DataSeeder
         RoleManager<IdentityRole<int>> roleManager
     )
     {
+        context.UseAuditing = false;
+
         #region Identity (Roles & Admin)
 
         string[] roleNames = ["Admin", "Customer"];
@@ -398,7 +400,7 @@ public static class DataSeeder
                             HallId = hall.Id,
                             RowNumber = r,
                             SeatNumber = s,
-                            SeatType = r == rows ? SeatType.Vip : (r == rows - 1 ? SeatType.Premium : SeatType.Regular)
+                            SeatType = r == rows ? SeatType.Vip : (r == rows - 1 ? SeatType.Vip : SeatType.Regular)
                         });
                         seatsCreated++;
                     }
@@ -451,7 +453,7 @@ public static class DataSeeder
 
                 pricesToAdd.Add(new Price { SessionId = session.Id, SeatType = SeatType.Regular, Value = basePrice });
                 pricesToAdd.Add(new Price
-                    { SessionId = session.Id, SeatType = SeatType.Premium, Value = basePrice + 50 });
+                    { SessionId = session.Id, SeatType = SeatType.Vip, Value = basePrice + 50 });
                 pricesToAdd.Add(new Price { SessionId = session.Id, SeatType = SeatType.Vip, Value = basePrice + 120 });
             }
 
@@ -541,6 +543,8 @@ public static class DataSeeder
         }
 
         #endregion
+
+        context.UseAuditing = true; // enabled logs listening
     }
 
     private static async Task SeedMovieRelationships(ApplicationContext context, List<Movie> movies)

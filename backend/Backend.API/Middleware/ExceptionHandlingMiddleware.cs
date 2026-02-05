@@ -1,25 +1,43 @@
-﻿using System.Net;
-using System.Text.Json;
+﻿using Backend.Domain.Entities;
+using Backend.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Npgsql;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using System.Net;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace Backend.API.Middleware;
 
 public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
 {
-    public async Task InvokeAsync(HttpContext context)
+
+    public async Task InvokeAsync(HttpContext context, IRepository<ErrorLog> errorRepo)
     {
         try
         {
             await next(context);
+
+            if (context.Response.StatusCode == StatusCodes.Status404NotFound)
+            {
+                var path = context.Request.Path.Value?.ToLower();
+
+                // Don't log common bot targets or browser noise
+                if (path != null && !path.Contains("favicon") && !path.Contains(".php") && !path.Contains(".env"))
+                {
+                    await LogErrorToDb(context, errorRepo, new Exception("404 Not Found: " + path));
+                }
+            }
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred during transaction processing.");
+            await LogErrorToDb(context, errorRepo, ex);
+
             await HandleExceptionAsync(context, ex);
         }
     }
+    private async Task LogErrorToDb(HttpContext context, IRepository<ErrorLog> errorRepo, Exception ex)
+    {
 
     private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {

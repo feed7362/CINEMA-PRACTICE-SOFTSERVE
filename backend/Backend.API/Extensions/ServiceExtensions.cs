@@ -1,4 +1,6 @@
-﻿using Backend.Services;
+﻿using Backend.API.Context;
+using Backend.Domain.Interfaces;
+using Backend.Services;
 using Backend.Services.Interfaces;
 using Backend.Services.Services;
 using Backend.Services.Services.BackgroundServices;
@@ -19,6 +21,9 @@ public static class ApplicationServiceExtensions
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAdminStatsService, AdminStatsService>();
         services.AddScoped<IMovieRecommendationService, MovieRecommendationService>();
+        services.AddScoped<IAdminLogService, AdminLogService>();
+        services.AddScoped<IUserContext, UserContext>();
+        services.AddHttpContextAccessor();
         services.AddHostedService<ExpiredBookingWorker>();
 
         services.AddValidatorsFromAssemblyContaining<CreateHallDtoValidator>();
