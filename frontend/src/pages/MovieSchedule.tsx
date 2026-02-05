@@ -80,7 +80,6 @@ const MovieSchedule: React.FC = () => {
                                             id: String(movie.id),
                                             title: movie.title,
                                             poster: movie.poster,
-                                            hall: movie.hall || "Головний зал",
                                             sessions: movie.sessions || []
                                         }}
                                     />

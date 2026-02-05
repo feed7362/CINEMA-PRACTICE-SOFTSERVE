@@ -5,7 +5,8 @@ import {parseBackendError} from '@/utils/errorUtils';
 interface SessionDto {
     id: number;
     movieId: number;
-    hallId: number;
+    hallName: string;
+    hallFormat: string;
     startTime: string;
     endTime: string;
 }
@@ -13,6 +14,7 @@ interface SessionDto {
 export const movieApi = {
     getNowPlaying: async (filterParams?: any): Promise<IMovie[]> => {
         try {
+            const now = new Date();
             const [moviesResponse, sessionsResponse] = await Promise.all([
                 axiosClient.get('/movie', {
                     params: {SortDirection: 0, ...filterParams},
@@ -51,7 +53,7 @@ export const movieApi = {
                 const todaysSessions = allSessions.filter((session: any) => {
                     const sessionTime = new Date(session.startTime);
                     return String(session.movieId) === String(item.id) &&
-                        sessionTime >= startOfDay &&
+                        sessionTime >= now &&
                         sessionTime <= endOfDay;
                 });
 
@@ -60,7 +62,9 @@ export const movieApi = {
                         const date = new Date(session.startTime);
                         return {
                             id: session.id,
-                            time: date.toLocaleTimeString('uk-UA', {hour: '2-digit', minute: '2-digit'})
+                            time: date.toLocaleTimeString('uk-UA', {hour: '2-digit', minute: '2-digit'}),
+                            hallName: session.hallName || "Зал 1",
+                            hallFormat: session.hallFormat || "2D"
                         };
                     })
                     .sort((a: any, b: any) => a.time.localeCompare(b.time));
@@ -84,24 +88,35 @@ export const movieApi = {
         try {
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+
             const {data} = await axiosClient.get('/movie', {
                 params: {dateFrom: tomorrow.toISOString(), SortDirection: 0}
             });
+
             const movies = data.items || [];
-            return movies.map((item: any) => ({
-                id: item.id,
-                title: item.TitleUkr || item.titleUkr || item.title || "Без назви",
-                poster: item.imageUrl || item.ImageUrl || item.poster || '',
-                ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
-                releaseDate: item.releaseDate
-                    ? new Date(item.releaseDate).toLocaleDateString('uk-UA', {day: 'numeric', month: 'long'})
-                    : "Скоро",
-                isBlurred: false,
-                rating: item.imdbRating || 0
-            }));
+
+            return movies
+                .filter((item: any) => {
+                    const releaseDate = new Date(item.releaseDate);
+                    return releaseDate >= tomorrow;
+                })
+                .map((item: any) => ({
+                    id: item.id,
+                    title: item.titleUkr || item.title || "Без назви",
+                    poster: item.imageUrl || '',
+                    ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
+                    releaseDate: item.releaseDate
+                        ? new Date(item.releaseDate).toLocaleDateString('uk-UA', {day: 'numeric', month: 'long'})
+                        : "Скоро",
+                    isBlurred: false,
+                    rating: item.imdbRating || 0,
+                    rawDate: new Date(item.releaseDate).getTime()
+                }))
+                .sort((a: any, b: any) => a.rawDate - b.rawDate);
+
         } catch (error: any) {
-            const errorMessage = parseBackendError(error.response?.data);
-            console.error('Failed to fetch coming soon movies:', errorMessage);
+            console.error('Failed to fetch coming soon movies:', error);
             return [];
         }
     },
@@ -112,6 +127,8 @@ export const movieApi = {
                 axiosClient.get('/movie', {params: {SortDirection: 0}}),
                 axiosClient.get('/session')
             ]);
+            const now = new Date();
+            const isToday = date.toDateString() === now.toDateString();
 
             const movies = moviesResponse.data.items || [];
             const allSessions: SessionDto[] = sessionsResponse.data || [];
@@ -125,22 +142,26 @@ export const movieApi = {
             const scheduledMovies = movies.map((item: any) => {
                 const movieSessions = allSessions.filter((session) => {
                     const sessionTime = new Date(session.startTime);
+                    const effectiveStartTime = isToday ? now : startOfDay;
+
                     return String(session.movieId) === String(item.id) &&
-                        sessionTime >= startOfDay &&
+                        sessionTime >= effectiveStartTime &&
                         sessionTime <= endOfDay;
                 });
 
                 if (movieSessions.length === 0) return null;
 
                 const formattedSessions = movieSessions
-                    .map(session => {
-                        const dateObj = new Date(session.startTime);
+                    .map((session: any) => {
+                        const date = new Date(session.startTime);
                         return {
                             id: session.id,
-                            time: dateObj.toLocaleTimeString('uk-UA', {hour: '2-digit', minute: '2-digit'})
+                            time: date.toLocaleTimeString('uk-UA', {hour: '2-digit', minute: '2-digit'}),
+                            hallName: session.hallName || "Зал 1",
+                            hallFormat: session.hallFormat || "2D"
                         };
                     })
-                    .sort((a, b) => a.time.localeCompare(b.time));
+                    .sort((a: any, b: any) => a.time.localeCompare(b.time));
 
                 return {
                     id: item.id,
@@ -187,7 +208,9 @@ export const movieApi = {
 
                 scheduleMap.get(dateKey)?.push({
                     id: session.id,
-                    time: timeVal
+                    time: timeVal,
+                    hallName: session.hallName,
+                    hallFormat: session.hallFormat,
                 });
             });
 
