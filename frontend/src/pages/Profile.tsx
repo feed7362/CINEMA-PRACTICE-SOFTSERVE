@@ -13,6 +13,8 @@ const Profile: React.FC = () => {
     const [bookings, setBookings] = useState<BookingSummaryDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [refundId, setRefundId] = useState<number | null>(null);
+    const [isRefunding, setIsRefunding] = useState(false);
+    const [feedback, setFeedback] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
 
     useEffect(() => {
         loadProfile();
@@ -77,12 +79,26 @@ const Profile: React.FC = () => {
         if (!refundId) return;
 
         try {
-            await refundBooking(refundId);
-            setBookings(prev => prev.filter(b => b.id !== refundId));
+            setIsRefunding(true);
+            const response = await refundBooking(refundId);
+
+            setFeedback({
+                msg: `Успішно! ₴${response.amountRefunded} буде повернуто на вашу карту.`,
+                type: 'success'
+            });
+
+            setBookings(prev => prev.map(b =>
+                b.id === refundId ? {...b, status: 'CANCELLED'} : b
+            ));
+
             setRefundId(null);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert("Не вдалося повернути кошти");
+            const errorMsg = error.response?.data?.message || "Не вдалося повернути кошти";
+            setFeedback({msg: errorMsg, type: 'error'});
+        } finally {
+            setIsRefunding(false);
+            setTimeout(() => setFeedback(null), 5000);
         }
     };
 
@@ -95,13 +111,26 @@ const Profile: React.FC = () => {
     return (
         <div id="profile-page" className="text-white p-10 font-['Inter']">
             <div className="max-w-6xl mx-auto space-y-12">
-
+                {feedback && (
+                    <div
+                        className={`fixed top-10 right-10 z-100 p-4 rounded-2xl border shadow-2xl animate-in fade-in slide-in-from-right-10 ${
+                            feedback.type === 'success' ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-red-500/20 border-red-500 text-red-400'
+                        }`}>
+                        <p className="font-bold">{feedback.msg}</p>
+                    </div>
+                )}
                 <UserProfileCard
                     user={user}
                     onUpdate={setUser}
                     onLogout={handleLogout}
                 />
-
+                <ConfirmationModal
+                    isOpen={refundId !== null}
+                    title="Скасувати бронювання?"
+                    message="Кошти будуть повернуті на карту. Ви впевнені?"
+                    onCancel={() => !isRefunding && setRefundId(null)}
+                    onConfirm={confirmRefund}
+                />
                 <div
                     id="profile-active"
                     className="bg-linear-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 space-y-6"

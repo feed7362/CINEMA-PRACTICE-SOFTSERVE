@@ -1,8 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {useParams, useNavigate} from 'react-router-dom';
-import type {SeatDto, LockBookingResponse} from '../types/booking';
+import type {SeatDto, LockBookingResponse} from '@/types/booking';
 import api from "@/api/axiosClient.ts";
 import {parseBackendError} from "@/utils/errorUtils.ts";
+import {sessionApi, type ReadSessionDto} from '@/api/sessionApi';
+import {movieApi} from "@/api/movieApi.ts";
+import {formatHallFormat} from "@/utils/formatters.ts";
 
 
 const SeatSelectionPage: React.FC = () => {
@@ -12,12 +15,25 @@ const SeatSelectionPage: React.FC = () => {
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [sessionDetails, setSessionDetails] = useState<ReadSessionDto | null>(null);
+    const [movieTitle, setMovieTitle] = useState<string>("");
 
     useEffect(() => {
-        const fetchSeats = async () => {
+        const fetchPageData = async () => {
+            if (!sessionId) return;
+
             try {
-                const response = await api.get<SeatDto[]>(`/session/${sessionId}/seats`);
-                setSeats(response.data);
+                const session = await sessionApi.getSessionById(Number(sessionId));
+                setSessionDetails(session);
+
+                if (session.movieId) {
+                    const movie = await movieApi.getMovieById(String(session.movieId));
+                    setMovieTitle(movie?.title || "Завантаження...");
+                }
+
+                const seatsResponse = await api.get<SeatDto[]>(`/session/${sessionId}/seats`);
+                setSeats(seatsResponse.data);
+
             } catch (err: any) {
                 const backendMessage = parseBackendError(err.response?.data);
                 setError(backendMessage);
@@ -25,7 +41,8 @@ const SeatSelectionPage: React.FC = () => {
                 setIsLoading(false);
             }
         };
-        fetchSeats();
+
+        fetchPageData();
     }, [sessionId]);
 
     const handleSeatClick = (seatId: number, isReserved: boolean) => {
@@ -81,8 +98,41 @@ const SeatSelectionPage: React.FC = () => {
         <div className="min-h-screen bg-black text-white p-8">
             <div className="max-w-4xl mx-auto">
                 <header className="text-center mb-12">
-                    <h2 className="text-4xl font-black tracking-tighter uppercase italic">Оберіть Місця</h2>
-                    <p className="text-gray-400 mt-2 italic">Сеанс №{sessionId}</p>
+                    {/* Movie Title */}
+                    <h2 className="text-4xl font-black tracking-tighter uppercase italic text-blue-500">
+                        {movieTitle}
+                    </h2>
+
+                    {sessionDetails && (
+                        <div className="mt-4 flex flex-col items-center gap-1">
+                            {/* Hall Info */}
+                            <div className="flex items-center gap-2 text-lg font-bold">
+                                <span className="text-white">{sessionDetails.hallName}</span>
+                                <span
+                                    className="bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded text-xs border border-blue-500/30">
+                    {formatHallFormat(sessionDetails.hallFormat)}
+                </span>
+                            </div>
+
+                            {/* Time Info */}
+                            <div className="text-gray-400 italic flex gap-3 text-sm">
+                <span>
+                    {new Date(sessionDetails.startTime).toLocaleDateString('uk-UA')}
+                </span>
+                                <span>
+                                    {new Date(sessionDetails.startTime).toLocaleTimeString('uk-UA', {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                    -
+                                    {new Date(sessionDetails.endTime).toLocaleTimeString('uk-UA', {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </header>
 
                 {/* Screen Visualization */}

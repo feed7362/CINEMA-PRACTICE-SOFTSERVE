@@ -89,7 +89,7 @@ const BookingItem: React.FC<BookingItemProps> = ({booking, onRefund, isHistory =
                                     ? 'bg-green-500/10 text-green-400 border-green-500/30'
                                     : 'bg-zinc-500/10 text-zinc-400 border-zinc-500/30'
                             }`}>
-                            {booking.status === 'CONFIRMED' ? 'АКТИВНИЙ' : booking.status}
+                            {!isHistory && booking.status === 'CONFIRMED' ? 'Оплачений' : 'Не дійсний'}
                         </span>
                     </div>
                 </div>
