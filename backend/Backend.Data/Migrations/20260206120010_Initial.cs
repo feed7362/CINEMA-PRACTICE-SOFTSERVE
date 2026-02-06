@@ -69,6 +69,39 @@ namespace Backend.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AuditLogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TableName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Action = table.Column<string>(type: "text", nullable: false),
+                    UserEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Changes = table.Column<string>(type: "jsonb", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuditLogs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ContactMessages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    Message = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContactMessages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Discount",
                 columns: table => new
                 {
@@ -81,6 +114,24 @@ namespace Backend.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Discount", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ErrorLogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Message = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
+                    StackTrace = table.Column<string>(type: "text", nullable: true),
+                    Path = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    UserEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Method = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ErrorLogs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -104,7 +155,8 @@ namespace Backend.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Format = table.Column<short>(type: "smallint", nullable: false, defaultValue: (short)0),
                     Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    Capacity = table.Column<int>(type: "integer", nullable: false)
+                    Capacity = table.Column<int>(type: "integer", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -112,7 +164,7 @@ namespace Backend.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Studio",
+                name: "Studios",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -121,7 +173,7 @@ namespace Backend.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Studio", x => x.Id);
+                    table.PrimaryKey("PK_Studios", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -281,9 +333,9 @@ namespace Backend.Data.Migrations
                     table.CheckConstraint("CK_Movie_Duration", "\"Duration\" >= 1 AND \"Duration\" <= 600");
                     table.CheckConstraint("CK_Movie_ImdbRating", "\"ImdbRating\" >= 0 AND \"ImdbRating\" <= 10");
                     table.ForeignKey(
-                        name: "FK_Movies_Studio_StudioId",
+                        name: "FK_Movies_Studios_StudioId",
                         column: x => x.StudioId,
-                        principalTable: "Studio",
+                        principalTable: "Studios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -334,6 +386,34 @@ namespace Backend.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_MovieGenres_Movies_MovieId",
+                        column: x => x.MovieId,
+                        principalTable: "Movies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MoviePageViews",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    MovieId = table.Column<int>(type: "integer", nullable: false),
+                    ViewCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    LastViewedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MoviePageViews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MoviePageViews_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MoviePageViews_Movies_MovieId",
                         column: x => x.MovieId,
                         principalTable: "Movies",
                         principalColumn: "Id",
@@ -500,6 +580,16 @@ namespace Backend.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_TableName",
+                table: "AuditLogs",
+                column: "TableName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_Timestamp",
+                table: "AuditLogs",
+                column: "Timestamp");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Bookings_ApplicationUserId",
                 table: "Bookings",
                 column: "ApplicationUserId");
@@ -508,6 +598,11 @@ namespace Backend.Data.Migrations
                 name: "IX_Bookings_SessionId",
                 table: "Bookings",
                 column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ErrorLogs_Timestamp",
+                table: "ErrorLogs",
+                column: "Timestamp");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MovieActors_ActorId",
@@ -529,6 +624,17 @@ namespace Backend.Data.Migrations
                 name: "IX_MovieGenres_MovieId_GenreId",
                 table: "MovieGenres",
                 columns: new[] { "MovieId", "GenreId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MoviePageViews_MovieId",
+                table: "MoviePageViews",
+                column: "MovieId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MoviePageViews_UserId_MovieId",
+                table: "MoviePageViews",
+                columns: new[] { "UserId", "MovieId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -596,10 +702,22 @@ namespace Backend.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "AuditLogs");
+
+            migrationBuilder.DropTable(
+                name: "ContactMessages");
+
+            migrationBuilder.DropTable(
+                name: "ErrorLogs");
+
+            migrationBuilder.DropTable(
                 name: "MovieActors");
 
             migrationBuilder.DropTable(
                 name: "MovieGenres");
+
+            migrationBuilder.DropTable(
+                name: "MoviePageViews");
 
             migrationBuilder.DropTable(
                 name: "Tickets");
@@ -638,7 +756,7 @@ namespace Backend.Data.Migrations
                 name: "Movies");
 
             migrationBuilder.DropTable(
-                name: "Studio");
+                name: "Studios");
         }
     }
 }
