@@ -31,7 +31,7 @@ public class BookingService(
 
             if (activeTickets.Count != 0)
             {
-                throw new InvalidOperationException("One or more seats are already taken.");
+                throw new InvalidOperationException("Одне або декілька місць уже зайняті.");
             }
 
             var booking = await CreateBookingEntityInternalAsync(dto, userId);
@@ -72,11 +72,8 @@ public class BookingService(
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "40001" })
         {
             await transaction.RollbackAsync();
-            // may implement auto-retry 3 times later ....
-
-            // for now:
             throw new Exception(
-                "Concurrency conflict: The seats were modified by another transaction. Please try again.");
+                "Конфлікт паралелізму: місця були змінені іншою транзакцією. Будь ласка, спробуйте ще раз.");
         }
         catch (InvalidOperationException)
         {
@@ -85,7 +82,6 @@ public class BookingService(
         }
         catch (Exception)
         {
-            // Rollback any other failure
             await transaction.RollbackAsync();
             throw;
         }
@@ -93,26 +89,22 @@ public class BookingService(
 
     public async Task<BookingResponseDto> ConfirmBookingAsync(ConfirmBookingDto dto, int userId)
     {
-        // Fetch with Tickets and Sessions
         var booking = await bookingRepository.GetFirstBySpecAsync(
             new BookingWithDetailsByIdSpec(dto.BookingId, userId));
 
         if (booking == null)
-            throw new KeyNotFoundException($"Booking {dto.BookingId} not found.");
+            throw new KeyNotFoundException($"Бронювання {dto.BookingId} не знайдено.");
 
-        // Prevent confirming expired locks
         var isExpired = booking.Status == BookingStatus.CANCELED || booking.ExpirationTime < DateTime.UtcNow;
 
-        // see if they actually paid
         var intentService = new PaymentIntentService();
         var intent = await intentService.GetAsync(booking.PaymentIntentId);
 
         if (intent.Status != "succeeded")
         {
-            throw new InvalidOperationException("Payment was not successful.");
+            throw new InvalidOperationException("Оплата не була успішною.");
         }
 
-        // Refund if expired and paid
         if (isExpired)
         {
             var refundOptions = new RefundCreateOptions { PaymentIntent = booking.PaymentIntentId };
@@ -120,10 +112,9 @@ public class BookingService(
             await refundService.CreateAsync(refundOptions);
 
             throw new InvalidOperationException(
-                "Your booking window expired before the payment was finalized. A full refund has been issued.");
+                "Час вашого бронювання закінчився до завершення оплати. Здійснено повне повернення коштів.");
         }
 
-        // Finalize Success
         booking.Status = BookingStatus.CONFIRMED;
         booking.ConfirmationTime = DateTime.UtcNow;
         await bookingRepository.UpdateAsync(booking);
@@ -144,14 +135,19 @@ public class BookingService(
     private async Task<Booking> CreateBookingEntityInternalAsync(CreateBookingDto dto, int userId)
     {
         var session = await sessionRepository.GetFirstBySpecAsync(new SessionWithPricesByIdSpec(dto.SessionId));
-        if (session == null) throw new Exception("Session not found.");
+        if (session == null) throw new Exception("Сеанс не знайдено.");
 
         var seats = await seatRepository.GetListBySpecAsync(new SeatsByListIdsSpec(dto.SeatIds));
-        if (seats.Count != dto.SeatIds.Count) throw new Exception("One or more seats not found.");
+        if (seats.Count != dto.SeatIds.Count) throw new Exception("Одне або декілька місць не знайдено.");
+
+        if (session.StartTime < DateTime.UtcNow)
+        {
+            throw new InvalidOperationException("Неможливо забронювати квитки на сеанс, який уже розпочався або пройшов.");
+        }
 
         var regularDiscount =
             await discountRepository.GetFirstBySpecAsync(new DiscountByTypeSpec(DiscountType.REGULAR));
-        if (regularDiscount == null) throw new Exception("Base 'REGULAR' discount not found in system.");
+        if (regularDiscount == null) throw new Exception("Базову знижку 'REGULAR' не знайдено в системі.");
 
         var booking = new Booking
         {
@@ -165,7 +161,7 @@ public class BookingService(
         foreach (var seat in seats)
         {
             var priceEntry = session.Prices.FirstOrDefault(p => p.SeatType == seat.SeatType);
-            if (priceEntry == null) throw new Exception($"Missing price for {seat.SeatType}");
+            if (priceEntry == null) throw new Exception($"Відсутня ціна для типу місця {seat.SeatType}");
 
             booking.Tickets.Add(new Ticket
             {
@@ -246,7 +242,6 @@ public class BookingService(
 
         string? clientSecret = null;
 
-        // latest status/secret from Stripe
         if (booking.Status != BookingStatus.PENDING || string.IsNullOrEmpty(booking.PaymentIntentId))
             return new BookingDetailDto(
                 booking.Id,
@@ -266,7 +261,7 @@ public class BookingService(
                     t.Seat.SeatNumber,
                     t.Seat.SeatType.ToString(),
                     t.FinalPrice,
-                    t.Discount?.Type.ToString() ?? "NONE"
+                    t.Discount?.Type.ToString() ?? "ВІДСУТНЯ"
                 )).ToList(),
                 booking.PaymentIntentId,
                 clientSecret
@@ -293,33 +288,33 @@ public class BookingService(
                 t.Seat.SeatNumber,
                 t.Seat.SeatType.ToString(),
                 t.FinalPrice,
-                t.Discount?.Type.ToString() ?? "NONE"
+                t.Discount?.Type.ToString() ?? "ВІДСУТНЯ"
             )).ToList(),
             booking.PaymentIntentId,
             clientSecret
         );
     }
-    
+
     public async Task<RefundResponseDto> RefundBookingAsync(int bookingId, int userId)
     {
         var booking = await bookingRepository.GetFirstBySpecAsync(
             new BookingWithDetailsByIdSpec(bookingId, userId));
 
-        if (booking == null) throw new KeyNotFoundException("Booking not found.");
-    
+        if (booking == null) throw new KeyNotFoundException("Бронювання не знайдено.");
+
         if (booking.Status == BookingStatus.CANCELED)
-            throw new InvalidOperationException("This booking has already been refunded.");
-        
+            throw new InvalidOperationException("Це бронювання вже було повернуто.");
+
         if (string.IsNullOrEmpty(booking.PaymentIntentId))
         {
-            throw new InvalidOperationException("This booking does not have an associated payment to refund.");
+            throw new InvalidOperationException("Це бронювання не має пов'язаного платежу для повернення.");
         }
 
-        var refundOptions = new RefundCreateOptions 
-        { 
-            PaymentIntent = booking.PaymentIntentId 
+        var refundOptions = new RefundCreateOptions
+        {
+            PaymentIntent = booking.PaymentIntentId
         };
-    
+
         var refundService = new RefundService();
 
         try
@@ -339,9 +334,7 @@ public class BookingService(
         }
         catch (StripeException ex)
         {
-            throw new InvalidOperationException($"Stripe error: {ex.Message}");
+            throw new InvalidOperationException($"Помилка Stripe: {ex.Message}");
         }
-
-        
     }
 }
