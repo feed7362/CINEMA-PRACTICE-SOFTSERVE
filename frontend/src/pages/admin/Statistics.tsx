@@ -19,30 +19,27 @@ const Statistics: React.FC = () => {
     to: new Date().toISOString().split('T')[0]
   });
 
-  const loadAllStats = async (from: string, to: string) => {
-    setIsLoading(true);
-    try {
-      const [revRes, specRes, popRes] = await Promise.all([
-        statsApi.getRevenue(from, to),
-        statsApi.getSpecialTicketsCount(from, to),
-        statsApi.getPopularMovies({ DateFrom: from, DateTo: to, Amount: 5 })
-      ]);
-
-      setData({
-        revenue: revRes.totalRevenue,
-        specialTickets: specRes.specialTicketsCount,
-        popularMovies: popRes
-      });
-    } catch (error) {
-      console.error("Помилка завантаження статистики:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     loadAllStats(dateRange.from, dateRange.to);
   }, [dateRange]);
+const [trend, setTrend] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
+
+const loadAllStats = async (from: string, to: string) => {
+  setIsLoading(true);
+  try {
+    const [revRes, trendRes] = await Promise.all([
+      statsApi.getRevenue(from, to),
+      statsApi.getRevenueTrend(from, to) 
+    ]);
+
+    setData(prev => ({ ...prev, revenue: revRes.totalRevenue }));
+    setTrend(trendRes.map(item => item.amount));
+  } catch (err) {
+    setTrend([0, 0, 0, 0, 0, 0, 0]);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-main-dark text-white relative overflow-hidden flex flex-col font-sans">
@@ -62,7 +59,7 @@ const Statistics: React.FC = () => {
             isLoading={isLoading} 
           />
 
-          <StatsCharts />
+          <StatsCharts trendData={trend} isLoading={isLoading} />
 
           <StatsTable 
             movies={data.popularMovies} 
