@@ -1,11 +1,14 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import UserProfileCard from '@/components/profile/UserProfileCard';
-import BookingItem, {type BookingSummaryDto} from '@/components/profile/BookingItem';
+import BookingItem from '@/components/profile/BookingItem';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
-
-import {getMe, getMyBookings, refundBooking} from '@/api/profileApi';
+import LoadingSpinner from '@/components/loader/LoadingSpinner';
+import BaseButton from '@/components/ui/BaseButton';
+import { useProfile } from '@/hooks/useProfile';
+import { useRefundLogic } from '@/hooks/useRefundLogic';
+import type { BookingSummary } from '@/types/booking';
+import { isAdmin } from '@/utils/authUtils';
 
 const Profile: React.FC = () => {
     const navigate = useNavigate();
@@ -101,11 +104,12 @@ const Profile: React.FC = () => {
             setTimeout(() => setFeedback(null), 5000);
         }
     };
+    const isUserAdmin = useMemo(() => isAdmin(), []);
 
-    if (loading) return <LoadingSpinner/>;
+    if (loading) return <LoadingSpinner />;
 
     if (!user) {
-        return <div className="text-white p-10">Не вдалося завантажити профіль</div>;
+        return <div className="text-white p-10 text-center">Не вдалося завантажити профіль</div>;
     }
 
     return (
@@ -132,6 +136,26 @@ const Profile: React.FC = () => {
                     onConfirm={confirmRefund}
                 />
                 <div
+
+                <div className="space-y-6">
+                    <UserProfileCard
+                        user={user}
+                        onUpdate={setUser}
+                        onLogout={handleLogout}
+                    />
+
+                    {isUserAdmin && (
+                        <div className="flex justify-end animate-in fade-in slide-in-from-top-2 duration-500">
+                            <Link to="/admin">
+                                <BaseButton className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-900/20 border border-emerald-500/30 transition-all flex items-center gap-2">
+                                    Панель Адміністратора
+                                </BaseButton>
+                            </Link>
+                        </div>
+                    )}
+                </div>
+
+                <section
                     id="profile-active"
                     className="bg-linear-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 space-y-6"
                 >

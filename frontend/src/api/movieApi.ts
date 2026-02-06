@@ -1,6 +1,6 @@
 import axiosClient from './axiosClient';
-import type {IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem, Session} from '@/types/movie';
-import {parseBackendError} from '@/utils/errorUtils';
+import type { IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem, CreateMovie } from '@/types/movie';
+import { parseBackendError } from '@/utils/errorUtils';
 
 interface SessionDto {
     id: number;
@@ -12,6 +12,34 @@ interface SessionDto {
 }
 
 export const movieApi = {
+    getAllMovies: async (): Promise<IMovieDetails[]> => {
+        try {
+            const response = await axiosClient.get('/movie', {
+                params: { SortDirection: 0, pageSize: 100 }
+            });
+            return response.data.items || [];
+        } catch (error: any) {
+            console.error('Failed to fetch movies:', error);
+            return [];
+        }
+    },
+
+    deleteMovie: async (id: number | string): Promise<void> => {
+        try {
+            await axiosClient.delete(`/movie/${id}`);
+        } catch (error: any) {
+            throw parseBackendError(error.response?.data);
+        }
+    },
+
+    updateMovie: async (movieData: any): Promise<void> => {
+        try {
+            await axiosClient.put('/movie', movieData);
+        } catch (error: any) {
+            throw parseBackendError(error.response?.data);
+        }
+    },
+
     getNowPlaying: async (filterParams?: any): Promise<IMovie[]> => {
         try {
             const now = new Date();
@@ -116,7 +144,8 @@ export const movieApi = {
                 .sort((a: any, b: any) => a.rawDate - b.rawDate);
 
         } catch (error: any) {
-            console.error('Failed to fetch coming soon movies:', error);
+            const errorMessage = parseBackendError(error.response?.data);
+            console.error('Failed to fetch coming soon movies:', errorMessage);
             return [];
         }
     },
@@ -223,8 +252,8 @@ export const movieApi = {
 
             return {
                 id: data.id,
-                title: data.TitleUkr || data.titleUkr || data.title || "Без назви",
-                poster: data.imageUrl || data.ImageUrl || data.poster || '',
+                title: data.titleUkr || "Без назви",
+                poster: data.imageUrl || '',
                 ageRating: data.ageRating ? `${data.ageRating}+` : "0+",
                 originalTitle: data.titleOrg || data.originalTitle || "",
                 director: data.director || "Не вказано",
@@ -233,18 +262,28 @@ export const movieApi = {
                 genre: Array.isArray(data.genreNames)
                     ? data.genreNames.join(', ')
                     : (data.genre || "Не вказано"),
-                rating: data.imdbRating || data.rating || "Відсутній",
+                rating: data.imdbRating || 0,
                 language: data.language || "Українська",
                 subtitles: data.subtitles ? "Так" : "Ні",
                 cast: data.actorNames || data.cast || [],
                 description: data.description || "Опис наразі відсутній.",
                 schedule: schedule,
                 trailerUrl: data.trailerUrl || "",
+                status: data.status,
+                imageUrl: data.imageUrl 
             };
         } catch (error: any) {
             const errorMessage = parseBackendError(error.response?.data);
             console.error('Failed to fetch movie details:', errorMessage);
             return null;
+        }
+    },
+
+    createMovie: async (movieData: CreateMovie): Promise<void> => {
+        try {
+            await axiosClient.post('/movie', movieData);
+        } catch (error: any) {
+            throw parseBackendError(error.response?.data);
         }
     }
 };

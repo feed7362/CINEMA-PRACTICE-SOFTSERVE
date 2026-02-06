@@ -1,6 +1,5 @@
 import { forwardRef, useState } from 'react';
-
-const PLACEHOLDER_IMAGE = "https://placehold.co/300x450/1e293b/ffffff?text=Постер+відсутній";
+import { PLACEHOLDER_IMAGE } from '@/constants';
 
 interface MovieTrailerProps {
   poster: string | null;

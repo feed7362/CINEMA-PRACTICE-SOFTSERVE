@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import Input from '@/components/ui/Input';
-import EditButton from '@/components/ui/EditProfileButton';
+import EditButton from '@/components/profile/EditProfileButton';
 
 interface UserData {
     name: string;

@@ -61,6 +61,27 @@ public class HallService(IRepository<Hall> hallRepository, IRepository<Session> 
         hall.Name = dto.Name;
         hall.Format = (HallFormat)dto.Format;
 
+        if (dto.SeatMap.Count > 0)
+        {
+            hall.Seats.Clear();
+
+            for (var r = 0; r < dto.SeatMap.Count; r++)
+            {
+                var rowString = dto.SeatMap[r];
+                for (var c = 0; c < rowString.Length; c++)
+                {
+                    hall.Seats.Add(new Seat
+                    {
+                        RowNumber = r + 1,
+                        SeatNumber = c + 1,
+                        SeatType = rowString[c] == 'V' ? SeatType.Vip : SeatType.Regular
+                    });
+                }
+            }
+
+            hall.Capacity = hall.Seats.Count;
+        }
+
         await hallRepository.UpdateAsync(hall);
 
         return new ReadHallDto
@@ -85,7 +106,6 @@ public class HallService(IRepository<Hall> hallRepository, IRepository<Session> 
             Capacity = hall.Capacity,
             Format = hall.Format.ToString()
         };
-
     }
 
     public async Task<List<ReadHallDto>> GetAllHallsAsync()
