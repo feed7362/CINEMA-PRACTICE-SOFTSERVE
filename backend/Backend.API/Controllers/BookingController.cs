@@ -94,5 +94,19 @@ internal static class BookingEndpoints
         })
             .WithName("GetBookingDetails")
             .WithSummary("Get full booking details");
+        
+        group.MapPost("/refund/{id:int}", async (
+                int id,
+                IBookingService bookingService,
+                ClaimsPrincipal user) =>
+            {
+                var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var result = await bookingService.RefundBookingAsync(id, userId);
+    
+                return Results.Ok(result);
+            })
+            .WithName("RefundBooking");
     }
+    
+    
 }

@@ -78,16 +78,25 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({user, onUpdate, onLogo
                     </>
                 ) : (
                     <>
-                        <EditButton onClick={() => setIsEditing(true)} className="px-6 py-3 w-full">
+                        <EditButton
+                            onClick={() => setIsEditing(true)}
+                            className="flex-1 md:flex-none px-5 py-2.5 rounded-xl text-sm font-bold bg-red-500/10 
+                            border border-red-500/30 hover:bg-red-500 hover:text-white transition-all"
+                        >
                             Редагувати
                         </EditButton>
 
+
                         <button
                             onClick={onLogout}
-                            className="px-6 py-3 w-full rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white transition-all text-sm font-bold"
+                            className="px-6 py-3 w-full rounded-xl border-2 border-red-500 text-red-500
+                           bg-red-500/10 hover:bg-red-500 hover:text-white
+                           transition-all text-sm font-extrabold
+                           shadow-md hover:shadow-lg"
                         >
                             Вийти
                         </button>
+
                     </>
                 )}
             </div>

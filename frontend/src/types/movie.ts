@@ -37,6 +37,8 @@ export interface MoviePreviewProps {
 export interface Session {
     id: number;
     time: string;
+    hallName: string;
+    hallFormat: string;
 }
 
 export interface IMovieScheduleItem {

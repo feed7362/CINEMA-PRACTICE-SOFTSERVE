@@ -29,26 +29,32 @@ const MovieSchedule: React.FC = () => {
                     <div className="text-center text-red-500 text-xl py-10 bg-red-500/10 rounded-xl mt-4 border border-red-500/20">
                         {error}
                     </div>
-                ) : movies.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 mt-10">
-                        {movies.map((movie) => (
-                            <ScheduleMovieCard
-                                key={movie.id}
-                                movie={{
-                                    id: String(movie.id),
-                                    title: movie.title,
-                                    poster: movie.poster,
-                                    hall: movie.hall || "Головний зал",
-                                    sessions: movie.sessions || []
-                                }}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <h3 className="text-2xl font-bold text-white mb-2">На цей день сеансів немає 😔</h3>
-                        <p className="text-zinc-400">Спробуйте обрати іншу дату</p>
-                    </div>
+                )}
+
+                {!loading && !error && (
+                    <>
+                        {movies.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 mt-10">
+                                {movies.map((movie) => (
+                                    <ScheduleMovieCard
+                                        key={movie.id}
+                                        movie={{
+                                            id: String(movie.id),
+                                            title: movie.title,
+                                            poster: movie.poster,
+                                            sessions: movie.sessions || []
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-20 text-center">
+                                <div className="text-6xl mb-4">😔</div>
+                                <h3 className="text-2xl font-bold text-white mb-2">На цей день сеансів немає</h3>
+                                <p className="text-zinc-400">Спробуйте обрати іншу дату</p>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>

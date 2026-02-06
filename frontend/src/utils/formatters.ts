@@ -1,4 +1,4 @@
-﻿export const HALL_FORMAT_MAP: Record<string, { label: string; id: number }> = {
+export const HALL_FORMAT_MAP: Record<string, { label: string; id: number }> = {
     'REGULAR': { label: '2D', id: 0 },
     'IMAX':    { label: 'IMAX', id: 1 },
     '_3D':     { label: '3D', id: 2 },

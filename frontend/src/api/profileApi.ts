@@ -11,5 +11,13 @@ export const getMyBookings = (page = 1, pageSize = 50) =>
 export const getBookingDetails = (bookingId: number) =>
     axiosClient.get<BookingDetails>(`/booking/${bookingId}/details`).then(r => r.data);
 
+export interface RefundResponse {
+    bookingId: number;
+    status: string;
+    refundId: string;
+    amountRefunded: number;
+    refundTime: string;
+}
+
 export const refundBooking = (bookingId: number) =>
-    axiosClient.post(`/booking/refund/${bookingId}`);
+    axiosClient.post<RefundResponse>(`/booking/refund/${bookingId}`).then(r => r.data);

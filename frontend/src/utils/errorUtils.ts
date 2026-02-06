@@ -1,6 +1,8 @@
 export const parseBackendError = (data: any): string => {
     if (!data) return "Сталася невідома помилка.";
 
+    if (data.detail) return data.detail;
+
     if (Array.isArray(data)) {
         return data.map((err: any) => err.description || err.message).join(". ");
     }
