@@ -2,7 +2,7 @@ import React from 'react';
 
 interface InfoRowProps {
   label: string;
-  value: string | number;
+  value?: string | number;
   className?: string;
 }
 

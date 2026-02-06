@@ -24,10 +24,10 @@ const StatsCards: React.FC<StatsCardsProps> = ({ revenue, specialTickets, isLoad
         <div className="text-gray-400 text-xs">Квитки зі знижкою {'>'} 0%</div>
       </div>
 
-      <div className="bg-[#002D6E]/80 border border-blue-400/20 rounded-xl p-6 opacity-50">
-        <span className="text-blue-200 text-sm font-medium">Заповнюваність</span>
-        <div className="text-3xl font-bold text-white mt-2">78%</div>
-      </div>
+      {/*<div className="bg-[#002D6E]/80 border border-blue-400/20 rounded-xl p-6 opacity-50">*/}
+      {/*  <span className="text-blue-200 text-sm font-medium">Заповнюваність</span>*/}
+      {/*  <div className="text-3xl font-bold text-white mt-2">78%</div>*/}
+      {/*</div>*/}
     </div>
   );
 };
