@@ -7,22 +7,21 @@ using Backend.Domain.Interfaces;
 
 namespace Backend.Data
 {
-    public class ApplicationContext(IUserContext _currentUserService, DbContextOptions<ApplicationContext> options)
+    public class ApplicationContext(IUserContext currentUserService, DbContextOptions<ApplicationContext> options)
         : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>(options)
     {
-
-
-        // Need to turn off while seeding(tooo much data)
         public bool UseAuditing { get; set; } = true;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Automatically filter out deleted halls
-            modelBuilder.Entity<Hall>().HasQueryFilter(h => !h.IsDeleted);
+            modelBuilder.Entity<Hall>()
+                .HasQueryFilter(h => !h.IsDeleted);
+
             modelBuilder.Entity<Seat>()
                 .HasQueryFilter(s => !s.Hall.IsDeleted);
+
             modelBuilder.Entity<Session>()
                 .HasQueryFilter(s => !s.Hall.IsDeleted);
 
@@ -30,6 +29,7 @@ namespace Backend.Data
                 typeof(ApplicationContext).Assembly
             );
         }
+
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             if (!UseAuditing) return await base.SaveChangesAsync(cancellationToken);
@@ -39,7 +39,7 @@ namespace Backend.Data
             try
             {
                 var result = await base.SaveChangesAsync(cancellationToken);
-                if (auditEntries.Any()) await OnAfterSaveChangesAsync(auditEntries);
+                if (auditEntries.Count != 0) await OnAfterSaveChangesAsync(auditEntries);
                 return result;
             }
             catch (DbUpdateException)
@@ -48,6 +48,7 @@ namespace Backend.Data
                 throw;
             }
         }
+
         private async Task OnAfterSaveChangesAsync(List<AuditEntry> auditEntries) //for proper ids only after saving
         {
             foreach (var auditEntry in auditEntries)
@@ -59,7 +60,8 @@ namespace Backend.Data
                         auditEntry.KeyValues[prop.Metadata.Name] = prop.CurrentValue;
                     }
                 }
-                this.AuditLogs.Add(auditEntry.ToAuditLog());
+
+                AuditLogs.Add(auditEntry.ToAuditLog());
             }
 
             await base.SaveChangesAsync();
@@ -69,7 +71,7 @@ namespace Backend.Data
         {
             ChangeTracker.DetectChanges();
             var auditEntries = new List<AuditEntry>();
-            var userEmail = _currentUserService.Email ?? "System";
+            var userEmail = currentUserService.Email ?? "System";
 
             foreach (var entry in ChangeTracker.Entries())
             {
@@ -94,7 +96,7 @@ namespace Backend.Data
 
                 foreach (var property in entry.Properties)
                 {
-                    string propertyName = property.Metadata.Name;
+                    var propertyName = property.Metadata.Name;
 
                     if (property.Metadata.IsPrimaryKey())
                     {
@@ -119,10 +121,17 @@ namespace Backend.Data
                                 auditEntry.OldValues[propertyName] = property.OriginalValue;
                                 auditEntry.NewValues[propertyName] = property.CurrentValue;
                             }
+
                             break;
+                        case EntityState.Detached:
+                        case EntityState.Unchanged:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
             }
+
             return auditEntries;
         }
 
@@ -135,6 +144,9 @@ namespace Backend.Data
         public DbSet<Movie> Movies { get; set; } = null!;
         public DbSet<MovieActor> MovieActors { get; set; } = null!;
         public DbSet<MovieGenre> MovieGenres { get; set; } = null!;
+        public DbSet<MoviePageView> MoviePageViews { get; set; } = null!;
+        public DbSet<Studio> Studios { get; set; } = null!;
+        public DbSet<ContactMessage> ContactMessages { get; set; } = null!;
 
         public DbSet<AuditLog> AuditLogs { get; set; } = null!;
 

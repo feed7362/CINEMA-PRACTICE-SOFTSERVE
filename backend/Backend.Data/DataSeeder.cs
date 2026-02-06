@@ -181,8 +181,8 @@ public static class DataSeeder
                     Description =
                         "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.",
                     Duration = 180,
-                    ReleaseDate = CreateUtcDate(2023, 7, 21),
-                    FinishDate = CreateUtcDate(2026, 12, 31),
+                    ReleaseDate = CreateUtcDate(2026, 4, 15),
+                    FinishDate = CreateUtcDate(2027, 12, 31),
                     ImdbRating = 8.4m,
                     Director = "Christopher Nolan",
                     Country = "USA",
@@ -200,8 +200,8 @@ public static class DataSeeder
                     Description =
                         "Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family.",
                     Duration = 166,
-                    ReleaseDate = CreateUtcDate(2024, 3, 1),
-                    FinishDate = CreateUtcDate(2026, 11, 30),
+                    ReleaseDate = CreateUtcDate(2026, 4, 1),
+                    FinishDate = CreateUtcDate(2027, 11, 30),
                     ImdbRating = 8.6m,
                     Director = "Denis Villeneuve",
                     Country = "USA",
@@ -220,7 +220,7 @@ public static class DataSeeder
                         "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
                     Duration = 169,
                     ReleaseDate = CreateUtcDate(2014, 11, 7),
-                    FinishDate = CreateUtcDate(2026, 12, 31),
+                    FinishDate = CreateUtcDate(2027, 12, 31),
                     ImdbRating = 8.7m,
                     Director = "Christopher Nolan",
                     Country = "USA",
@@ -238,7 +238,7 @@ public static class DataSeeder
                         "In Gotham City, mentally troubled comedian Arthur Fleck is disregarded and mistreated by society.",
                     Duration = 122,
                     ReleaseDate = CreateUtcDate(2019, 10, 4),
-                    FinishDate = CreateUtcDate(2026, 6, 30),
+                    FinishDate = CreateUtcDate(2027, 12, 31),
                     ImdbRating = 8.4m,
                     Director = "Todd Phillips",
                     Country = "USA",
@@ -256,7 +256,7 @@ public static class DataSeeder
                     Description = "Barbie suffers a crisis that leads her to question her world and her existence.",
                     Duration = 114,
                     ReleaseDate = CreateUtcDate(2023, 7, 21),
-                    FinishDate = CreateUtcDate(2026, 8, 15),
+                    FinishDate = CreateUtcDate(2027, 12, 31),
                     ImdbRating = 6.9m,
                     Director = "Greta Gerwig",
                     Country = "USA",
@@ -273,7 +273,7 @@ public static class DataSeeder
                     Description = "Jake Sully lives with his newfound family formed on the extrasolar moon Pandora.",
                     Duration = 192,
                     ReleaseDate = CreateUtcDate(2022, 12, 16),
-                    FinishDate = CreateUtcDate(2026, 12, 31),
+                    FinishDate = CreateUtcDate(2027, 12, 31),
                     ImdbRating = 7.6m,
                     Director = "James Cameron",
                     Country = "USA",
@@ -292,7 +292,7 @@ public static class DataSeeder
                         "When a sadistic serial killer begins murdering key political figures in Gotham, Batman is forced to investigate.",
                     Duration = 176,
                     ReleaseDate = CreateUtcDate(2022, 3, 4),
-                    FinishDate = CreateUtcDate(2026, 5, 20),
+                    FinishDate = CreateUtcDate(2027, 12, 31),
                     ImdbRating = 7.8m,
                     Director = "Matt Reeves",
                     Country = "USA",
@@ -310,7 +310,7 @@ public static class DataSeeder
                         "Miles Morales catapults across the Multiverse, where he encounters a team of Spider-People.",
                     Duration = 140,
                     ReleaseDate = CreateUtcDate(2023, 6, 2),
-                    FinishDate = CreateUtcDate(2026, 10, 10),
+                    FinishDate = CreateUtcDate(2027, 12, 31),
                     ImdbRating = 8.6m,
                     Director = "Joaquim Dos Santos",
                     Country = "USA",
@@ -329,11 +329,11 @@ public static class DataSeeder
                         "The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence and redemption.",
                     Duration = 154,
                     ReleaseDate = CreateUtcDate(1994, 10, 14),
-                    FinishDate = CreateUtcDate(2026, 12, 31),
+                    FinishDate = CreateUtcDate(2027, 12, 31),
                     ImdbRating = 8.9m,
                     Director = "Quentin Tarantino",
                     Country = "USA",
-                    StudioId = GetSid("Miramax"),
+                    StudioId = GetSid("Sony Pictures"),
                     AgeRating = AgeRating._18Plus,
                     Subtitles = true,
                     ImageUrl = "https://upload.wikimedia.org/wikipedia/uk/8/82/Pulp_Fiction_cover.jpg",
@@ -347,7 +347,7 @@ public static class DataSeeder
                         "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea.",
                     Duration = 148,
                     ReleaseDate = CreateUtcDate(2010, 7, 16),
-                    FinishDate = CreateUtcDate(2026, 12, 31),
+                    FinishDate = CreateUtcDate(2027, 12, 31),
                     ImdbRating = 8.8m,
                     Director = "Christopher Nolan",
                     Country = "USA",
@@ -400,7 +400,7 @@ public static class DataSeeder
                             HallId = hall.Id,
                             RowNumber = r,
                             SeatNumber = s,
-                            SeatType = r == rows ? SeatType.Vip : (r == rows - 1 ? SeatType.Premium : SeatType.Regular)
+                            SeatType = r == rows ? SeatType.Vip : (r == rows - 1 ? SeatType.Vip : SeatType.Regular)
                         });
                         seatsCreated++;
                     }
@@ -453,7 +453,7 @@ public static class DataSeeder
 
                 pricesToAdd.Add(new Price { SessionId = session.Id, SeatType = SeatType.Regular, Value = basePrice });
                 pricesToAdd.Add(new Price
-                    { SessionId = session.Id, SeatType = SeatType.Premium, Value = basePrice + 50 });
+                    { SessionId = session.Id, SeatType = SeatType.Vip, Value = basePrice + 50 });
                 pricesToAdd.Add(new Price { SessionId = session.Id, SeatType = SeatType.Vip, Value = basePrice + 120 });
             }
 

@@ -191,6 +191,34 @@ namespace Backend.Data.Migrations
                     b.ToTable("Bookings");
                 });
 
+            modelBuilder.Entity("Backend.Domain.Entities.ContactMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ContactMessages");
+                });
+
             modelBuilder.Entity("Backend.Domain.Entities.Discount", b =>
                 {
                     b.Property<int>("Id")
@@ -418,6 +446,38 @@ namespace Backend.Data.Migrations
                     b.ToTable("MovieGenres");
                 });
 
+            modelBuilder.Entity("Backend.Domain.Entities.MoviePageView", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("LastViewedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MovieId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ViewCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MovieId");
+
+                    b.HasIndex("UserId", "MovieId")
+                        .IsUnique();
+
+                    b.ToTable("MoviePageViews");
+                });
+
             modelBuilder.Entity("Backend.Domain.Entities.Price", b =>
                 {
                     b.Property<int>("Id")
@@ -524,7 +584,7 @@ namespace Backend.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Studio");
+                    b.ToTable("Studios");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Ticket", b =>
@@ -766,6 +826,25 @@ namespace Backend.Data.Migrations
                     b.Navigation("Movie");
                 });
 
+            modelBuilder.Entity("Backend.Domain.Entities.MoviePageView", b =>
+                {
+                    b.HasOne("Backend.Domain.Entities.Movie", "Movie")
+                        .WithMany()
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Domain.Entities.ApplicationUser", "User")
+                        .WithMany("MoviePageViews")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Movie");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Backend.Domain.Entities.Price", b =>
                 {
                     b.HasOne("Backend.Domain.Entities.Session", "Session")
@@ -901,6 +980,8 @@ namespace Backend.Data.Migrations
             modelBuilder.Entity("Backend.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("MoviePageViews");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Booking", b =>

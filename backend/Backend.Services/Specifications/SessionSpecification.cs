@@ -18,4 +18,6 @@ public class SessionOverlapSpec : Specification<Domain.Entities.Session>
             .Where(s => s.HallId == hallId)
             .Where(s => s.StartTime < newEnd && s.EndTime > newStart);
     }
+    
+    
 }

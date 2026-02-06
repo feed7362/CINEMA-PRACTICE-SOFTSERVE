@@ -86,6 +86,22 @@ namespace Backend.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ContactMessages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    Message = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContactMessages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Discount",
                 columns: table => new
                 {
@@ -148,7 +164,7 @@ namespace Backend.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Studio",
+                name: "Studios",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -157,7 +173,7 @@ namespace Backend.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Studio", x => x.Id);
+                    table.PrimaryKey("PK_Studios", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -317,9 +333,9 @@ namespace Backend.Data.Migrations
                     table.CheckConstraint("CK_Movie_Duration", "\"Duration\" >= 1 AND \"Duration\" <= 600");
                     table.CheckConstraint("CK_Movie_ImdbRating", "\"ImdbRating\" >= 0 AND \"ImdbRating\" <= 10");
                     table.ForeignKey(
-                        name: "FK_Movies_Studio_StudioId",
+                        name: "FK_Movies_Studios_StudioId",
                         column: x => x.StudioId,
-                        principalTable: "Studio",
+                        principalTable: "Studios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -370,6 +386,34 @@ namespace Backend.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_MovieGenres_Movies_MovieId",
+                        column: x => x.MovieId,
+                        principalTable: "Movies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MoviePageViews",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    MovieId = table.Column<int>(type: "integer", nullable: false),
+                    ViewCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    LastViewedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MoviePageViews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MoviePageViews_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MoviePageViews_Movies_MovieId",
                         column: x => x.MovieId,
                         principalTable: "Movies",
                         principalColumn: "Id",
@@ -583,6 +627,17 @@ namespace Backend.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_MoviePageViews_MovieId",
+                table: "MoviePageViews",
+                column: "MovieId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MoviePageViews_UserId_MovieId",
+                table: "MoviePageViews",
+                columns: new[] { "UserId", "MovieId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Movies_StudioId",
                 table: "Movies",
                 column: "StudioId");
@@ -650,6 +705,9 @@ namespace Backend.Data.Migrations
                 name: "AuditLogs");
 
             migrationBuilder.DropTable(
+                name: "ContactMessages");
+
+            migrationBuilder.DropTable(
                 name: "ErrorLogs");
 
             migrationBuilder.DropTable(
@@ -657,6 +715,9 @@ namespace Backend.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "MovieGenres");
+
+            migrationBuilder.DropTable(
+                name: "MoviePageViews");
 
             migrationBuilder.DropTable(
                 name: "Tickets");
@@ -695,7 +756,7 @@ namespace Backend.Data.Migrations
                 name: "Movies");
 
             migrationBuilder.DropTable(
-                name: "Studio");
+                name: "Studios");
         }
     }
 }
