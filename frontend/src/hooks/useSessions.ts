@@ -23,43 +23,53 @@ export const useSessions = () => {
     const [deleteId, setDeleteId] = useState<number | null>(null);
 
     useEffect(() => {
-        const loadData = async () => {
-            setIsLoading(true);
-            try {
-                const [sessionsData, hallsData, moviesResponse] = await Promise.all([
-                    sessionApi.getAllSessions(),
-                    hallApi.getAllHalls(),
-                    axiosClient.get('/movie', {params: {pageSize: 1000}})
-                ]);
-
-                setSessions(sessionsData);
-
-                setHallOptions(hallsData.map((h: any) => ({
-                    value: h.id.toString(),
-                    label: h.name
-                })));
-
-                const moviesList = moviesResponse.data.items || [];
-                setMovieOptions(moviesList.map((m: any) => ({
-                    value: m.id.toString(),
-                    label: m.titleUkr || m.title || "Без назви"
-                })));
-
-            } catch (error) {
-                console.error("Failed to load session data", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadData();
+        loadInitialData();
     }, []);
 
-    const getMovieName = (id: number | string) => {
+    const loadInitialData = async () => {
+        setIsLoading(true);
+        try {
+            const [hallsData, moviesResponse] = await Promise.all([
+                hallApi.getAllHalls(),
+                axiosClient.get('/movie', {params: {pageSize: 1000}})
+            ]);
+
+            setHallOptions(hallsData.map((h: any) => ({
+                value: h.id.toString(),
+                label: h.name
+            })));
+
+            const moviesList = moviesResponse.data.items || [];
+            setMovieOptions(moviesList.map((m: any) => ({
+                value: m.id.toString(),
+                label: m.titleUkr || m.title || "Без назви"
+            })));
+
+            await loadSessions();
+
+        } catch (error) {
+            console.error("Failed to load options", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const loadSessions = async () => {
+        try {
+            const sessionsData = await sessionApi.getAllSessions();
+            setSessions(sessionsData);
+        } catch (error) {
+            console.error("Failed to load sessions", error);
+        }
+    };
+
+    const getMovieName = (id: number | string | undefined | null) => {
+        if (id === null || id === undefined) return 'Невідомий фільм';
         return movieOptions.find(o => o.value === id.toString())?.label || 'Невідомий фільм';
     };
 
-    const getHallName = (id: number | string) => {
+    const getHallName = (id: number | string | undefined | null) => {
+        if (id === null || id === undefined) return 'Невідомий зал';
         return hallOptions.find(o => o.value === id.toString())?.label || 'Невідомий зал';
     };
 
@@ -102,13 +112,11 @@ export const useSessions = () => {
             if (editId) {
                 const updateDto: UpdateSessionDto = {id: editId, ...payload};
                 await sessionApi.updateSession(updateDto);
-
                 setSessions(prev => prev.map(s => s.id === editId ? {...s, ...payload} : s));
             } else {
                 const createDto: CreateSessionDto = payload;
                 await sessionApi.createSession(createDto);
-                const freshSessions = await sessionApi.getAllSessions();
-                setSessions(freshSessions);
+                await loadSessions();
             }
 
             setIsModalOpen(false);
@@ -147,26 +155,20 @@ export const useSessions = () => {
         movieOptions,
         hallOptions,
         isLoading,
-
         searchTerm,
         setSearchTerm,
-
         isModalOpen,
         setIsModalOpen,
         editingSession,
-
         isDeleteModalOpen,
         setIsDeleteModalOpen,
-
         handleCreate,
         handleEdit,
         handleSave,
         handleDeleteClick,
         confirmDelete,
-
         getMovieName,
         getHallName,
-
         saveError
     };
 };
