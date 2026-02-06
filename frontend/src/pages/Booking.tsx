@@ -1,7 +1,5 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import BaseButton from '@/components/ui/BaseButton';
 import LoadingSpinner from '@/components/loader/LoadingSpinner';
 import { useBooking } from '@/hooks/useBooking';
@@ -39,11 +37,9 @@ const Booking: React.FC = () => {
     if (error) {
         return (
             <div className="min-h-screen bg-[#020617] text-white flex flex-col">
-                <Header />
                 <div className="grow flex items-center justify-center">
                     <div className="text-red-500 text-xl">{error}</div>
                 </div>
-                <Footer />
             </div>
         );
     }
@@ -52,8 +48,6 @@ const Booking: React.FC = () => {
         <div className="min-h-screen bg-[#020617] text-white font-['Inter'] flex flex-col relative overflow-hidden">
             <div className="absolute top-0 left-0 w-150 h-150 bg-[#0753E0] rounded-full blur-[150px] opacity-10 pointer-events-none -translate-x-1/2 -translate-y-1/2" />
             <div className="absolute bottom-20 right-0 w-125 h-125 bg-[#0753E0] rounded-full blur-[180px] opacity-10 pointer-events-none translate-x-1/3 translate-y-1/3" />
-
-            <Header />
 
             <main className="grow container mx-auto px-6 pt-28 pb-40 relative z-10">
                 <header className="text-center mb-16">
@@ -128,7 +122,6 @@ const Booking: React.FC = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
         </div>
     );
 };

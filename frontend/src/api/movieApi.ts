@@ -1,6 +1,6 @@
 import axiosClient from './axiosClient';
-import type {IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem, Session, CreateMovie} from '@/types/movie';
-import {parseBackendError} from '@/utils/errorUtils';
+import type { IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem, CreateMovie } from '@/types/movie';
+import { parseBackendError } from '@/utils/errorUtils';
 
 interface SessionDto {
     id: number;
@@ -11,27 +11,50 @@ interface SessionDto {
 }
 
 export const movieApi = {
+    getAllMovies: async (): Promise<IMovieDetails[]> => {
+        try {
+            const response = await axiosClient.get('/movie', {
+                params: { SortDirection: 0, pageSize: 100 }
+            });
+            return response.data.items || [];
+        } catch (error: any) {
+            console.error('Failed to fetch movies:', error);
+            return [];
+        }
+    },
+
+    deleteMovie: async (id: number | string): Promise<void> => {
+        try {
+            await axiosClient.delete(`/movie/${id}`);
+        } catch (error: any) {
+            throw parseBackendError(error.response?.data);
+        }
+    },
+
+    updateMovie: async (movieData: any): Promise<void> => {
+        try {
+            await axiosClient.put('/movie', movieData);
+        } catch (error: any) {
+            throw parseBackendError(error.response?.data);
+        }
+    },
+
     getNowPlaying: async (filterParams?: any): Promise<IMovie[]> => {
         try {
             const [moviesResponse, sessionsResponse] = await Promise.all([
                 axiosClient.get('/movie', {
-                    params: {SortDirection: 0, ...filterParams},
-
+                    params: { SortDirection: 0, ...filterParams },
                     paramsSerializer: (params) => {
                         const searchParams = new URLSearchParams();
-
                         Object.keys(params).forEach(key => {
                             const value = params[key];
-
                             if (value === undefined || value === null) return;
-
                             if (Array.isArray(value)) {
                                 searchParams.append(key, value.join(','));
                             } else {
                                 searchParams.append(key, value);
                             }
                         });
-
                         return searchParams.toString();
                     }
                 }),
@@ -60,7 +83,7 @@ export const movieApi = {
                         const date = new Date(session.startTime);
                         return {
                             id: session.id,
-                            time: date.toLocaleTimeString('uk-UA', {hour: '2-digit', minute: '2-digit'})
+                            time: date.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })
                         };
                     })
                     .sort((a: any, b: any) => a.time.localeCompare(b.time));
@@ -84,8 +107,8 @@ export const movieApi = {
         try {
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
-            const {data} = await axiosClient.get('/movie', {
-                params: {dateFrom: tomorrow.toISOString(), SortDirection: 0}
+            const { data } = await axiosClient.get('/movie', {
+                params: { dateFrom: tomorrow.toISOString(), SortDirection: 0 }
             });
             const movies = data.items || [];
             return movies.map((item: any) => ({
@@ -94,7 +117,7 @@ export const movieApi = {
                 poster: item.imageUrl || item.ImageUrl || item.poster || '',
                 ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
                 releaseDate: item.releaseDate
-                    ? new Date(item.releaseDate).toLocaleDateString('uk-UA', {day: 'numeric', month: 'long'})
+                    ? new Date(item.releaseDate).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' })
                     : "Скоро",
                 isBlurred: false,
                 rating: item.imdbRating || 0
@@ -109,7 +132,7 @@ export const movieApi = {
     getScheduleByDate: async (date: Date): Promise<IMovie[]> => {
         try {
             const [moviesResponse, sessionsResponse] = await Promise.all([
-                axiosClient.get('/movie', {params: {SortDirection: 0}}),
+                axiosClient.get('/movie', { params: { SortDirection: 0 } }),
                 axiosClient.get('/session')
             ]);
 
@@ -137,7 +160,7 @@ export const movieApi = {
                         const dateObj = new Date(session.startTime);
                         return {
                             id: session.id,
-                            time: dateObj.toLocaleTimeString('uk-UA', {hour: '2-digit', minute: '2-digit'})
+                            time: dateObj.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })
                         };
                     })
                     .sort((a, b) => a.time.localeCompare(b.time));
@@ -173,13 +196,12 @@ export const movieApi = {
 
             const movieSessions = allSessions.filter(s => String(s.movieId) === String(id));
 
-            const scheduleMap = new Map<string, Session[]>();
+            const scheduleMap = new Map<string, any[]>();
 
             movieSessions.forEach(session => {
                 const dateObj = new Date(session.startTime);
-
-                const dateKey = dateObj.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'});
-                const timeVal = dateObj.toLocaleTimeString('uk-UA', {hour: '2-digit', minute: '2-digit'});
+                const dateKey = dateObj.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' });
+                const timeVal = dateObj.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
 
                 if (!scheduleMap.has(dateKey)) {
                     scheduleMap.set(dateKey, []);
@@ -200,7 +222,7 @@ export const movieApi = {
 
             return {
                 id: data.id,
-                title: data.titleUkr|| "Без назви",
+                title: data.titleUkr || "Без назви",
                 poster: data.imageUrl || '',
                 ageRating: data.ageRating ? `${data.ageRating}+` : "0+",
                 originalTitle: data.titleOrg || data.originalTitle || "",
@@ -210,13 +232,15 @@ export const movieApi = {
                 genre: Array.isArray(data.genreNames)
                     ? data.genreNames.join(', ')
                     : (data.genre || "Не вказано"),
-                rating: data.imdbRating || "Відсутній",
+                rating: data.imdbRating || 0,
                 language: data.language || "Українська",
                 subtitles: data.subtitles ? "Так" : "Ні",
                 cast: data.actorNames || data.cast || [],
                 description: data.description || "Опис наразі відсутній.",
                 schedule: schedule,
                 trailerUrl: data.trailerUrl || "",
+                status: data.status,
+                imageUrl: data.imageUrl 
             };
         } catch (error: any) {
             const errorMessage = parseBackendError(error.response?.data);

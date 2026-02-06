@@ -21,12 +21,12 @@ const Sessions: React.FC = () => {
         <BackgroundEffects />
 
         <SessionModal 
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            onSave={handleSave}
-            initialData={editingSession}
-            movieOptions={MOVIES_LIST}
-            hallOptions={HALLS_LIST}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSave as any} 
+        initialData={editingSession}
+        movieOptions={MOVIES_LIST}
+        hallOptions={HALLS_LIST}
         />
         
         <DeleteModal 

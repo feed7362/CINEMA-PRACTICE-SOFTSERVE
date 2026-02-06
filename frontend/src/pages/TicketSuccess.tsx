@@ -1,8 +1,6 @@
 ﻿import React from 'react';
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import type { LockBookingResponse } from '@/types/booking';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import BaseButton from '@/components/ui/BaseButton';
 
 const TicketSuccess: React.FC = () => {
@@ -18,8 +16,6 @@ const TicketSuccess: React.FC = () => {
         <div className="min-h-screen bg-[#020617] text-white font-['Inter'] flex flex-col relative overflow-hidden">
             
             <div className="absolute top-1/2 left-1/2 w-175 h-175 bg-[#0753E0] rounded-full blur-[200px] opacity-15 pointer-events-none -translate-x-1/2 -translate-y-1/2" />
-
-            <Header />
 
             <main className="grow container mx-auto px-6 py-10 relative z-10 flex flex-col items-center justify-center pt-32 pb-20">
                 
@@ -79,10 +75,8 @@ const TicketSuccess: React.FC = () => {
                         <div className="absolute top-1/2 left-4 right-4 border-t-2 border-dashed border-gray-700"></div>
                     </div>
 
-                    {/* Нижня частина квитка */}
                     <div className="p-6 bg-[#051329] flex justify-between items-center">
                         <p className="text-xs text-gray-500">Пред'явіть на вході</p>
-                        {/* Імітація штрих-коду */}
                         <div className="h-8 flex gap-1 opacity-40">
                             {[...Array(15)].map((_, i) => (
                                 <div key={i} className={`h-full bg-white ${Math.random() > 0.5 ? 'w-1' : 'w-0.5'}`}></div>
@@ -109,7 +103,6 @@ const TicketSuccess: React.FC = () => {
 
             </main>
 
-            <Footer />
         </div>
     );
 };

@@ -2,9 +2,6 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import CheckoutForm from '@/components/payment/CheckoutForm';
 import PromoCodeInput from '@/components/payment/PromoCodeInput';
 import { useCheckout } from '@/hooks/useCheckout';
@@ -38,8 +35,6 @@ const Checkout: React.FC = () => {
             
             <div className="absolute top-0 left-0 w-150 h-150 bg-[#0753E0] rounded-full blur-[150px] opacity-10 pointer-events-none -translate-x-1/2 -translate-y-1/2" />
             <div className="absolute bottom-0 right-0 w-125 h-125 bg-[#0753E0] rounded-full blur-[180px] opacity-10 pointer-events-none translate-x-1/3 translate-y-1/3" />
-
-            <Header />
 
             <main className="grow container mx-auto px-6 py-10 relative z-10 flex items-center justify-center pt-32 pb-20">
                 <div className="w-full max-w-lg">
@@ -96,7 +91,6 @@ const Checkout: React.FC = () => {
                 </div>
             </main>
 
-            <Footer />
         </div>
     );
 };

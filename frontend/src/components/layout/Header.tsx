@@ -3,10 +3,10 @@ import { NavLink, Link } from 'react-router-dom';
 import BaseButton from '@/components/ui/BaseButton';
 import UserIcon from '@/assets/icons/UserIcon';
 import logo from "@/assets/images/logo.png";
-import { isAdmin } from '@/utils/authUtils'; 
+import { useAuth } from '@/context/AuthContext';
 
 const Header: React.FC = () => {
-  const userIsAdmin = isAdmin();
+  const { isAdmin, token } = useAuth(); 
 
   const baseLinkStyles = "transition-colors duration-200 text-2xl font-normal";
 
@@ -30,7 +30,7 @@ const Header: React.FC = () => {
           <NavLink to="/shares" className={navLinkClasses}>Акції</NavLink>
           <NavLink to="/contacts" className={navLinkClasses}>Контакти</NavLink>
 
-          {userIsAdmin && (
+          {isAdmin && (
              <NavLink to="/admin" className={adminLinkClasses}>
                Адмін панель
              </NavLink>
@@ -38,13 +38,19 @@ const Header: React.FC = () => {
         </nav>
         
         <div className="flex items-center gap-4">
-          <BaseButton to="/signup" className="px-6 py-2 rounded-lg">
-            <span className="text-white font-bold">Реєстрація</span>
-          </BaseButton>
+          {!token && (
+             <Link to="/signup">
+                <BaseButton className="px-6 py-2 rounded-lg bg-[#0753E0] hover:bg-[#0642b5] transition-colors">
+                  <span className="text-white font-bold">Реєстрація</span>
+                </BaseButton>
+             </Link>
+          )}
           
-          <BaseButton to="/profile" className="w-14 h-11 rounded-lg flex items-center justify-center">
-            <UserIcon className="w-6 h-6 text-white" />
-          </BaseButton>
+          <Link to={token ? "/profile" : "/login"}>
+            <BaseButton className="w-14 h-11 rounded-lg flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors">
+               <UserIcon className="w-6 h-6 text-white" />
+            </BaseButton>
+          </Link>
         </div>
       </div>
     </header>

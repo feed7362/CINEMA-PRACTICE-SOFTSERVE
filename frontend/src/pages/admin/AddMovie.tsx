@@ -1,17 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import BackgroundEffects from '@/components/ui/BackgroundEffects';
-import MovieGeneralInfo from '@/components/forms/MovieGeneralInfo';
-import MovieDetailsInfo from '@/components/forms/MovieDetailsInfo';
+import MovieFormFields from '@/components/forms/MovieFormFields';
 import FullScreenLoader from '@/components/loader/FullScreenLoader';
 import { movieApi } from '@/api/movieApi';
 import type { CreateMovie } from '@/types/movie';
 
 const AddMovie: React.FC = () => {
     const navigate = useNavigate();
+    const { id } = useParams<{ id: string }>();
+    const isEditMode = !!id;
+
     const [loading, setLoading] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isSuccess, setIsSuccess] = useState(false);
 
     const methods = useForm<CreateMovie>({
         defaultValues: {
@@ -20,8 +24,8 @@ const AddMovie: React.FC = () => {
             titleUkr: '',
             description: '',
             duration: 0,
-            releaseDate: new Date().toISOString(),
-            finishDate: new Date().toISOString(),
+            releaseDate: new Date().toISOString().slice(0, 16),
+            finishDate: new Date().toISOString().slice(0, 16),
             ageRating: 0,
             imdbRating: 0,
             director: '',
@@ -34,68 +38,103 @@ const AddMovie: React.FC = () => {
         }
     });
 
-    const onSubmit = async (data: CreateMovie) => {
-        setLoading(true);
-        setError(null);
+    useEffect(() => {
+        if (isEditMode && id) {
+            loadMovieData(id);
+        }
+    }, [isEditMode, id]);
+
+    const loadMovieData = async (movieId: string) => {
+        setIsFetching(true);
         try {
-            let formattedGenreIds: number[] = [];
-            if (typeof data.genreIds === 'string') {
-                formattedGenreIds = (data.genreIds as string)
-                    .split(',')
-                    .map((s) => Number(s.trim()))
-                    .filter((n) => !isNaN(n) && n > 0);
-            } else if (Array.isArray(data.genreIds)) {
-                formattedGenreIds = data.genreIds;
+            const data = await movieApi.getMovieById(movieId);
+            
+            if (data) {
+                const rawData = data as any;
+                const formData: any = {
+                    ...rawData,
+                    releaseDate: new Date(rawData.releaseDate || Date.now()).toISOString().slice(0, 16),
+                    finishDate: new Date(rawData.finishDate || Date.now()).toISOString().slice(0, 16),
+                    genreIds: rawData.genreIds ? rawData.genreIds.join(', ') : '',
+                    actorIds: rawData.actorIds ? rawData.actorIds.join(', ') : '',
+                    studioId: Number(rawData.studioId) || 0,
+                };
+
+                methods.reset(formData);
             }
+        } catch (err) {
+            console.error("Failed to load movie", err);
+            alert("Не вдалося завантажити дані фільму");
+            navigate('/admin');
+        } finally {
+            setIsFetching(false);
+        }
+    };
 
-            let formattedActorIds: number[] = [];
-            if (typeof data.actorIds === 'string') {
-                formattedActorIds = (data.actorIds as string)
-                    .split(',')
-                    .map((s) => Number(s.trim()))
-                    .filter((n) => !isNaN(n) && n > 0);
-            } else if (Array.isArray(data.actorIds)) {
-                formattedActorIds = data.actorIds;
-            }
-
-            const payload = {
-                ...data,
-                duration: Number(data.duration),
-                ageRating: Number(data.ageRating),
-                imdbRating: Number(data.imdbRating),
-                studioId: Number(data.studioId) || 1,
-                
-                releaseDate: new Date(data.releaseDate).toISOString(),
-                finishDate: new Date(data.finishDate).toISOString(),
-
-                genreIds: formattedGenreIds,
-                actorIds: formattedActorIds
+    const onSubmit = async (data: any) => {
+        setLoading(true);
+        try {
+            const cleanIds = (val: any) => {
+                if (Array.isArray(val)) return val.map(Number);
+                if (typeof val === 'string') return val.split(',').map(s => Number(s.trim())).filter(n => !isNaN(n));
+                return [];
             };
 
-            console.log("Відправляємо дані:", payload);
+            const payload = {
+                id: Number(id),
+                studioId: Number(data.studioId),
+                titleOrg: data.titleOrg,
+                titleUkr: data.titleUkr,
+                description: data.description,
+                duration: Number(data.duration),
+                releaseDate: new Date(data.releaseDate).toISOString(),
+                finishDate: new Date(data.finishDate).toISOString(),
+                ageRating: Number(data.ageRating),
+                imdbRating: Number(data.imdbRating),
+                director: data.director,
+                country: data.country,
+                subtitles: data.subtitles === "Так" || data.subtitles === true, 
+                imageUrl: data.imageUrl,
+                trailerUrl: data.trailerUrl,
+                genreIds: cleanIds(data.genreIds),
+                actorIds: cleanIds(data.actorIds)
+            };
 
-            await movieApi.createMovie(payload);
-            
-            alert('Фільм успішно додано!');
-            navigate('/admin');
+            await movieApi.updateMovie(payload);
+            setIsSuccess(true);
+            setTimeout(() => navigate('/admin/editMoviesList'), 1500);
+
         } catch (err: any) {
-            console.error("Помилка створення фільму:", err);
-            const serverMessage = err.response?.data?.title || err.response?.data?.detail || err.message;
-            setError(typeof serverMessage === 'string' ? serverMessage : 'Помилка сервера.');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            console.error("Error 500 Details:", err.response?.data);
+            setError("Сервер відхилив дані. Перевірте формат.");
         } finally {
             setLoading(false);
         }
     };
 
-    if (loading) return <FullScreenLoader />;
+    if (isFetching) return <FullScreenLoader />;
 
     return (
         <div className="min-h-screen bg-main-dark text-white relative overflow-hidden flex flex-col font-sans">
             <BackgroundEffects />
+
+            {isSuccess && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in">
+                    <div className="bg-[#002D6E] border border-green-400/30 p-8 rounded-2xl shadow-2xl text-center">
+                        <h3 className="text-2xl font-bold text-white mb-2">Успіх!</h3>
+                        <p className="text-blue-200">
+                            {isEditMode ? 'Зміни збережено.' : 'Фільм додано.'}
+                        </p>
+                    </div>
+                </div>
+            )}
+
             <div className="grow flex items-center justify-center relative z-10 px-4 py-10">
                 <div className="w-full max-w-6xl bg-[#002D6E]/90 border border-blue-400/20 rounded-2xl p-8 md:p-12 shadow-2xl backdrop-blur-sm">
-                    <h2 className="text-3xl font-bold mb-8 text-center">Додавання нового фільму</h2>
+                    
+                    <h2 className="text-3xl font-bold mb-8 text-center">
+                        {isEditMode ? `Редагування: ${methods.getValues('titleUkr') || 'Фільм'}` : 'Додавання нового фільму'}
+                    </h2>
 
                     {error && (
                         <div className="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-center">
@@ -105,9 +144,8 @@ const AddMovie: React.FC = () => {
 
                     <FormProvider {...methods}>
                         <form onSubmit={methods.handleSubmit(onSubmit)}>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
-                                <MovieGeneralInfo />
-                                <MovieDetailsInfo />
+                            <div className="w-full">
+                                <MovieFormFields />
                             </div>
 
                             <div className="flex justify-end mt-8 pt-6 border-t border-blue-400/30 gap-4">
@@ -120,16 +158,18 @@ const AddMovie: React.FC = () => {
                                 </button>
                                 
                                 <button 
-                                    id="btn-save-movie"
                                     type="submit" 
-                                    disabled={loading}
-                                    className="w-full md:w-auto px-12 py-3 bg-[#0041C4] hover:bg-[#0035A0] disabled:bg-gray-600 text-white rounded-lg font-bold shadow-lg shadow-blue-900/50 transition-all active:scale-95 cursor-pointer flex items-center justify-center"
+                                    disabled={loading || isSuccess}
+                                    className="w-full md:w-auto px-12 py-3 bg-[#0041C4] hover:bg-[#0035A0] disabled:bg-gray-600 text-white rounded-lg font-bold shadow-lg transition-all active:scale-95 cursor-pointer flex items-center justify-center"
                                 >
-                                    {loading ? <FullScreenLoader /> : 'Підтвердити'}
+                                    {loading ? <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" /> : (
+                                        isEditMode ? 'Зберегти зміни' : 'Підтвердити'
+                                    )}
                                 </button>
                             </div>
                         </form>
                     </FormProvider>
+
                 </div>
             </div>
         </div>

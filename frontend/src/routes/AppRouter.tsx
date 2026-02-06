@@ -47,9 +47,10 @@ const AppRoutes: React.FC = () => {
                 <Route path="/admin" element={<AdminPanel/>} />
                 <Route path="/admin/statistic" element={<Statistics/>} />
                 <Route path="/admin/addMovie" element={<AddMovie/>} />
+                <Route path="/admin/editMovie/:id" element={<AddMovie />} />
                 <Route path="/admin/editMoviesList" element={<EditMoviesList/>} />
                 <Route path="/admin/sessions" element={<Sessions/>} />
-                 <Route path="/admin/halls" element={<Halls/>} />
+                <Route path="/admin/halls" element={<Halls/>} />
             </Route>
 
             <Route path="/forbidden" element={<Forbidden />} />
