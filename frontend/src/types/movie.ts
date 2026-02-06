@@ -4,7 +4,7 @@ export interface IMovie {
     poster: string;
     ageRating: string;
     hall?: string;
-    sessions?: { id: number; time: string }[];
+    sessions?: Session[];
     genres?: string[];
     duration?: number;
     year?: number;
@@ -22,6 +22,14 @@ export interface IMovieDetails extends IMovie {
     description: string;
     schedule: IMovieScheduleItem[];
     trailerUrl: string;
+    status: string;
+    imageUrl: string;
+
+}
+
+export interface MovieCardProps {
+    movie: IMovie;
+    isBlurred?: boolean;
 }
 
 export interface MoviePreviewProps {

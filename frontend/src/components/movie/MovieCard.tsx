@@ -1,7 +1,7 @@
 import React from "react";
-import {useMovieNavigation} from "@/hooks/useMovieNavigation";
-import type {MovieCardProps} from "@/types/movie";
 import {formatHallFormat} from "@/utils/formatters.ts";
+import {useMovieNavigation} from "@/hooks/movies/useMovieNavigation.ts";
+import type {MovieCardProps} from "@/types/movie.ts";
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/300x450/1e293b/ffffff?text=Постер+відсутній";
 
@@ -55,7 +55,7 @@ const MovieCard: React.FC<MovieCardProps> = ({movie, isBlurred}) => {
                                 <button
                                     key={session.id}
                                     onClick={(e) => handleBookingClick(e, session.id)}
-                                    className="flex flex-col items-center bg-[#0545BB] hover:bg-[#032d7b] text-white p-2 rounded-xl transition-all duration-300 shadow-md active:scale-95 min-w-[70px] border border-white/10"
+                                    className="flex flex-col items-center bg-[#0545BB] hover:bg-[#032d7b] text-white p-2 rounded-xl transition-all duration-300 shadow-md active:scale-95 min-w-17.5 border border-white/10"
                                 >
                                     <span className="text-[14px] font-black">{session.time}</span>
                                     <span className="text-[8px] uppercase opacity-80 whitespace-nowrap">
