@@ -1,11 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import MovieCard from '@/components/movie/MovieCard';
 import FilterSidebar from '@/components/filters/FilterSidebar';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import LoadingSpinner from '@/components/loader/LoadingSpinner';
 import {movieApi} from '@/api/movieApi';
 import {filterApi, type IFilterItem} from '@/api/filterApi';
 import type {IMovie} from '@/types/movie';
-import FullScreenLoader from '@/components/ui/FullScreenLoader';
+import FullScreenLoader from '@/components/loader/FullScreenLoader';
 
 const Home: React.FC = () => {
     const [selectedGenres, setSelectedGenres] = useState<number[]>([]);

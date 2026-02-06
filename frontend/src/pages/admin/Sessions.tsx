@@ -1,11 +1,10 @@
 import React from 'react';
-import HeaderAdmin from '../components/layout/HeaderAdmin';
-import BackgroundEffects from '../components/ui/BackgroundEffects';
-import DeleteModal from '../components/ui/DeleteModal';
-import SessionModal from '../components/ui/SessionModal';
-import SessionsTable from '../components/sessions/SessionsTable';
-import { useSessions } from '../hooks/useSessions';
-import { MOVIES_LIST, HALLS_LIST } from '../types/session';
+import BackgroundEffects from '@/components/ui/BackgroundEffects';
+import DeleteModal from '@/components/ui/DeleteModal';
+import SessionModal from '@/components/session/SessionModal';
+import SessionsTable from '@/components/sessions/SessionsTable';
+import { useSessions } from '@/hooks/useSessions';
+import { MOVIES_LIST, HALLS_LIST } from '@/types/session';
 
 const Sessions: React.FC = () => {
   const {
@@ -19,8 +18,6 @@ const Sessions: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-main-dark text-white relative overflow-hidden flex flex-col font-sans">
-        <HeaderAdmin />
-
         <BackgroundEffects />
 
         <SessionModal 
@@ -40,7 +37,7 @@ const Sessions: React.FC = () => {
             onCancel={() => setIsDeleteModalOpen(false)}
         />
 
-        <div className="flex-grow flex flex-col items-center relative z-10 px-4 py-10">
+        <div className="grow flex flex-col items-center relative z-10 px-4 py-10">
             <div className="w-full max-w-6xl">
                 
                 <h1 className="text-3xl font-bold text-white mb-8 text-center">Керування Сеансами</h1>

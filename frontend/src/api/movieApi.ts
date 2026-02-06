@@ -1,5 +1,5 @@
 import axiosClient from './axiosClient';
-import type {IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem, Session} from '@/types/movie';
+import type {IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem, Session, CreateMovie} from '@/types/movie';
 import {parseBackendError} from '@/utils/errorUtils';
 
 interface SessionDto {
@@ -222,6 +222,14 @@ export const movieApi = {
             const errorMessage = parseBackendError(error.response?.data);
             console.error('Failed to fetch movie details:', errorMessage);
             return null;
+        }
+    },
+
+    createMovie: async (movieData: CreateMovie): Promise<void> => {
+        try {
+            await axiosClient.post('/movie', movieData);
+        } catch (error: any) {
+            throw parseBackendError(error.response?.data);
         }
     }
 };

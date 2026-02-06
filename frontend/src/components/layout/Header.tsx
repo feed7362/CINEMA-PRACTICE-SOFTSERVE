@@ -3,10 +3,18 @@ import { NavLink, Link } from 'react-router-dom';
 import BaseButton from '@/components/ui/BaseButton';
 import UserIcon from '@/assets/icons/UserIcon';
 import logo from "@/assets/images/logo.png";
+import { isAdmin } from '@/utils/authUtils'; 
 
 const Header: React.FC = () => {
+  const userIsAdmin = isAdmin();
+
+  const baseLinkStyles = "transition-colors duration-200 text-2xl font-normal";
+
   const navLinkClasses = ({ isActive }: { isActive: boolean }) =>
-    `transition-colors duration-200 text-2xl font-normal ${isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'}`;
+    `${baseLinkStyles} ${isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'}`;
+
+  const adminLinkClasses = ({ isActive }: { isActive: boolean }) =>
+    `${baseLinkStyles} ml-4 ${isActive ? 'text-blue-400' : 'text-blue-600 hover:text-blue-400'}`;
 
   return (
     <header className="w-full bg-[#020617] border-b border-white/5 py-4 px-6 sticky top-0 z-50 backdrop-blur-md">
@@ -21,6 +29,12 @@ const Header: React.FC = () => {
           <NavLink to="/soon" className={navLinkClasses}>Скоро у кіно</NavLink>
           <NavLink to="/shares" className={navLinkClasses}>Акції</NavLink>
           <NavLink to="/contacts" className={navLinkClasses}>Контакти</NavLink>
+
+          {userIsAdmin && (
+             <NavLink to="/admin" className={adminLinkClasses}>
+               Адмін панель
+             </NavLink>
+          )}
         </nav>
         
         <div className="flex items-center gap-4">

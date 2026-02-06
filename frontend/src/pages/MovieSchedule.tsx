@@ -1,7 +1,7 @@
 import React from 'react';
 import DateSelector from '@/components/schedule/DateSelector';
 import ScheduleMovieCard from '@/components/schedule/ScheduleMovieCard';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import LoadingSpinner from '@/components/loader/LoadingSpinner';
 import { useMovieSchedule } from '@/hooks/movies/useMovieSchedule';
 
 const MovieSchedule: React.FC = () => {

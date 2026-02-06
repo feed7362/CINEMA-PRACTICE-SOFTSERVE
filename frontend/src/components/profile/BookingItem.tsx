@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import BaseButton from '@/components/ui/BaseButton';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import LoadingSpinner from '@/components/loader/LoadingSpinner';
 import { getBookingDetails } from '@/api/profileApi';
 import type { BookingSummary, TicketDetail } from '@/types/booking';
 

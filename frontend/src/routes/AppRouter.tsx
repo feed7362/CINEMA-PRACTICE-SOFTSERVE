@@ -13,8 +13,13 @@ import Contacts from '@/pages/Contacts';
 import Booking from "@/pages/Booking";
 import Checkout from "@/pages/Checkout";
 import TicketSuccess from "@/pages/TicketSuccess";
-import Admin from '@/pages/Admin';
+import AdminPanel from '@/pages/admin/AdminPanel';
 import Forbidden from '@/pages/Forbidden';
+import AddMovie from '@/pages/admin/AddMovie';
+import EditMoviesList from '@/pages/admin/EditMoviesList';
+import Sessions from '@/pages/admin/Sessions';
+import Statistics from '@/pages/admin/Statistics';
+import Halls from '@/pages/Halls';
 
 import ProtectedRoute from '@/components/ProtectedRoute';
 
@@ -39,7 +44,12 @@ const AppRoutes: React.FC = () => {
             <Route path="/profile" element={<Profile/>} />
 
             <Route element={<ProtectedRoute />}>
-                <Route path="/admin" element={<Admin/>} />
+                <Route path="/admin" element={<AdminPanel/>} />
+                <Route path="/admin/statistic" element={<Statistics/>} />
+                <Route path="/admin/addMovie" element={<AddMovie/>} />
+                <Route path="/admin/editMoviesList" element={<EditMoviesList/>} />
+                <Route path="/admin/sessions" element={<Sessions/>} />
+                 <Route path="/admin/halls" element={<Halls/>} />
             </Route>
 
             <Route path="/forbidden" element={<Forbidden />} />

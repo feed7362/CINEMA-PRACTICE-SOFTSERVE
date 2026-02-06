@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import BaseButton from '@/components/ui/BaseButton';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import LoadingSpinner from '@/components/loader/LoadingSpinner';
 import { useBooking } from '@/hooks/useBooking';
 import type { Seat } from '@/types/booking';
 

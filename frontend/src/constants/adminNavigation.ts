@@ -10,13 +10,13 @@ export const ADMIN_DASHBOARD_CARDS: AdminDashboardCard[] = [
     title: "Фільми", 
     description: "Додавання фільмів та іншої інформації", 
     buttonText: "Додати", 
-    link: "/admin/add-movie" 
+    link: "/admin/addMovie" 
   },
   { 
     title: "Редагування фільмів", 
     description: "Редагування інформації фільмів", 
     buttonText: "Редагування", 
-    link: "/admin/edit-movies" 
+    link: "/admin/editMoviesList" 
   },
   { 
     title: "Зали", 
@@ -28,7 +28,7 @@ export const ADMIN_DASHBOARD_CARDS: AdminDashboardCard[] = [
     title: "Статистика заробітку", 
     description: "Перегляд фінансової статистики", 
     buttonText: "Переглянути", 
-    link: "/admin/stats" 
+    link: "/admin/statistic" 
   },
   { 
     title: "Сеанси", 

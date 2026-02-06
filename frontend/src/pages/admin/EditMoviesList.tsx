@@ -1,9 +1,8 @@
 import React from 'react';
-import HeaderAdmin from '../components/layout/HeaderAdmin';
-import BackgroundEffects from '../components/ui/BackgroundEffects';
-import DeleteModal from '../components/ui/DeleteModal';
-import MoviesTable from '../components/Editmovie/MoviesTable';
-import { useMoviesList } from '../hooks/useMoviesList';
+import BackgroundEffects from '@/components/ui/BackgroundEffects';
+import DeleteModal from '@/components/ui/DeleteModal';
+import MoviesTable from '@/components/editmovie/MoviesTable';
+import { useMoviesList } from '@/hooks/useMoviesList';
 
 const EditMoviesList: React.FC = () => {
   const {
@@ -18,7 +17,6 @@ const EditMoviesList: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-main-dark text-white relative overflow-hidden flex flex-col font-sans">
-        <HeaderAdmin />
         <BackgroundEffects />
 
         <DeleteModal 
@@ -29,7 +27,7 @@ const EditMoviesList: React.FC = () => {
             onCancel={cancelDelete}
         />
 
-        <div className="flex-grow flex flex-col items-center relative z-10 px-4 py-10">
+        <div className="grow flex flex-col items-center relative z-10 px-4 py-10">
             <div className="w-full max-w-6xl">
                 
                 <div className="flex flex-col md:flex-row items-center gap-6 mb-8">

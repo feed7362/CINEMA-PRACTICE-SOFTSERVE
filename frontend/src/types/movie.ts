@@ -1,15 +1,37 @@
 export interface IMovie {
-    id: string | number;
+    id: number | string;
     title: string;
     poster: string;
     ageRating: string;
-    sessions?: Session[];
     hall?: string;
+    sessions?: { id: number; time: string }[];
+    genres?: string[];
+    duration?: number;
+    year?: number;
+    rating?: number;
 }
 
-export interface MovieCardProps {
-    movie: IMovie;
-    isBlurred?: boolean;
+export interface IMovieDetails extends IMovie {
+    originalTitle: string;
+    director: string;
+    country: string;
+    genre: string;
+    language: string;
+    subtitles: string;
+    cast: string[];
+    description: string;
+    schedule: IMovieScheduleItem[];
+    trailerUrl: string;
+}
+
+export interface MoviePreviewProps {
+    id: number | string;
+    title: string;
+    poster: string;
+    ageRating: string;
+    releaseDate: string;
+    isBlurred: boolean;
+    rating: number;
 }
 
 export interface Session {
@@ -17,35 +39,26 @@ export interface Session {
     time: string;
 }
 
-export interface MoviePreviewProps {
-    id: string | number;
-    title: string;
-    poster: string;
-    releaseDate: string;
-    ageRating: string;
-    isBlurred?: boolean;
-}
-
 export interface IMovieScheduleItem {
     date: string;
     sessions: Session[];
 }
 
-export interface IMovieDetails {
-    id: string | number;
-    title: string;
-    poster: string;
-    ageRating: string;
-    originalTitle: string;
-    director: string;
-    year: number | string;
-    country: string;
-    genre: string;
-    rating: number | string;
-    language: string;
-    subtitles: string;
-    cast: string[];
+export interface CreateMovie {
+    studioId: number;
+    titleOrg: string;
+    titleUkr: string;
     description: string;
-    schedule?: IMovieScheduleItem[];
-    trailerUrl?: string;
+    duration: number;
+    releaseDate: string; 
+    finishDate: string; 
+    ageRating: number;
+    imdbRating: number;
+    director: string;
+    country: string;
+    subtitles: boolean;
+    imageUrl: string;
+    trailerUrl: string;
+    genreIds: number[];
+    actorIds: number[];
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import AdminInput from './AdminInput';
-import AdminSelect from './AdminSelect';
+import AdminInput from '../admin/AdminInput';
+import AdminSelect from '../admin/AdminSelect';
 
 interface Option {
   value: string;

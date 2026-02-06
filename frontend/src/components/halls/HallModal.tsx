@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { type Hall } from '../../types/hall';
-import AdminInput from './AdminInput';
+import AdminInput from '../admin/AdminInput';
 
 interface HallModalProps {
   isOpen: boolean;
@@ -91,7 +91,7 @@ const HallModal: React.FC<HallModalProps> = ({ isOpen, onClose, onSave, initialD
               Клікніть на ряд, щоб зробити його Premium (Фіолетовим)
             </label>
             
-            <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="flex flex-col gap-2 max-h-50 overflow-y-auto pr-2 custom-scrollbar">
               {rows > 0 ? (
                 Array.from({ length: rows }, (_, i) => i + 1).map((rowNum) => {
                   const isPremium = premiumRows.includes(rowNum);

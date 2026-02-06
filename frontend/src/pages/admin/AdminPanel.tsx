@@ -1,18 +1,14 @@
 import React from 'react';
-import HeaderAdmin from '../components/layout/HeaderAdmin';
-import DashboardCard from '../components/admin/DashboardCard';
-import BackgroundEffects from '../components/ui/BackgroundEffects'; 
-import { ADMIN_DASHBOARD_CARDS } from '../constants/adminNavigation';
+import DashboardCard from '@/components/admin/DashboardCard';
+import BackgroundEffects from '@/components/ui/BackgroundEffects'; 
+import { ADMIN_DASHBOARD_CARDS } from '@/constants/adminNavigation';
 
-const Admin: React.FC = () => {
+const AdminPanel: React.FC = () => {
   return (
-    <div className="min-h-screen bg-main-dark text-white relative overflow-hidden flex flex-col font-sans">
-        
-        <HeaderAdmin />
-
+    <div className="w-full bg-main-dark text-white relative overflow-hidden flex flex-col font-sans">
         <BackgroundEffects />
 
-        <div className="flex-grow flex flex-col items-center justify-start relative z-10 px-6 pt-10 pb-20">
+        <div className="grow flex flex-col items-center justify-start relative z-10 px-6 pt-10 pb-10">
             
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-16 text-center drop-shadow-lg">
                 Панель адміністратора
@@ -34,4 +30,4 @@ const Admin: React.FC = () => {
   );
 };
 
-export default Admin;
+export default AdminPanel;

@@ -1,5 +1,5 @@
 import React from 'react';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import LoadingSpinner from '@/components/loader/LoadingSpinner';
 
 const FullScreenLoader: React.FC = () => {
   return (

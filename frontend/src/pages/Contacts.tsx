@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ContactForm from '@/components/contacts/ContactForm';
 import ContactInfo from '@/components/contacts/ContactInfo';
 import ContactMap from '@/components/contacts/ContactMap';
-import FullScreenLoader from '@/components/ui/FullScreenLoader';
+import FullScreenLoader from '@/components/loader/FullScreenLoader';
 
 const Contacts: React.FC = () => {
   const [loading, setLoading] = useState(true);

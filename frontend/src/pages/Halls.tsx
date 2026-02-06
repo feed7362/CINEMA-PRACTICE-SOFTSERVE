@@ -1,10 +1,9 @@
 import React from 'react';
-import HeaderAdmin from '../components/layout/HeaderAdmin';
-import BackgroundEffects from '../components/ui/BackgroundEffects';
-import DeleteModal from '../components/ui/DeleteModal';
-import HallModal from '../components/ui/HallModal';
-import HallsTable from '../components/halls/HallsTable'; 
-import { useHalls } from '../hooks/useHalls';
+import BackgroundEffects from '@/components/ui/BackgroundEffects';
+import DeleteModal from '@/components/ui/DeleteModal';
+import HallModal from '@/components/halls/HallModal';
+import HallsTable from '@/components/halls/HallsTable'; 
+import { useHalls } from '@/hooks/useHalls';
 
 const Halls: React.FC = () => {
   const { 
@@ -15,10 +14,9 @@ const Halls: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-main-dark text-white relative overflow-hidden flex flex-col font-sans">
-        <HeaderAdmin />
         <BackgroundEffects />
 
-        <div className="flex-grow flex flex-col items-center relative z-10 px-4 py-10">
+        <div className="grow flex flex-col items-center relative z-10 px-4 py-10">
             <div className="w-full max-w-5xl">
                 
                 <div className="flex flex-col items-center mb-10">

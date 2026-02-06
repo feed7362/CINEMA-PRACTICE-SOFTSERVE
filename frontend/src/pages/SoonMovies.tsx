@@ -1,7 +1,7 @@
 import React from 'react';
 import MoviePreviewCard from '@/components/movie/MoviePreviewCard';
 import { useComingSoonMovies } from '@/hooks/useComingSoonMovies';
-import FullScreenLoader from '@/components/ui/FullScreenLoader';
+import FullScreenLoader from '@/components/loader/FullScreenLoader';
 
 const SoonMovies: React.FC = () => {
   const { movies, loading, error } = useComingSoonMovies();
