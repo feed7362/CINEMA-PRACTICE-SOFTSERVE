@@ -309,6 +309,11 @@ public class BookingService(
     
         if (booking.Status == BookingStatus.CANCELED)
             throw new InvalidOperationException("This booking has already been refunded.");
+        
+        if (string.IsNullOrEmpty(booking.PaymentIntentId))
+        {
+            throw new InvalidOperationException("This booking does not have an associated payment to refund.");
+        }
 
         var refundOptions = new RefundCreateOptions 
         { 
@@ -316,17 +321,27 @@ public class BookingService(
         };
     
         var refundService = new RefundService();
-        var refund = await refundService.CreateAsync(refundOptions);
 
-        booking.Status = BookingStatus.CANCELED;
-        await bookingRepository.UpdateAsync(booking);
+        try
+        {
+            var refund = await refundService.CreateAsync(refundOptions);
 
-        return new RefundResponseDto(
-            booking.Id,
-            booking.Status.ToString(),
-            refund.Id,
-            (decimal)refund.Amount / 100,
-            DateTime.UtcNow
-        );
+            booking.Status = BookingStatus.CANCELED;
+            await bookingRepository.UpdateAsync(booking);
+
+            return new RefundResponseDto(
+                booking.Id,
+                booking.Status.ToString(),
+                refund.Id,
+                (decimal)refund.Amount / 100,
+                DateTime.UtcNow
+            );
+        }
+        catch (StripeException ex)
+        {
+            throw new InvalidOperationException($"Stripe error: {ex.Message}");
+        }
+
+        
     }
 }
