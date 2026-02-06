@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import api from "@/api/axiosClient.ts";
-import type {BookingResponseDto, LockBookingPayload, Seat} from "@/types/booking.ts";
+import type {BookingResponse, LockBookingPayload, Seat} from "@/types/booking.ts";
 import {parseBackendError} from "@/utils/errorUtils.ts";
 
 const SeatSelection: React.FC = () => {
@@ -37,7 +37,7 @@ const SeatSelection: React.FC = () => {
         };
 
         try {
-            const response = await api.post<BookingResponseDto>('/booking/lock', payload);
+            const response = await api.post<BookingResponse>('/booking/lock', payload);
 
             navigate('/checkout', {state: response.data});
         } catch (err: any) {
