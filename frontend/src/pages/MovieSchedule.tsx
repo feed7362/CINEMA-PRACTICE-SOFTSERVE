@@ -22,14 +22,14 @@ const MovieSchedule: React.FC = () => {
                 />
 
                 {loading ? (
-                    <div className="flex justify-center py-20">
-                        <LoadingSpinner />
-                    </div>
+                <div className="flex justify-center py-20">
+                    <LoadingSpinner />
+                </div>
                 ) : error ? (
                     <div className="text-center text-red-500 text-xl py-10 bg-red-500/10 rounded-xl mt-4 border border-red-500/20">
                         {error}
                     </div>
-                )}
+                ) : null}
 
                 {!loading && !error && (
                     <>

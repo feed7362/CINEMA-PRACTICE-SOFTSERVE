@@ -1,5 +1,5 @@
 import React from "react";
-import {useMovieNavigation} from "@/hooks/useMovieNavigation";
+import {useMovieNavigation} from "@/hooks/movies/useMovieNavigation";
 import type {MovieCardProps} from "@/types/movie";
 import {formatHallFormat} from "@/utils/formatters.ts";
 
