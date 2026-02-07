@@ -52,7 +52,7 @@ namespace Backend.Services.Services
 
         public async Task<ReadMovieDto?> UpdateMovieAsync(UpdateMovieDto dto)
         {
-            var spec = new ById(dto.Id);
+            var spec = new MovieById(dto.Id);
             var movie = await movieRepository.GetFirstBySpecAsync(spec);
             if (movie == null) return null;
 
@@ -96,7 +96,7 @@ namespace Backend.Services.Services
 
         public async Task<ReadMovieDto?> GetMovieByIdAsync(int id)
         {
-            var spec = new ById(id);
+            var spec = new MovieById(id);
             var movie = await movieRepository.GetFirstBySpecAsync(spec);
 
             return movie == null ? null : MapToDto(movie);
@@ -107,10 +107,10 @@ namespace Backend.Services.Services
                 MovieFilterDto filter
             )
         {
-            var filterSpec = new MovieSearchFilterSpec(filter);
+            var filterSpec = new MoviesByFilterSpec(filter);
             var totalCount = await movieRepository.CountAsync(filterSpec);
 
-            var pagedSpec = new MovieSearchPagedSpec(filter);
+            var pagedSpec = new MoviesByFilterPagedSpec(filter);
             var movies = await movieRepository.GetListBySpecAsync(pagedSpec);
 
             var items = movies.Select(MapToDto).ToList();

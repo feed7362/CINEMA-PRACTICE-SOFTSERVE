@@ -31,7 +31,10 @@ public class BookingService(
         try
         {
             var activeTickets = await ticketRepository.GetListBySpecAsync(
-                new GetActiveTicketsForSeatsSpec(dto.SessionId, dto.SeatIds));
+                new ActiveTicketsForSeatsBySessionIdSpec(
+                    dto.SessionId, 
+                    dto.SeatIds)
+                );
 
             if (activeTickets.Count != 0)
             {
@@ -221,7 +224,7 @@ public class BookingService(
         )
     {
         var booking = await bookingRepository.GetFirstBySpecAsync(
-            new BookingByUserIdAndUserId(bookingId, userId));
+            new BookingByIdAndUserId(bookingId, userId));
 
         if (booking == null) return null;
 
@@ -263,11 +266,11 @@ public class BookingService(
             int pageSize
         )
     {
-        var filterSpec = new UserBookingHistorySpec(userId);
+        var filterSpec = new BookingsByUserIdSpec(userId);
 
         var totalCount = await bookingRepository.CountAsync(filterSpec);
 
-        var pagedSpec = new UserBookingPagedSpec(userId, page, pageSize);
+        var pagedSpec = new BookingsByUserIdPagedSpec(userId, page, pageSize);
         var bookings = await bookingRepository.GetListBySpecAsync(pagedSpec);
 
         var items = bookings.Select(b => new BookingSummaryDto(

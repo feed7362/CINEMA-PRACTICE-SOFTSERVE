@@ -102,7 +102,7 @@ public class SessionService(
     public async Task<ReadSessionDto?> GetSessionByIdAsync(int id)
     {
         var session = await sessionRepository.GetFirstBySpecAsync(
-                new SessionWithDetailsSpec(id)
+                new SessionWithDetailsByIdSpec(id)
             );
         return session == null ? null : MapToDto(session);
     }
@@ -110,7 +110,7 @@ public class SessionService(
     public async Task<List<ReadSessionDto>> GetAllSessionsAsync()
     {
         var sessions = await sessionRepository.GetListBySpecAsync(
-                new SessionWithDetailsSpec()
+                new SessionsWithDetailsSpec()
             );
         return sessions.Select(MapToDto).ToList();
     }
@@ -128,11 +128,11 @@ public class SessionService(
         if (session == null) throw new Exception("Session not found");
 
         var seats = await seatRepository.GetListBySpecAsync(
-            new SeatsByHallSpec(session.HallId)
+            new SeatsByHallIdSpec(session.HallId)
         );
 
         var reservedTickets = await ticketRepository.GetListBySpecAsync(
-            new GetActiveTicketsForSeatsSpec(
+            new ActiveTicketsForSeatsBySessionIdSpec(
                     sessionId, seats.Select(s => s.Id).ToList()
                 )
         );

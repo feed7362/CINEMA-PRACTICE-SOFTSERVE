@@ -22,3 +22,14 @@ public record PopularMovieDto(
     int TicketsSold, 
     decimal Revenue
 );
+
+public record PopularMovieProjection(
+    string Title,
+    decimal Price,
+    double ImdbRating,
+    string Genre,
+    string Director,
+    string Country,
+    int ReleaseYear,
+    string AgeRating
+);

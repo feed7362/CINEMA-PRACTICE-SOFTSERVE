@@ -3,7 +3,7 @@ using Backend.Domain.Interfaces;
 using Backend.Services.DTOs.Admin;
 using Backend.Services.Interfaces;
 using Backend.Services.Specifications;
-using static Backend.Services.Specifications.AdminStatsSpecification;
+using static Backend.Services.Specifications.TicketsByPerformanceSpec;
 
 namespace Backend.Services.Services;
 
@@ -30,7 +30,7 @@ public class AdminStatsService(
         };
 
         var prices = await ticketRepository.GetListBySpecAsync(
-                new TicketRevenueProjectionSpec(filter)
+                new TicketRevenueSpec(filter)
             );
 
         return prices.Sum();
@@ -38,7 +38,7 @@ public class AdminStatsService(
 
     public async Task<double> GetSessionOccupancyAsync(int sessionId)
     {
-        var spec = new AdminStatsSpecification(
+        var spec = new TicketsByPerformanceSpec(
                 new AdminStatsFilterDto(), 
                 sessionId: sessionId
             );
@@ -64,14 +64,14 @@ public class AdminStatsService(
             DateTo = Normalize(to)
         };
 
-        var spec = new SpecialTicketsCountSpec(filter, movieId);
+        var spec = new DiscountedTicketsSpec(filter, movieId);
         return await ticketRepository.CountAsync(spec);
     }
 
     public async Task<List<SeatHeatmapDto>> GetHallHeatmapAsync(int hallId)
     {
         var seats = await ticketRepository.GetListBySpecAsync(
-                new TicketSeatProjectionSpec(hallId)
+                new ConfirmedHallSeatsSpec(hallId)
             );
 
         var stats = seats
@@ -97,7 +97,7 @@ public class AdminStatsService(
         )
     {
         var data = await ticketRepository.GetListBySpecAsync(
-                new PopularMovieProjectionSpec(filter)
+                new MovieSalesAnalysisSpec(filter)
             );
 
         var result = data

@@ -3,9 +3,9 @@ using Backend.Domain.Entities;
 
 namespace Backend.Services.Specifications
 {
-    public class UserTicketsPagedSpec : Specification<Ticket>
+    public class TicketsByUserIdPagedSpec : Specification<Ticket>
     {
-        public UserTicketsPagedSpec(int userId, int page, int pageSize)
+        public TicketsByUserIdPagedSpec(int userId, int page, int pageSize)
         {
             Query
                 .Where(t => t.Booking.ApplicationUserId == userId)
@@ -22,9 +22,9 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public class TicketByIdAndUserSpec : Specification<Ticket>
+    public class TicketByIdAndUserIdSpec : Specification<Ticket>
     {
-        public TicketByIdAndUserSpec(int ticketId, int userId)
+        public TicketByIdAndUserIdSpec(int ticketId, int userId)
         {
             Query
                 .Where(t => t.Id == ticketId 
@@ -39,9 +39,9 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public class GetActiveTicketsForSeatsSpec : Specification<Ticket>
+    public class ActiveTicketsForSeatsBySessionIdSpec : Specification<Ticket>
     {
-        public GetActiveTicketsForSeatsSpec(int sessionId, List<int> seatIds)
+        public ActiveTicketsForSeatsBySessionIdSpec(int sessionId, List<int> seatIds)
         {
             Query
                 .Include(t => t.Booking)
@@ -58,9 +58,9 @@ namespace Backend.Services.Specifications
     }
     
 
-    public class ReservedSeatsBySessionSpec : Specification<Ticket>
+    public class ReservedSeatsBySessionIdSpec : Specification<Ticket>
     {
-        public ReservedSeatsBySessionSpec(int sessionId)
+        public ReservedSeatsBySessionIdSpec(int sessionId)
         {
             Query
                 .Where(t => t.Booking.SessionId == sessionId)
@@ -68,4 +68,13 @@ namespace Backend.Services.Specifications
         }
     }
 
+    public class SoldTicketsSpec : Specification<Ticket>
+    {
+        public SoldTicketsSpec()
+        {
+            Query
+                .Include(t => t.Booking)
+                .Where(t => t.Booking.Status == BookingStatus.CONFIRMED);
+        }
+    }
 }

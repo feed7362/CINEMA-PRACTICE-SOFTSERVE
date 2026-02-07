@@ -18,7 +18,7 @@ public class TicketService(
         )
     {
         var ticket = await ticketRepository.GetFirstBySpecAsync(
-                new TicketByIdAndUserSpec(ticketId, userId)
+                new TicketByIdAndUserIdSpec(ticketId, userId)
             );
 
         return ticket == null ? null : MapToTicketResponse(ticket);
@@ -35,7 +35,7 @@ public class TicketService(
         var totalCount = await ticketRepository.CountAsync(countSpec);
 
         
-        var pagedSpec = new UserTicketsPagedSpec(userId, page, pageSize);
+        var pagedSpec = new TicketsByUserIdPagedSpec(userId, page, pageSize);
         var tickets = await ticketRepository.GetListBySpecAsync(pagedSpec);
 
         

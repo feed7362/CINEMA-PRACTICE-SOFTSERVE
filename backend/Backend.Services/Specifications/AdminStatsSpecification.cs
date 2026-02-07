@@ -4,9 +4,9 @@ using Backend.Services.DTOs.Admin;
 
 namespace Backend.Services.Specifications;
 
-public class AdminStatsSpecification : Specification<Ticket>
+public class TicketsByPerformanceSpec : Specification<Ticket>
 {
-    public AdminStatsSpecification(
+    public TicketsByPerformanceSpec(
             AdminStatsFilterDto filter, 
             int? movieId = null, 
             int? sessionId = null, 
@@ -21,17 +21,17 @@ public class AdminStatsSpecification : Specification<Ticket>
                 hallId
             );
     }
-    public class TicketRevenueProjectionSpec : Specification<Ticket, decimal>
+    public class TicketRevenueSpec : Specification<Ticket, decimal>
     {
-        public TicketRevenueProjectionSpec(AdminStatsFilterDto filter)
+        public TicketRevenueSpec(AdminStatsFilterDto filter)
         {
             AdminStatsFiltering.Apply(Query, filter);
             Query.Select(t => t.FinalPrice);
         }
     }
-    public class SpecialTicketsCountSpec : Specification<Ticket>
+    public class DiscountedTicketsSpec : Specification<Ticket>
     {
-        public SpecialTicketsCountSpec(
+        public DiscountedTicketsSpec(
                 AdminStatsFilterDto filter, 
                 int? movieId = null
             )
@@ -41,21 +41,12 @@ public class AdminStatsSpecification : Specification<Ticket>
         }
     }
 
-    public record PopularMovieProjection(
-            string Title, 
-            decimal Price, 
-            double ImdbRating, 
-            string Genre,
-            string Director, 
-            string Country, 
-            int ReleaseYear, 
-            string AgeRating
-        );
+    
 
-    public class PopularMovieProjectionSpec 
+    public class MovieSalesAnalysisSpec
         : Specification<Ticket, PopularMovieProjection>
     {
-        public PopularMovieProjectionSpec(AdminStatsFilterDto filter)
+        public MovieSalesAnalysisSpec(AdminStatsFilterDto filter)
         {
             AdminStatsFiltering.Apply(Query, filter);
             Query.Select(t => new PopularMovieProjection(
@@ -73,10 +64,10 @@ public class AdminStatsSpecification : Specification<Ticket>
         }
     }
 
-    public class TicketSeatProjectionSpec 
+    public class ConfirmedHallSeatsSpec
         : Specification<Ticket, (int Row, int Number)>
     {
-        public TicketSeatProjectionSpec(int hallId)
+        public ConfirmedHallSeatsSpec(int hallId)
         {
             Query.Where(t => t.Booking.Session.HallId == hallId 
                             && t.Booking.Status == BookingStatus.CONFIRMED)

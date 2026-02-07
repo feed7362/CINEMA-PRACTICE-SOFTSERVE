@@ -3,9 +3,9 @@ using Backend.Domain.Entities;
 
 namespace Backend.Services.Specifications
 {
-    public class AuditLogsFilterSpec : Specification<AuditLog>
+    public class AuditLogsByEmailSpec : Specification<AuditLog>
     {
-        public AuditLogsFilterSpec(string? email = null)
+        public AuditLogsByEmailSpec(string? email = null)
         {
             Query.OrderByDescending(x => x.Timestamp);
 
@@ -16,18 +16,25 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public sealed class AuditLogsPagedSpec : AuditLogsFilterSpec
+    public sealed class AuditLogsByEmailPagedSpec : AuditLogsByEmailSpec
     {
-        public AuditLogsPagedSpec(int page, int pageSize, string? email = null)
+        public AuditLogsByEmailPagedSpec(
+                int page, 
+                int pageSize, 
+                string? email = null
+            )
             : base(email)
         {
             Query.Skip((page - 1) * pageSize).Take(pageSize);
         }
     }
 
-    public class ErrorLogsFilterSpec : Specification<ErrorLog>
+    public class ErrorLogsByEmailAndPathSpec : Specification<ErrorLog>
     {
-        public ErrorLogsFilterSpec(string? email = null, string? path = null)
+        public ErrorLogsByEmailAndPathSpec(
+                string? email = null, 
+                string? path = null
+            )
         {
             Query.OrderByDescending(x => x.Timestamp);
 
@@ -44,9 +51,9 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public sealed class ErrorLogsPagedSpec : ErrorLogsFilterSpec
+    public sealed class ErrorLogsByEmailAndPathPagedSpec : ErrorLogsByEmailAndPathSpec
     {
-        public ErrorLogsPagedSpec(
+        public ErrorLogsByEmailAndPathPagedSpec(
                 int page, 
                 int pageSize, 
                 string? email = null, 

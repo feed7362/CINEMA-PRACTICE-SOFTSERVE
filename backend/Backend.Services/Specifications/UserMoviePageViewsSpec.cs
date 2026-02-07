@@ -3,9 +3,9 @@ using Ardalis.Specification;
 
 namespace Backend.Services.Specifications
 {
-    public class RecentUserMovieViewsSpec : Specification<MoviePageView>
+    public class RecentMovieViewsByUserIdSpec : Specification<MoviePageView>
     {
-        public RecentUserMovieViewsSpec(int userId)
+        public RecentMovieViewsByUserIdSpec(int userId)
         {
             Query
                 .Where(v => v.UserId == userId)

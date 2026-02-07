@@ -17,8 +17,8 @@ public class AdminLogService(
             string? email = null
         )
     {
-        var filterSpec = new AuditLogsFilterSpec(email);
-        var pagedSpec = new AuditLogsPagedSpec(page, pageSize, email);
+        var filterSpec = new AuditLogsByEmailSpec(email);
+        var pagedSpec = new AuditLogsByEmailPagedSpec(page, pageSize, email);
 
         var total = await auditRepository.CountAsync(filterSpec);
         var logs = await auditRepository.GetListBySpecAsync(pagedSpec);
@@ -42,8 +42,8 @@ public class AdminLogService(
             string? path = null
         )
     {
-        var filterSpec = new ErrorLogsFilterSpec(email, path);
-        var pagedSpec = new ErrorLogsPagedSpec(page, pageSize, email, path);
+        var filterSpec = new ErrorLogsByEmailAndPathSpec(email, path);
+        var pagedSpec = new ErrorLogsByEmailAndPathPagedSpec(page, pageSize, email, path);
 
         var total = await errorRepository.CountAsync(filterSpec);
         var logs = await errorRepository.GetListBySpecAsync(pagedSpec);

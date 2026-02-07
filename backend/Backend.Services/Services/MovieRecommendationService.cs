@@ -24,7 +24,7 @@ public class MovieRecommendationService : IMovieRecommendationService
     public async Task RecordMovieViewAsync(int userId, int movieId)
     {
         var views = await _viewRepository.GetListBySpecAsync(
-                new RecentUserMovieViewsSpec(userId)
+                new RecentMovieViewsByUserIdSpec(userId)
             );
         var existingView = views.FirstOrDefault(v => v.MovieId == movieId);
 
@@ -60,7 +60,7 @@ public class MovieRecommendationService : IMovieRecommendationService
         )
     {
         var views = await _viewRepository.GetListBySpecAsync(
-                new RecentUserMovieViewsSpec(userId)
+                new RecentMovieViewsByUserIdSpec(userId)
             );
         if (!views.Any()) return new List<MovieRecommendationDto>();
 

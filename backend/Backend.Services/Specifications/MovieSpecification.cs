@@ -4,9 +4,9 @@ using Backend.Services.DTOs.Movie;
 
 namespace Backend.Services.Specifications
 {
-    public class ById : Specification<Movie>
+    public class MovieById : Specification<Movie>
     {
-        public ById(int movieId)
+        public MovieById(int movieId)
         {
             Query
                 .Where(m => m.Id == movieId)
@@ -16,9 +16,9 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public class MovieSearchPagedSpec : Specification<Movie>
+    public class MoviesByFilterPagedSpec : Specification<Movie>
     {
-        public MovieSearchPagedSpec(MovieFilterDto filter)
+        public MoviesByFilterPagedSpec(MovieFilterDto filter)
         {
             var pageNumber = filter.PageNumber.GetValueOrDefault(1);
             if (pageNumber < 1) pageNumber = 1;
@@ -41,9 +41,9 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public class MovieSearchFilterSpec : Specification<Movie>
+    public class MoviesByFilterSpec : Specification<Movie>
     {
-        public MovieSearchFilterSpec(MovieFilterDto filter)
+        public MoviesByFilterSpec(MovieFilterDto filter)
         {
             SpecificationExtensions.ApplyFiltering(Query, filter);
         }
