@@ -9,7 +9,7 @@ interface SessionsTableProps {
     getHallName: (id: number) => string;
 }
 
-const SessionsTable: React.FC<SessionsTableProps> = ({sessions, onEdit, onDelete, getMovieName, getHallName}) => {
+const SessionsTable: React.FC<SessionsTableProps> = ({sessions, onEdit, onDelete, getMovieName}) => {
 
     const formatDateTime = (isoString: string) => {
         const date = new Date(isoString);
@@ -43,7 +43,7 @@ const SessionsTable: React.FC<SessionsTableProps> = ({sessions, onEdit, onDelete
                                 {getMovieName(session.movieId)}
                             </div>
                             <div className="text-blue-200 truncate pr-4">
-                                {getHallName(session.hallId)}
+                                {session.hallName}
                             </div>
                             <div className="text-white font-bold font-mono text-lg">
                                 {time}

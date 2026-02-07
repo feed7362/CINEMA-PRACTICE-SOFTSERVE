@@ -1,5 +1,5 @@
 import axiosClient from './axiosClient';
-import type { IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem, CreateMovie } from '@/types/movie';
+import type {IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem, CreateMovie, Session} from '@/types/movie';
 import { parseBackendError } from '@/utils/errorUtils';
 
 interface SessionDto {

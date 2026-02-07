@@ -1,9 +1,9 @@
 import React from 'react';
 import BackgroundEffects from '@/components/ui/BackgroundEffects';
 import DeleteModal from '@/components/ui/DeleteModal';
-import SessionModal from '@/components/session/SessionModal';
-import SessionsTable from '@/components/sessions/SessionsTable';
 import {useSessions} from '@/hooks/useSessions';
+import SessionModal from "@/components/session/SessionModal.tsx";
+import SessionsTable from "@/components/session/SessionsTable.tsx";
 
 const Sessions: React.FC = () => {
     const {
