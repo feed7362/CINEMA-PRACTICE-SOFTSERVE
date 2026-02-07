@@ -79,6 +79,7 @@ namespace Backend.Data
                 // Skip detached and unchanged entities( method GET)
                 if (entry.Entity is AuditLog ||
                     entry.Entity is ErrorLog ||
+                    entry.Entity is MoviePageView ||
                     entry.State == EntityState.Detached ||
                     entry.State == EntityState.Unchanged)
                 {
