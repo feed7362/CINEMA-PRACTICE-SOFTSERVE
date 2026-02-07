@@ -12,76 +12,83 @@ public class MovieRecommendationService : IMovieRecommendationService
     private readonly IRepository<MoviePageView> _viewRepository;
     private readonly IRepository<Movie> _movieRepository;
 
-    public MovieRecommendationService(
-        IRepository<MoviePageView> viewRepository,
-        IRepository<Movie> movieRepository)
+    public MovieRecommendationService(IRepository<MoviePageView> viewRepository, IRepository<Movie> movieRepository)
     {
         _viewRepository = viewRepository;
         _movieRepository = movieRepository;
     }
 
+    public async Task RecordMovieViewAsync(int userId, int movieId)
+    {
+        var views = await _viewRepository.GetListBySpecAsync(new RecentUserMovieViewsSpec(userId));
+        var existingView = views.FirstOrDefault(v => v.MovieId == movieId);
+
+        if (existingView == null)
+        {
+            if (views.Count >= 10)
+            {
+                var oldest = views.Last();
+                await _viewRepository.DeleteAsync(oldest);
+            }
+
+            await _viewRepository.AddAsync(new MoviePageView
+            {
+                UserId = userId,
+                MovieId = movieId,
+                ViewCount = 1,
+                LastViewedAt = DateTime.UtcNow
+            });
+        }
+        else
+        {
+            existingView.ViewCount++;
+            existingView.LastViewedAt = DateTime.UtcNow;
+            await _viewRepository.UpdateAsync(existingView);
+        }
+
+        await _viewRepository.SaveChangesAsync();
+    }
+
     public async Task<List<MovieRecommendationDto>> GetRecommendationsForUserAsync(int userId, int top = 10)
     {
-        var views = await _viewRepository.GetListBySpecAsync(new UserMoviePageViewsSpec(userId));
+        var views = await _viewRepository.GetListBySpecAsync(new RecentUserMovieViewsSpec(userId));
+        if (!views.Any()) return new List<MovieRecommendationDto>();
 
-        if (views == null || !views.Any())
-            return new List<MovieRecommendationDto>();
-
-        var viewCounts = views.ToDictionary(v => v.MovieId, v => v.ViewCount);
-
-        var genreWeights = views
-            .Where(v => v.Movie?.MovieGenres != null)
-            .SelectMany(v => v.Movie.MovieGenres!)
+        var genreWeights = views.SelectMany(v => v.Movie.MovieGenres)
             .GroupBy(g => g.GenreId)
-            .ToDictionary(
-                g => g.Key,
-                g => g.Sum(v => viewCounts[v.MovieId])
-            );
+            .ToDictionary(g => g.Key, g => g.Count() * 2.0);
 
-        var actorWeights = views
-            .Where(v => v.Movie?.MovieActors != null)
-            .SelectMany(v => v.Movie.MovieActors!)
+        var actorWeights = views.SelectMany(v => v.Movie.MovieActors)
             .GroupBy(a => a.ActorId)
-            .ToDictionary(
-                g => g.Key,
-                g => g.Sum(v => viewCounts[v.MovieId])
-            );
+            .ToDictionary(g => g.Key, g => g.Count() * 0.5);
 
-        var allMovies = await _movieRepository.GetListBySpecAsync(
-            new MovieWithActorsAndGenresSpec()
+        var viewedMovieIds = views.Select(v => v.MovieId).ToList();
+
+        var candidates = await _movieRepository.GetListBySpecAsync(
+            new RecommendedMoviesCandidateSpec(genreWeights.Keys, actorWeights.Keys, viewedMovieIds)
         );
 
-        var ranked = allMovies
-            .Select(m => new
-            {
+        return candidates
+            .Select(m => new {
                 Movie = m,
-                Score =
-                    (m.MovieGenres?.Sum(g => genreWeights.GetValueOrDefault(g.GenreId, 0)) ?? 0) * 2.0 +
-                    (m.MovieActors?.Sum(a => actorWeights.GetValueOrDefault(a.ActorId, 0)) ?? 0) * 0.5 -
-                    (views.Any(v => v.MovieId == m.Id) ? 10 : 0)
+                Score = m.MovieGenres.Sum(g => genreWeights.GetValueOrDefault(g.GenreId, 0)) +
+                        m.MovieActors.Sum(a => actorWeights.GetValueOrDefault(a.ActorId, 0)) +
+                        (double)(m.ImdbRating ?? 0m) * 0.5
             })
             .OrderByDescending(x => x.Score)
             .Take(top)
-            .Select(x => new MovieRecommendationDto
-            {
-                Id = x.Movie.Id,
-                TitleOrg = x.Movie.TitleOrg,
-                TitleUkr = x.Movie.TitleUkr,
-                Director = x.Movie.Director,
-                ImdbRating = x.Movie.ImdbRating,
-                Actors = x.Movie.MovieActors?
-            .Where(ma => ma.Actor != null)
-            .Select(ma => ma.Actor!.Name)
-            .ToList() ?? new List<string>(),
-
-                Genres = x.Movie.MovieGenres?
-            .Where(mg => mg.Genre != null)
-            .Select(mg => mg.Genre!.Name)
-            .ToList() ?? new List<string>()
-
-            })
+            .Select(x => MapToDto(x.Movie))
             .ToList();
-
-        return ranked;
     }
+
+    private MovieRecommendationDto MapToDto(Movie m) => new()
+    {
+        Id = m.Id,
+        TitleOrg = m.TitleOrg,
+        TitleUkr = m.TitleUkr,
+        Director = m.Director,
+        ImdbRating = m.ImdbRating,
+        Genres = m.MovieGenres.Select(g => g.Genre.Name).ToList(),
+        Actors = m.MovieActors.Select(a => a.Actor.Name).ToList()
+    };
 }
