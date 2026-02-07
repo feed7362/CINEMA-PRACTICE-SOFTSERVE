@@ -1,6 +1,7 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import type {Session} from "@/types/movie.ts";
+import { PLACEHOLDER_IMAGE } from '@/constants';
 import {formatHallFormat} from "@/utils/formatters.ts";
 
 interface ScheduleMovie {
@@ -14,23 +15,21 @@ interface ScheduleMovieCardProps {
     movie: ScheduleMovie;
 }
 
-const PLACEHOLDER_IMAGE = "https://placehold.co/300x450/1e293b/ffffff?text=Постер+відсутній";
-
-const ScheduleMovieCard: React.FC<ScheduleMovieCardProps> = ({movie}) => {
-    return (
-        <div className="flex gap-6 items-start group">
-            <div className="w-45 shrink-0 rounded-xl overflow-hidden shadow-lg aspect-2/3 bg-zinc-800">
-                <Link to={`/movie/${movie.id}`} className="block w-full h-full cursor-pointer">
-                    <img
-                        src={movie.poster || PLACEHOLDER_IMAGE}
-                        alt={movie.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).src = PLACEHOLDER_IMAGE;
-                        }}
-                    />
-                </Link>
-            </div>
+const ScheduleMovieCard: React.FC<ScheduleMovieCardProps> = ({ movie }) => {
+  return (
+    <div className="flex gap-6 items-start group">
+      <div className="w-45 shrink-0 rounded-xl overflow-hidden shadow-lg aspect-2/3 bg-zinc-800">
+        <Link to={`/movie/${movie.id}`} className="block w-full h-full cursor-pointer">
+          <img 
+            src={movie.poster || PLACEHOLDER_IMAGE}
+            alt={movie.title} 
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = PLACEHOLDER_IMAGE;
+            }}
+          />
+        </Link>
+      </div>
 
             <div className="flex flex-col pt-2 w-full">
                 <h2 className="text-3xl font-bold mb-6">

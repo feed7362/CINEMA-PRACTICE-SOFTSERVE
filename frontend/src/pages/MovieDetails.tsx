@@ -1,16 +1,15 @@
 import React from 'react';
 import {useParams} from 'react-router-dom';
-import {useMovieDetails} from '@/hooks/useMovieDetails';
-import {useMovies} from '@/hooks/useMovies';
+import {useMovieDetails} from '@/hooks/movies/useMovieDetails';
+import {useMovies} from '@/hooks/movies/useMovies';
 import {useScrollToSection} from '@/hooks/useScrollToSection';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import FullScreenLoader from '@/components/loader/FullScreenLoader';
 import BaseButton from '@/components/ui/BaseButton';
 import InfoRow from '@/components/ui/InfoRow';
 import MovieSchedule from '@/components/movie/MovieSchedule';
 import MovieTrailer from '@/components/movie/MovieTrailer';
 import MovieRecommendations from '@/components/movie/MovieRecommendations';
-
-const PLACEHOLDER_IMAGE = "https://placehold.co/300x450/1e293b/ffffff?text=Постер+відсутній";
+import { PLACEHOLDER_IMAGE } from '@/constants/index';
 
 const MovieDetails: React.FC = () => {
     const {id} = useParams<{ id: string }>();
@@ -19,13 +18,7 @@ const MovieDetails: React.FC = () => {
 
     const {ref: playerRef, scrollTo: scrollToTrailer} = useScrollToSection();
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-[#020617]">
-                <LoadingSpinner/>
-            </div>
-        );
-    }
+   if (loading) return <FullScreenLoader />;
 
     if (!movie) {
         return (
@@ -76,10 +69,10 @@ const MovieDetails: React.FC = () => {
                             <InfoRow label="Вікові обмеження" value={movie.ageRating}/>
                             <InfoRow label="Оригінальна назва" value={movie.originalTitle}/>
                             <InfoRow label="Режисер" value={movie.director}/>
-                            <InfoRow label="Рік" value={movie.year}/>
+                            <InfoRow label="Рік" value={movie.year || "Невідомо"}/>
                             <InfoRow label="Країна" value={movie.country}/>
-                            <InfoRow label="Жанр"
-                                     value={Array.isArray(movie.genre) ? movie.genre.join(', ') : movie.genre}/>                            <InfoRow label="Рейтинг" value={movie.rating}/>
+                            <InfoRow label="Жанр" value={Array.isArray(movie.genre) ? movie.genre.join(', ') : movie.genre}/>                        
+                            <InfoRow label="Рейтинг" value={movie.rating || 0}/>
                             <InfoRow label="Мова" value={movie.language}/>
                             <InfoRow label="Субтитри" value={movie.subtitles}/>
                             <InfoRow label="У головних ролях"

@@ -15,7 +15,7 @@ const BaseButton: React.FC<Props> = ({
                                          type = "button",
                                          disabled = false
                                      }) => {
-    const baseStyles = `relative overflow-hidden transition-all duration-500 bg-gradient-to-tr from-[#0753E0] to-[#032D7B] flex items-center justify-center text-white
+    const baseStyles = `relative overflow-hidden transition-all duration-500 bg-gradient-to-tr from-[#0753E0] to-[#032D7B] flex items-center justify-center text-white px-6 py-3 rounded-xl
     ${disabled
         ? 'opacity-50 cursor-not-allowed'
         : 'hover:from-[#032D7B] hover:to-[#0753E0] active:scale-95'

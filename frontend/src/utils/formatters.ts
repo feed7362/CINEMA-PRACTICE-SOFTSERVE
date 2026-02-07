@@ -1,33 +1,16 @@
-﻿export const formatHallFormat = (format: string | undefined | null): string => {
-    if (!format) return "2D";
-
-    const formatMap: Record<string, string> = {
-        '_3D': '3D',
-        'IMAX': 'IMAX',
-        'REGULAR': '2D',
-        'VIP': 'VIP'
-    };
-
-    const cleanFormat = format.toUpperCase();
-
-    return formatMap[cleanFormat] || cleanFormat;
+export const HALL_FORMAT_MAP: Record<string, { label: string; id: number }> = {
+    'REGULAR': { label: '2D', id: 0 },
+    'IMAX':    { label: 'IMAX', id: 1 },
+    '_3D':     { label: '3D', id: 2 },
 };
 
-export const formatSessionInfo = (startTime: string, rawFormat: string) => {
-    const date = new Date(startTime);
+export const formatHallFormat = (format: string | undefined | null): string => {
+    if (!format) return "2D";
+    const cleanFormat = format.toUpperCase();
+    return HALL_FORMAT_MAP[cleanFormat]?.label || cleanFormat;
+};
 
-    const time = date.toLocaleTimeString('uk-UA', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-
-    const formatMap: Record<string, string> = {
-        '_3D': '3D',
-        '_12PLUS': '12+',
-        'REGULAR': '2D'
-    };
-
-    const cleanFormat = formatMap[rawFormat.toUpperCase()] || rawFormat;
-
-    return {time, cleanFormat};
+export const getFormatId = (formatStr: string | undefined): number => {
+    if (!formatStr) return 0;
+    return HALL_FORMAT_MAP[formatStr.toUpperCase()]?.id ?? 0;
 };
