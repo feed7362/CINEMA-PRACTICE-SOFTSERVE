@@ -11,7 +11,9 @@ namespace Backend.Domain.Interfaces
         Task<TEntity?> GetByIdAsync(int? id);
         void Insert(TEntity entity);
 
-        IEnumerable<TEntity> GetListBySpec(ISpecification<TEntity> specification);
+        IEnumerable<TEntity> GetListBySpec(
+                ISpecification<TEntity> specification
+            );
         TEntity? GetFirstBySpec(ISpecification<TEntity> specification);
         
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
@@ -27,11 +29,19 @@ namespace Backend.Domain.Interfaces
         Task<List<TEntity>> GetListBySpecAsync(ISpecification<TEntity> spec);
 
         // for projections
-        Task<TResult> GetBySpecAsync<TResult>(ISpecification<TEntity, TResult> specification);
-        Task<List<TResult>> GetListBySpecAsync<TResult>(ISpecification<TEntity, TResult> specification);
+        Task<TResult> GetBySpecAsync<TResult>(
+                ISpecification<TEntity, 
+                TResult> specification
+            );
+        Task<List<TResult>> GetListBySpecAsync<TResult>(
+                ISpecification<TEntity, 
+                TResult> specification
+            );
 
         Task<int> CountAsync(ISpecification<TEntity> spec);
 
-        Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel);
+        Task<IDbContextTransaction> BeginTransactionAsync(
+                IsolationLevel isolationLevel
+            );
     }
 }
