@@ -31,12 +31,29 @@ internal static class MovieEndpoints
 
         group.MapGet("/{id:int}", async (
                 int id,
-                IMovieService movieService) =>
+                ClaimsPrincipal user,
+                IMovieService movieService,
+                IMovieRecommendationService recommendationService,
+                bool recordView = false) =>
             {
                 var movie = await movieService.GetMovieByIdAsync(id);
-                return movie is null
-                    ? Results.NotFound()
-                    : Results.Ok(movie);
+                if (movie is null) return Results.NotFound();
+
+                if (recordView)
+                {
+                    var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (userIdClaim != null)
+                    {
+                        var userId = int.Parse(userIdClaim);
+
+                        if (!user.IsInRole("Admin"))
+                        {
+                            await recommendationService.RecordMovieViewAsync(userId, id);
+                        }
+                    }
+                }
+
+                return Results.Ok(movie);
             })
             .WithName("GetMovieById")
             .WithSummary("Get Movie by Id");
