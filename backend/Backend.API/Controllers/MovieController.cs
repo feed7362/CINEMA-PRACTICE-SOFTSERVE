@@ -48,7 +48,10 @@ internal static class MovieEndpoints
 
                         if (!user.IsInRole("Admin"))
                         {
-                            await recommendationService.RecordMovieViewAsync(userId, id);
+                            await recommendationService.RecordMovieViewAsync(
+                                userId, 
+                                id
+                            );
                         }
                     }
                 }
@@ -89,8 +92,8 @@ internal static class MovieEndpoints
                 int id,
                 IMovieService movieService) =>
             {
-                await movieService.DeleteMovieAsync(id);
-                return Results.NoContent();
+                var movie = await movieService.DeleteMovieAsync(id);
+                return Results.Ok(movie);
             })
             .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteMovie")
@@ -101,11 +104,13 @@ internal static class MovieEndpoints
                 IMovieRecommendationService recommendationService) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var recommendations = await recommendationService.GetRecommendationsForUserAsync(userId);
+            var recommendations = await recommendationService
+                                            .GetRecommendationsForUserAsync(userId);
             return Results.Ok(recommendations);
         })
             .RequireAuthorization()
             .WithName("GetUserRecommendations")
-            .WithSummary("Get personalized movie recommendations for the logged-in user");
+            .WithSummary("Get personalized movie recommendations for " +
+            "the logged-in user");
     }
 }

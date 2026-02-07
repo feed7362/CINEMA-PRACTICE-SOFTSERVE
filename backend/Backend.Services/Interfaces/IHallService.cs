@@ -12,5 +12,5 @@ public interface IHallService
 
     Task<List<ReadHallDto>> GetAllHallsAsync();
 
-    Task DeleteHallAsync(int id);
+    Task<ReadHallDto?> DeleteHallAsync(int id);
 }

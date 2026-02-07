@@ -9,10 +9,16 @@ using System.Text.Json;
 
 namespace Backend.API.Middleware;
 
-public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+public class ExceptionHandlingMiddleware(
+    RequestDelegate next, 
+    ILogger<ExceptionHandlingMiddleware> logger
+)
 {
 
-    public async Task InvokeAsync(HttpContext context, IRepository<ErrorLog> errorRepo)
+    public async Task InvokeAsync(
+        HttpContext context, 
+        IRepository<ErrorLog> errorRepo
+    )
     {
         try
         {
@@ -23,9 +29,16 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
                 var path = context.Request.Path.Value?.ToLower();
 
                 // Don't log common bot targets or browser noise
-                if (path != null && !path.Contains("favicon") && !path.Contains(".php") && !path.Contains(".env"))
+                if (path != null && !path.Contains("favicon") 
+                    && !path.Contains(".php") 
+                    && !path.Contains(".env")
+                )
                 {
-                    await LogErrorToDb(context, errorRepo, new Exception("404 Not Found: " + path));
+                    await LogErrorToDb(
+                        context, 
+                        errorRepo, 
+                        new Exception("404 Not Found: " + path)
+                    );
                 }
             }
         }
@@ -36,7 +49,11 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
             await HandleExceptionAsync(context, ex);
         }
     }
-    private async Task LogErrorToDb(HttpContext context, IRepository<ErrorLog> errorRepo, Exception ex)
+    private async Task LogErrorToDb(
+        HttpContext context, 
+        IRepository<ErrorLog> errorRepo, 
+        Exception ex
+    )
     {
 
         var log = new ErrorLog
@@ -56,32 +73,51 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         }
         catch
         {
-            Console.WriteLine($"CRITICAL: Could not log error to DB: {ex.Message}");
+            Console.WriteLine($"CRITICAL: Could not " +
+                $"log error to DB: {ex.Message}");
         }
     }
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static Task HandleExceptionAsync(
+        HttpContext context, 
+        Exception exception
+    )
     {
         context.Response.ContentType = "application/json";
 
-        var traceId = System.Diagnostics.Activity.Current?.Id ?? context.TraceIdentifier;
+        var traceId = System.Diagnostics.Activity.Current?.Id 
+            ?? context.TraceIdentifier;
 
         var (statusCode, message) = exception switch
         {
-            InvalidOperationException => (HttpStatusCode.Conflict, exception.Message),
+            InvalidOperationException => 
+                (HttpStatusCode.Conflict, exception.Message),
 
-            DbUpdateException { InnerException: PostgresException { SqlState: "40001" } } 
-                => (HttpStatusCode.ServiceUnavailable, "Concurrency conflict: Please try again."),
-
-            KeyNotFoundException => (HttpStatusCode.NotFound, exception.Message),
-
-            _ => (HttpStatusCode.InternalServerError, "An unexpected server error occurred.")
+            DbUpdateException { 
+                InnerException: PostgresException { 
+                    SqlState: "40001" 
+                } 
+            } => (
+                    HttpStatusCode.ServiceUnavailable, 
+                    "Concurrency conflict: Please try again."
+                ),
+            KeyNotFoundException => (
+                HttpStatusCode.NotFound, 
+                exception.Message
+                ),
+            _ => (
+                HttpStatusCode.InternalServerError, 
+                "An unexpected server error occurred."
+            )
         };
 
         context.Response.StatusCode = (int)statusCode;
 
         var response = new ProblemDetails
         {
-            Title = exception is InvalidOperationException ? "Domain Logic Conflict" : statusCode.ToString(),
+            Title = exception 
+                    is InvalidOperationException 
+                        ? "Domain Logic Conflict" 
+                        : statusCode.ToString(),
             Status = (int)statusCode,
             Detail = message,
             Instance = context.Request.Path
@@ -89,6 +125,8 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
 
         response.Extensions.Add("traceId", traceId);
 
-        return context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        return context.Response.WriteAsync(
+            JsonSerializer.Serialize(response)
+        );
     }
 }

@@ -44,8 +44,11 @@ public class Movie : IEntity
 
     public Studio Studio { get; set; } = null!;
 
-    public ICollection<Session> Sessions { get; set; } = new List<Session>();
-    public ICollection<MovieActor> MovieActors { get; set; } = new List<MovieActor>();
-    public ICollection<MovieGenre> MovieGenres { get; set; } = new List<MovieGenre>();
+    public ICollection<Session> Sessions { get; set; } 
+        = new List<Session>();
+    public ICollection<MovieActor> MovieActors { get; set; } 
+        = new List<MovieActor>();
+    public ICollection<MovieGenre> MovieGenres { get; set; } 
+        = new List<MovieGenre>();
 
 }

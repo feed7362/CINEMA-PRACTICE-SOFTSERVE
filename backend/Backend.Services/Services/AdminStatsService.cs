@@ -3,7 +3,7 @@ using Backend.Domain.Interfaces;
 using Backend.Services.DTOs.Admin;
 using Backend.Services.Interfaces;
 using Backend.Services.Specifications;
-using static Backend.Services.Specifications.AdminStatsSpecification;
+using static Backend.Services.Specifications.TicketsByPerformanceSpec;
 
 namespace Backend.Services.Services;
 
@@ -19,25 +19,44 @@ public class AdminStatsService(
             : date.Value.ToUniversalTime();
     }
 
-    public async Task<decimal> GetTotalRevenueAsync(DateTime from, DateTime? to)
+    public async Task<decimal> GetTotalRevenueAsync(
+            DateTime from,
+            DateTime? to
+        )
     {
-        var filter = new AdminStatsFilterDto { DateFrom = Normalize(from), DateTo = Normalize(to) };
-        var prices = await ticketRepository.GetListBySpecAsync(new TicketRevenueProjectionSpec(filter));
+        var filter = new AdminStatsFilterDto { 
+            DateFrom = Normalize(from), 
+            DateTo = Normalize(to) 
+        };
+
+        var prices = await ticketRepository.GetListBySpecAsync(
+                new TicketRevenueSpec(filter)
+            );
+
         return prices.Sum();
     }
 
     public async Task<double> GetSessionOccupancyAsync(int sessionId)
     {
-        var spec = new AdminStatsSpecification(new AdminStatsFilterDto(), sessionId: sessionId);
+        var spec = new TicketsByPerformanceSpec(
+                new AdminStatsFilterDto(), 
+                sessionId: sessionId
+            );
         var ticketsSold = await ticketRepository.CountAsync(spec);
 
-        var sessionWithHall = await sessionRepository.GetFirstBySpecAsync(new SessionsByIdsSpec([sessionId]));
+        var sessionWithHall = await sessionRepository.GetFirstBySpecAsync(
+                new SessionsByIdsSpec([sessionId])
+            );
         var capacity = sessionWithHall?.Hall.Capacity ?? 0;
 
         return capacity > 0 ? (double)ticketsSold / capacity * 100 : 0;
     }
 
-    public async Task<int> GetSpecialTicketsCountAsync(int? movieId, DateTime? from, DateTime? to)
+    public async Task<int> GetSpecialTicketsCountAsync(
+            int? movieId, 
+            DateTime? from, 
+            DateTime? to
+        )
     {
         var filter = new AdminStatsFilterDto
         {
@@ -45,17 +64,23 @@ public class AdminStatsService(
             DateTo = Normalize(to)
         };
 
-        var spec = new SpecialTicketsCountSpec(filter, movieId);
+        var spec = new DiscountedTicketsSpec(filter, movieId);
         return await ticketRepository.CountAsync(spec);
     }
 
     public async Task<List<SeatHeatmapDto>> GetHallHeatmapAsync(int hallId)
     {
-        var seats = await ticketRepository.GetListBySpecAsync(new TicketSeatProjectionSpec(hallId));
+        var seats = await ticketRepository.GetListBySpecAsync(
+                new ConfirmedHallSeatsSpec(hallId)
+            );
 
         var stats = seats
             .GroupBy(s => s)
-            .Select(g => new { Row = g.Key.Row, Number = g.Key.Number, Count = g.Count() })
+            .Select(g => new { 
+                Row = g.Key.Row, 
+                Number = g.Key.Number, 
+                Count = g.Count() 
+            })
             .ToList();
 
         if (stats.Count == 0) return new List<SeatHeatmapDto>();
@@ -67,9 +92,13 @@ public class AdminStatsService(
         )).ToList();
     }
 
-    public async Task<List<PopularMovieDto>> GetFilteredPopularMoviesAsync(AdminStatsFilterDto filter)
+    public async Task<List<PopularMovieDto>> GetFilteredPopularMoviesAsync(
+            AdminStatsFilterDto filter
+        )
     {
-        var data = await ticketRepository.GetListBySpecAsync(new PopularMovieProjectionSpec(filter));
+        var data = await ticketRepository.GetListBySpecAsync(
+                new MovieSalesAnalysisSpec(filter)
+            );
 
         var result = data
             .GroupBy(d => d.Title)

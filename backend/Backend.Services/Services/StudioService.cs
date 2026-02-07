@@ -14,7 +14,9 @@ public class StudioService : IStudioService
         _context = context;
     }
 
-    public async Task<IEnumerable<ReadStudioDto>> GetAllStudiosAsync(StudioFilterDto filter)
+    public async Task<IEnumerable<ReadStudioDto>> GetAllStudiosAsync(
+            StudioFilterDto filter
+        )
     {
         var query = _context.Studios.AsNoTracking().AsQueryable();
 

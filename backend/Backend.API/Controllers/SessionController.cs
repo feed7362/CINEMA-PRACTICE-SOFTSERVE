@@ -64,15 +64,18 @@ internal static class SessionEndpoints
                 int id,
                 ISessionService sessionService) =>
             {
-                await sessionService.DeleteSessionAsync(id);
-                return Results.NoContent();
+                var session = await sessionService.DeleteSessionAsync(id);
+                return Results.Ok(session);
             })
             .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteSession")
             .WithSummary("Delete session by Id");
 
 
-        group.MapGet("/{id:int}/seats", async (int id, ISessionService sessionService) =>
+        group.MapGet("/{id:int}/seats", async (
+            int id, 
+            ISessionService sessionService
+        ) =>
             {
                 var seats = await sessionService.GetSeatsBySessionAsync(id);
                 return Results.Ok(seats);
