@@ -1,11 +1,18 @@
 export interface Session {
-    id: number;
-    movieId: number;
-    hallId: number;
-    hallName: string;
-    hallFormat: string;
-    startTime: string;
-    endTime: string;
+  id: number;
+  movieId: string;
+  hallId: string;
+  time: string;
+  date: string;
+  price: number;
+  hallFormat: string;
+}
+
+export interface SessionData {
+  movieId: number;
+  hallId: number;
+  startTime: string;
+  price: number;
 }
 
 export interface SessionFormData {

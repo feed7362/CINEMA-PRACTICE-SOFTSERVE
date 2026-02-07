@@ -22,14 +22,16 @@ const MovieSchedule: React.FC = () => {
                 />
 
                 {loading ? (
-                    <div className="flex justify-center py-20">
-                        <LoadingSpinner />
-                    </div>
+                <div className="flex justify-center py-20">
+                    <LoadingSpinner />
+                </div>
                 ) : error ? (
                     <div className="text-center text-red-500 text-xl py-10 bg-red-500/10 rounded-xl mt-4 border border-red-500/20">
                         {error}
                     </div>
-                ) : (
+                ) : null}
+
+                {!loading && !error && (
                     <>
                         {movies.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 mt-10">
@@ -40,11 +42,7 @@ const MovieSchedule: React.FC = () => {
                                             id: String(movie.id),
                                             title: movie.title,
                                             poster: movie.poster,
-                                            sessions: movie.sessions?.map((s) => ({
-                                                ...s,
-                                                hallName: (s as any).hallName || 'Main Hall',
-                                                hallFormat: (s as any).hallFormat || '2D'
-                                            })) || []
+                                            sessions: movie.sessions || []
                                         }}
                                     />
                                 ))}
