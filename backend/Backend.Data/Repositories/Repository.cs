@@ -114,6 +114,27 @@ namespace Backend.Data.Repositories
             return await ApplySpecification(specification).FirstOrDefaultAsync();
         }
 
+
+
+        // optimized query for projections
+        public async Task<List<TResult>> GetListBySpecAsync<TResult>(ISpecification<TEntity, TResult> specification)
+        {
+            return await ApplySpecification(specification).ToListAsync();
+        }
+
+        public async Task<TResult> GetBySpecAsync<TResult>(ISpecification<TEntity, TResult> specification)
+        {
+            return await ApplySpecification(specification).FirstOrDefaultAsync();
+        }
+
+        protected IQueryable<TResult> ApplySpecification<TResult>(ISpecification<TEntity, TResult> specification)
+        {
+            return SpecificationEvaluator.Default.GetQuery(context.Set<TEntity>().AsQueryable(), specification);
+        }
+
+
+
+
         public async Task<int> CountAsync(ISpecification<TEntity> spec)
         {
             var query = ApplySpecification(spec);

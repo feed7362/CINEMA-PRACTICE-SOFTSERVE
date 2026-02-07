@@ -17,7 +17,7 @@ public record PopularMovieDto(
     string Director, 
     string Country, 
     int ReleaseYear, 
-    decimal ImdbRating,
+    double ImdbRating,
     string AgeRating,
     int TicketsSold, 
     decimal Revenue
