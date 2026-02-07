@@ -72,7 +72,10 @@ internal static class SessionEndpoints
             .WithSummary("Delete session by Id");
 
 
-        group.MapGet("/{id:int}/seats", async (int id, ISessionService sessionService) =>
+        group.MapGet("/{id:int}/seats", async (
+            int id, 
+            ISessionService sessionService
+        ) =>
             {
                 var seats = await sessionService.GetSeatsBySessionAsync(id);
                 return Results.Ok(seats);

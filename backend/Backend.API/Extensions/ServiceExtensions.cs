@@ -11,7 +11,9 @@ namespace Backend.API;
 
 public static class ApplicationServiceExtensions
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(
+        this IServiceCollection services
+    )
     {
         services.AddScoped<IHallService, HallService>();
         services.AddScoped<ISessionService, SessionService>();

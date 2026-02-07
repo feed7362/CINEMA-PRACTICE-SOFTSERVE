@@ -7,18 +7,26 @@ using Backend.API.Controllers;
 using Backend.Services.Interfaces;
 using Backend.Services.Services;
 
-Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+Encoding.RegisterProvider(
+    CodePagesEncodingProvider.Instance
+   );
+
 Console.OutputEncoding = Encoding.UTF8;
 Console.InputEncoding = Encoding.UTF8;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var allowedOrigins = builder
+    .Configuration
+    .GetSection("AllowedOrigins")
+    .Get<string[]>();
 
 //Services
 builder.Services
     .AddApplicationServices() //Hall, Ticket, Movie, Booking, Session, TokenService
     .AddInfrastructure(builder.Configuration) //Database, Identity, Repositories
     .AddSwaggerWithJwt() //OpenAPI + JWT security
-    .AddCorsPolicy() //CORS
+    .AddCorsPolicy(allowedOrigins) //CORS
     .AddJwtAuthentication(builder.Configuration); //JWT auth
 
 builder.Services.AddScoped<IGenreService, GenreService>();
@@ -47,7 +55,11 @@ app.MapGenreEndpoints();
 app.MapStudiosEndpoints();
 app.MapContactEndpoints();
 
-app.Lifetime.ApplicationStarted.Register(() => { Console.WriteLine("Application started"); });
-app.Lifetime.ApplicationStopping.Register(() => { Console.WriteLine("Application stopping"); });
+app.Lifetime.ApplicationStarted.Register(() => { 
+    Console.WriteLine("Application started"); 
+});
+app.Lifetime.ApplicationStopping.Register(() => { 
+    Console.WriteLine("Application stopping"); 
+});
 
 app.Run();
