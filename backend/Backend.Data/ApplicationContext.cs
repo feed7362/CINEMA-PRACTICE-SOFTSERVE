@@ -7,7 +7,10 @@ using Backend.Domain.Interfaces;
 
 namespace Backend.Data
 {
-    public class ApplicationContext(IUserContext currentUserService, DbContextOptions<ApplicationContext> options)
+    public class ApplicationContext(
+            IUserContext currentUserService, 
+            DbContextOptions<ApplicationContext> options
+        )
         : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>(options)
     {
         public bool UseAuditing { get; set; } = true;
@@ -30,16 +33,21 @@ namespace Backend.Data
             );
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        public override async Task<int> SaveChangesAsync(
+                CancellationToken cancellationToken = default
+            )
         {
-            if (!UseAuditing) return await base.SaveChangesAsync(cancellationToken);
+            if (!UseAuditing) 
+                return await base.SaveChangesAsync(cancellationToken);
 
             var auditEntries = HandleAudit();
 
             try
             {
                 var result = await base.SaveChangesAsync(cancellationToken);
-                if (auditEntries.Count != 0) await OnAfterSaveChangesAsync(auditEntries);
+                if (auditEntries.Count != 0) 
+                    await OnAfterSaveChangesAsync(auditEntries);
+
                 return result;
             }
             catch (DbUpdateException)
@@ -49,7 +57,9 @@ namespace Backend.Data
             }
         }
 
-        private async Task OnAfterSaveChangesAsync(List<AuditEntry> auditEntries) //for proper ids only after saving
+        private async Task OnAfterSaveChangesAsync(
+                List<AuditEntry> auditEntries
+            )
         {
             foreach (var auditEntry in auditEntries)
             {
@@ -57,7 +67,8 @@ namespace Backend.Data
                 {
                     if (prop.Metadata.IsPrimaryKey())
                     {
-                        auditEntry.KeyValues[prop.Metadata.Name] = prop.CurrentValue;
+                        auditEntry.KeyValues[prop.Metadata.Name] 
+                            = prop.CurrentValue;
                     }
                 }
 
@@ -75,8 +86,6 @@ namespace Backend.Data
 
             foreach (var entry in ChangeTracker.Entries())
             {
-                // Skip auditing the AuditLogs themselves (to avoid infinite loops)
-                // Skip detached and unchanged entities( method GET)
                 if (entry.Entity is AuditLog ||
                     entry.Entity is ErrorLog ||
                     entry.Entity is MoviePageView ||
@@ -101,26 +110,37 @@ namespace Backend.Data
 
                     if (property.Metadata.IsPrimaryKey())
                     {
-                        auditEntry.KeyValues[propertyName] = property.CurrentValue;
+                        auditEntry.KeyValues[propertyName] 
+                            = property.CurrentValue;
+
                         continue;
                     }
 
                     switch (entry.State)
                     {
                         case EntityState.Added:
-                            auditEntry.NewValues[propertyName] = property.CurrentValue;
+                            auditEntry.NewValues[propertyName] 
+                                = property.CurrentValue;
+
                             break;
 
                         case EntityState.Deleted:
-                            auditEntry.OldValues[propertyName] = property.OriginalValue;
+                            auditEntry.OldValues[propertyName] 
+                                = property.OriginalValue;
+
                             break;
 
                         case EntityState.Modified:
                             if (property.IsModified)
                             {
                                 auditEntry.ChangedColumns.Add(propertyName);
-                                auditEntry.OldValues[propertyName] = property.OriginalValue;
-                                auditEntry.NewValues[propertyName] = property.CurrentValue;
+
+                                auditEntry.OldValues[propertyName] 
+                                    = property.OriginalValue;
+
+                                auditEntry.NewValues[propertyName] 
+                                    = property.CurrentValue;
+
                             }
 
                             break;
