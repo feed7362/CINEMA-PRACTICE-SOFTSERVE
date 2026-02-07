@@ -12,7 +12,10 @@ public class MovieRecommendationService : IMovieRecommendationService
     private readonly IRepository<MoviePageView> _viewRepository;
     private readonly IRepository<Movie> _movieRepository;
 
-    public MovieRecommendationService(IRepository<MoviePageView> viewRepository, IRepository<Movie> movieRepository)
+    public MovieRecommendationService(
+            IRepository<MoviePageView> viewRepository, 
+            IRepository<Movie> movieRepository
+        )
     {
         _viewRepository = viewRepository;
         _movieRepository = movieRepository;
@@ -20,7 +23,9 @@ public class MovieRecommendationService : IMovieRecommendationService
 
     public async Task RecordMovieViewAsync(int userId, int movieId)
     {
-        var views = await _viewRepository.GetListBySpecAsync(new RecentUserMovieViewsSpec(userId));
+        var views = await _viewRepository.GetListBySpecAsync(
+                new RecentUserMovieViewsSpec(userId)
+            );
         var existingView = views.FirstOrDefault(v => v.MovieId == movieId);
 
         if (existingView == null)
@@ -49,9 +54,14 @@ public class MovieRecommendationService : IMovieRecommendationService
         await _viewRepository.SaveChangesAsync();
     }
 
-    public async Task<List<MovieRecommendationDto>> GetRecommendationsForUserAsync(int userId, int top = 10)
+    public async Task<List<MovieRecommendationDto>> GetRecommendationsForUserAsync(
+            int userId, 
+            int top = 10
+        )
     {
-        var views = await _viewRepository.GetListBySpecAsync(new RecentUserMovieViewsSpec(userId));
+        var views = await _viewRepository.GetListBySpecAsync(
+                new RecentUserMovieViewsSpec(userId)
+            );
         if (!views.Any()) return new List<MovieRecommendationDto>();
 
         var genreWeights = views.SelectMany(v => v.Movie.MovieGenres)
@@ -65,14 +75,21 @@ public class MovieRecommendationService : IMovieRecommendationService
         var viewedMovieIds = views.Select(v => v.MovieId).ToList();
 
         var candidates = await _movieRepository.GetListBySpecAsync(
-            new RecommendedMoviesCandidateSpec(genreWeights.Keys, actorWeights.Keys, viewedMovieIds)
+            new RecommendedMoviesCandidateSpec(
+                    genreWeights.Keys, 
+                    actorWeights.Keys, 
+                    viewedMovieIds
+                )
+
         );
 
         return candidates
             .Select(m => new {
                 Movie = m,
-                Score = m.MovieGenres.Sum(g => genreWeights.GetValueOrDefault(g.GenreId, 0)) +
-                        m.MovieActors.Sum(a => actorWeights.GetValueOrDefault(a.ActorId, 0)) +
+                Score = m.MovieGenres
+                        .Sum(g => genreWeights.GetValueOrDefault(g.GenreId, 0)) +
+                        m.MovieActors
+                        .Sum(a => actorWeights.GetValueOrDefault(a.ActorId, 0)) +
                         (double)(m.ImdbRating ?? 0m) * 0.5
             })
             .OrderByDescending(x => x.Score)

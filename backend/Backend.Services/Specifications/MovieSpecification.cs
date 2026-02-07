@@ -51,7 +51,10 @@ namespace Backend.Services.Specifications
 
     internal static class SpecificationExtensions 
     {
-        public static void ApplyFiltering(ISpecificationBuilder<Movie> query, MovieFilterDto filter)
+        public static void ApplyFiltering(
+                ISpecificationBuilder<Movie> query, 
+                MovieFilterDto filter
+            )
         {
             if (!string.IsNullOrEmpty(filter.SearchTerm))
             {
@@ -62,11 +65,18 @@ namespace Backend.Services.Specifications
 
             if (filter.GenreIds != null && filter.GenreIds.Any())
             {
-                query.Where(m => m.MovieGenres.Any(mg => filter.GenreIds.Contains(mg.GenreId)));
+                query.Where(
+                    m => m.MovieGenres.Any(
+                            mg => filter.GenreIds.Contains(mg.GenreId)
+                        )
+                    );
             }
             else if (filter.GenreId.HasValue)
             {
-                query.Where(m => m.MovieGenres.Any(mg => mg.GenreId == filter.GenreId));
+                query.Where(
+                    m => m.MovieGenres.Any(
+                        mg => mg.GenreId == filter.GenreId)
+                    );
             }
 
             if (filter.StudioId.HasValue)

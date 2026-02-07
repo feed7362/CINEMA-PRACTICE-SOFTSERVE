@@ -33,7 +33,8 @@ namespace Backend.Services.Specifications
 
             if (!string.IsNullOrWhiteSpace(email))
             {
-                Query.Where(x => x.UserEmail != null && x.UserEmail.Contains(email));
+                Query.Where(x => x.UserEmail != null 
+                                    && x.UserEmail.Contains(email));
             }
 
             if (!string.IsNullOrWhiteSpace(path))
@@ -45,7 +46,12 @@ namespace Backend.Services.Specifications
 
     public sealed class ErrorLogsPagedSpec : ErrorLogsFilterSpec
     {
-        public ErrorLogsPagedSpec(int page, int pageSize, string? email = null, string? path = null)
+        public ErrorLogsPagedSpec(
+                int page, 
+                int pageSize, 
+                string? email = null, 
+                string? path = null
+            )
             : base(email, path)
         {
             Query.Skip((page - 1) * pageSize).Take(pageSize);

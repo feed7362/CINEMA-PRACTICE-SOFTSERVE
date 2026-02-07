@@ -5,6 +5,9 @@ namespace Backend.Services.Interfaces;
 
 public interface IMovieRecommendationService
 {
-    Task<List<MovieRecommendationDto>> GetRecommendationsForUserAsync(int userId, int top = 10);
+    Task<List<MovieRecommendationDto>> GetRecommendationsForUserAsync(
+            int userId, 
+            int top = 10
+        );
     Task RecordMovieViewAsync(int userId, int movieId);
 }

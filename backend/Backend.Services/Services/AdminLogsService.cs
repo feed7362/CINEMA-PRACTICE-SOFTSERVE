@@ -11,7 +11,11 @@ public class AdminLogService(
     IRepository<AuditLog> auditRepository,
     IRepository<ErrorLog> errorRepository) : IAdminLogService
 {
-    public async Task<PagedResponse<AuditLogDto>> GetAuditLogsAsync(int page, int pageSize, string? email = null)
+    public async Task<PagedResponse<AuditLogDto>> GetAuditLogsAsync(
+            int page, 
+            int pageSize, 
+            string? email = null
+        )
     {
         var filterSpec = new AuditLogsFilterSpec(email);
         var pagedSpec = new AuditLogsPagedSpec(page, pageSize, email);
@@ -31,7 +35,12 @@ public class AdminLogService(
         return new PagedResponse<AuditLogDto>(items, total, page, pageSize);
     }
 
-    public async Task<PagedResponse<ErrorLogDto>> GetErrorLogsAsync(int page, int pageSize, string? email = null, string? path = null)
+    public async Task<PagedResponse<ErrorLogDto>> GetErrorLogsAsync(
+            int page, 
+            int pageSize, 
+            string? email = null, 
+            string? path = null
+        )
     {
         var filterSpec = new ErrorLogsFilterSpec(email, path);
         var pagedSpec = new ErrorLogsPagedSpec(page, pageSize, email, path);
@@ -51,5 +60,7 @@ public class AdminLogService(
         return new PagedResponse<ErrorLogDto>(items, total, page, pageSize);
     }
 
-    public async Task<ErrorLog?> GetErrorDetailAsync(int id) => await errorRepository.GetByIdAsync(id);
+    public async Task<ErrorLog?> GetErrorDetailAsync(
+            int id
+        ) => await errorRepository.GetByIdAsync(id);
 }

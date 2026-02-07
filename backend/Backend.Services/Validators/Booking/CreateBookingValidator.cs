@@ -15,10 +15,12 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingDto>
             .NotEmpty()
             .WithMessage("Потрібно вибрати хоча б одне місце.")
             .Must(list => list != null && list.All(id => id > 0))
-            .WithMessage("Усі ID місць повинні бути дійсними додатними числами.");
+            .WithMessage("Усі ID місць повинні бути дійсними додатними" +
+            " числами.");
 
         RuleFor(x => x.SeatIds)
             .Must(list => list.Count <= 10)
-            .WithMessage("Неможливо забронювати більше 10 місць за одну транзакцію.");
+            .WithMessage("Неможливо забронювати більше 10 місць за одну " +
+            "транзакцію.");
     }
 }

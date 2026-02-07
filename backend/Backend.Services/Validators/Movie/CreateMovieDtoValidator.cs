@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Backend.Services.DTOs.Movie;
-
 namespace Backend.Services.Validators.Movie
 {
     public class CreateMovieDtoValidator : AbstractValidator<CreateMovieDto>
@@ -8,24 +7,28 @@ namespace Backend.Services.Validators.Movie
         public CreateMovieDtoValidator()
         {
             RuleFor(x => x.TitleOrg)
-                .NotEmpty().WithMessage("Original title is required.")
-                .MaximumLength(200);
+            .NotEmpty().WithMessage("Оригінальна назва є обов'язковою.")
+            .MaximumLength(200);
 
             RuleFor(x => x.TitleUkr)
                 .MaximumLength(200);
 
             RuleFor(x => x.Description)
-                .NotEmpty().WithMessage("Description is required.")
-                .MinimumLength(10).WithMessage("Description must be at least 10 characters.");
+                .NotEmpty().WithMessage("Опис є обов'язковим.")
+                .MinimumLength(10).WithMessage("Опис має містити " +
+                "принаймні 10 символів.");
 
             RuleFor(x => x.StudioId)
-                .GreaterThan(0).WithMessage("Please select a valid Studio.");
+                .GreaterThan(0).WithMessage("Будь ласка, виберіть " +
+                "коректну студію.");
 
             RuleFor(x => x.Duration)
-                .InclusiveBetween(1, 600).WithMessage("Duration must be between 1 and 600 minutes.");
+                .InclusiveBetween(1, 600).WithMessage("Тривалість має " +
+                "бути від 1 до 600 хвилин.");
 
             RuleFor(x => x.ImdbRating)
-                .InclusiveBetween(0, 10).WithMessage("IMDB Rating must be between 0 and 10.")
+                .InclusiveBetween(0, 10).WithMessage("Рейтинг IMDB має " +
+                "бути від 0 до 10.")
                 .When(x => x.ImdbRating.HasValue);
 
             RuleFor(x => x.ReleaseDate)
@@ -33,23 +36,26 @@ namespace Backend.Services.Validators.Movie
 
             RuleFor(x => x.FinishDate)
                 .GreaterThan(x => x.ReleaseDate)
-                .WithMessage("Finish Date must be after the Release Date.");
+                .WithMessage("Дата завершення має бути пізнішою за " +
+                "дату виходу.");
 
             RuleFor(x => x.ImageUrl)
                 .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
                 .When(x => !string.IsNullOrEmpty(x.ImageUrl))
-                .WithMessage("Image URL is not valid.");
+                .WithMessage("Посилання на зображення є некоректним.");
 
             RuleFor(x => x.TrailerUrl)
                 .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
                 .When(x => !string.IsNullOrEmpty(x.TrailerUrl))
-                .WithMessage("Trailer URL is not valid.");
+                .WithMessage("Посилання на трейлер є некоректним.");
 
             RuleFor(x => x.GenreIds)
-                .NotEmpty().WithMessage("At least one Genre is required.");
+                .NotEmpty().WithMessage("Необхідно вказати хоча б один" +
+                " жанр.");
 
             RuleFor(x => x.ActorIds)
-                .NotEmpty().WithMessage("At least one Actor is required.");
+                .NotEmpty().WithMessage("Необхідно вказати хоча б " +
+                "одного актора.");
         }
     }
 }

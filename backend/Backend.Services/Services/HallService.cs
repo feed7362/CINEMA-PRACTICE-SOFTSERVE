@@ -6,7 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Services.Services;
 
-public class HallService(IRepository<Hall> hallRepository, IRepository<Session> sessionRepository) : IHallService
+public class HallService(
+        IRepository<Hall> hallRepository,
+        IRepository<Session> sessionRepository
+    ) : IHallService
 {
     public async Task<ReadHallDto> CreateHallAsync(CreateHallDto dto)
     {
@@ -74,7 +77,9 @@ public class HallService(IRepository<Hall> hallRepository, IRepository<Session> 
                     {
                         RowNumber = r + 1,
                         SeatNumber = c + 1,
-                        SeatType = rowString[c] == 'V' ? SeatType.Vip : SeatType.Regular
+                        SeatType = rowString[c] == 'V' 
+                            ? SeatType.Vip 
+                            : SeatType.Regular
                     });
                 }
             }
@@ -132,7 +137,8 @@ public class HallService(IRepository<Hall> hallRepository, IRepository<Session> 
 
         if (hasActiveBookings)
         {
-            throw new Exception("Неможливо видалити зал: є заплановані сессії");
+            throw new Exception("Неможливо видалити зал: є заплановані " +
+                "сессії");
         }
 
         hall.IsDeleted = true;
