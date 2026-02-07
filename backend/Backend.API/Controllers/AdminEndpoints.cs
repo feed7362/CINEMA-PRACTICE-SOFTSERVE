@@ -19,12 +19,14 @@ public static class AdminEndpoints
                 IAdminStatsService service) =>
             {
                 var result = await service.GetTotalRevenueAsync(from, to);
+
                 return Results.Ok(new { TotalRevenue = result });
             })
             .WithSummary("Total Revenue")
             .WithDescription(
-                "Calculates total revenue for a specific period. If 'to' is not specified, " +
-                "it calculates revenue for the single day specified in 'from'.")
+                "Calculates total revenue for a specific period. " +
+                "If 'to' is not specified, it calculates revenue " +
+                "for the single day specified in 'from'.")
             .Produces(200);
 
         group.MapGet("/occupancy/{sessionId:int}", async (
@@ -32,11 +34,14 @@ public static class AdminEndpoints
                 IAdminStatsService service) =>
             {
                 var result = await service.GetSessionOccupancyAsync(sessionId);
-                return Results.Ok(new { OccupancyPercentage = Math.Round(result, 2) });
+                return Results.Ok(new { 
+                    OccupancyPercentage = Math.Round(result, 2) 
+                });
             })
             .WithSummary("Session Occupancy (%)")
             .WithDescription(
-                "Returns the percentage of sold seats relative to the total hall capacity for a specific session.")
+                "Returns the percentage of sold seats relative " +
+                "to the total hall capacity for a specific session.")
             .Produces(200);
 
         group.MapGet("/special-tickets", async (
@@ -45,7 +50,12 @@ public static class AdminEndpoints
                 [FromQuery] DateTime? to,
                 IAdminStatsService service) =>
             {
-                var result = await service.GetSpecialTicketsCountAsync(movieId, from, to);
+                var result = await service.GetSpecialTicketsCountAsync(
+                    movieId, 
+                    from, 
+                    to
+                );
+
                 return Results.Ok(new { SpecialTicketsCount = result });
             })
             .WithSummary("Discounted Tickets Count")
@@ -73,7 +83,8 @@ public static class AdminEndpoints
             .WithSummary("Hall Heatmap")
             .WithDescription(
                 "Returns seat coordinates, purchase frequency, " +
-                "and a category color ('Red' for popular, 'Blue' for less popular).")
+                "and a category color ('Red' for popular, 'Blue' " +
+                "for less popular).")
             .Produces<List<SeatHeatmapDto>>();
     }
 }

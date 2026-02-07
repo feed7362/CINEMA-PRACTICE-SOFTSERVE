@@ -2,13 +2,13 @@
 
 public static class CorsExtensions
 {
-    public static IServiceCollection AddCorsPolicy(this IServiceCollection services)
+    public static IServiceCollection AddCorsPolicy(this IServiceCollection services, string[] allowedOrigins)
     {
         services.AddCors(options =>
         {
             options.AddPolicy("Default", policy =>
             {
-                policy.WithOrigins("http://localhost:5173")
+                policy.WithOrigins(allowedOrigins)
                  .WithMethods("GET", "POST", "PUT", "DELETE")
                  .WithHeaders("Content-Type", "Authorization");
             });

@@ -3,9 +3,9 @@ using Ardalis.Specification;
 
 namespace Backend.Services.Specifications;
 
-public class SeatsByHallSpec : Specification<Seat>
+public class SeatsByHallIdSpec : Specification<Seat>
 {
-    public SeatsByHallSpec(int? hallId)
+    public SeatsByHallIdSpec(int? hallId)
     {
         Query
             .Where(s => s.HallId == hallId);

@@ -67,8 +67,8 @@ internal static class HallEndpoints
                 int id,
                 IHallService hallService) =>
             {
-                await hallService.DeleteHallAsync(id);
-                return Results.NoContent();
+                var hall = await hallService.DeleteHallAsync(id);
+                return Results.Ok(hall);
             })
             .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteHall")

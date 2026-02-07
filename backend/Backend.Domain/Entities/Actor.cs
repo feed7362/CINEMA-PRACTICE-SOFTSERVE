@@ -8,5 +8,6 @@ public class Actor : IEntity
 
     public string Name { get; set; } = null!;
 
-    public ICollection<MovieActor> MovieActors { get; set; } = new List<MovieActor>();
+    public ICollection<MovieActor> MovieActors { get; set; } 
+        = new List<MovieActor>();
 }

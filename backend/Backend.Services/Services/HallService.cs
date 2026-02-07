@@ -6,7 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Services.Services;
 
-public class HallService(IRepository<Hall> hallRepository, IRepository<Session> sessionRepository) : IHallService
+public class HallService(
+        IRepository<Hall> hallRepository,
+        IRepository<Session> sessionRepository
+    ) : IHallService
 {
     public async Task<ReadHallDto> CreateHallAsync(CreateHallDto dto)
     {
@@ -74,7 +77,9 @@ public class HallService(IRepository<Hall> hallRepository, IRepository<Session> 
                     {
                         RowNumber = r + 1,
                         SeatNumber = c + 1,
-                        SeatType = rowString[c] == 'V' ? SeatType.Vip : SeatType.Regular
+                        SeatType = rowString[c] == 'V' 
+                            ? SeatType.Vip 
+                            : SeatType.Regular
                     });
                 }
             }
@@ -121,21 +126,30 @@ public class HallService(IRepository<Hall> hallRepository, IRepository<Session> 
         }).ToList();
     }
 
-    public async Task DeleteHallAsync(int id)
+    public async Task<ReadHallDto?> DeleteHallAsync(int id)
     {
         //Soft delete cause sql blocks this to prevent data corruption(ticket and seats relations)
         var hall = await hallRepository.GetByIdAsync(id);
-        if (hall == null) return;
+        if (hall == null) return null;
 
         var hasActiveBookings = await sessionRepository.AnyAsync(s =>
             s.HallId == id && s.EndTime > DateTime.UtcNow);
 
         if (hasActiveBookings)
         {
-            throw new Exception("Неможливо видалити зал: є заплановані сессії");
+            throw new Exception("Неможливо видалити зал: є заплановані " +
+                "сессії");
         }
 
         hall.IsDeleted = true;
         await hallRepository.UpdateAsync(hall);
+
+        return new ReadHallDto
+        {
+            Id = hall.Id,
+            Name = hall.Name,
+            Capacity = hall.Capacity,
+            Format = hall.Format.ToString()
+        };
     }
 }

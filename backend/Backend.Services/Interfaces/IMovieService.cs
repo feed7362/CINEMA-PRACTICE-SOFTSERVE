@@ -13,5 +13,5 @@ public interface IMovieService
 
     Task<PagedResponse<ReadMovieDto>> GetAllMoviesAsync(MovieFilterDto filter);
 
-    Task DeleteMovieAsync(int id);
+    Task<ReadMovieDto?> DeleteMovieAsync(int id);
 }

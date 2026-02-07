@@ -7,7 +7,9 @@ using Backend.Services.Specifications;
 
 namespace Backend.Services.Services
 {
-    public class MovieService(IRepository<Movie> movieRepository) : IMovieService
+    public class MovieService(
+            IRepository<Movie> movieRepository
+        ) : IMovieService
     {
         public async Task<ReadMovieDto> CreateMovieAsync(CreateMovieDto dto)
         {
@@ -44,12 +46,13 @@ namespace Backend.Services.Services
             await movieRepository.AddAsync(movie);
 
             var fullMovieDto = await GetMovieByIdAsync(movie.Id);
-            return fullMovieDto ?? throw new Exception("Error retrieving created movie.");
+            return fullMovieDto 
+                    ?? throw new Exception("Error retrieving created movie.");
         }
 
         public async Task<ReadMovieDto?> UpdateMovieAsync(UpdateMovieDto dto)
         {
-            var spec = new ById(dto.Id);
+            var spec = new MovieById(dto.Id);
             var movie = await movieRepository.GetFirstBySpecAsync(spec);
             if (movie == null) return null;
 
@@ -71,13 +74,19 @@ namespace Backend.Services.Services
             movie.MovieGenres.Clear();
             foreach (var gId in dto.GenreIds)
             {
-                movie.MovieGenres.Add(new MovieGenre { GenreId = gId, MovieId = movie.Id });
+                movie.MovieGenres.Add(new MovieGenre { 
+                    GenreId = gId, 
+                    MovieId = movie.Id 
+                });
             }
 
             movie.MovieActors.Clear();
             foreach (var aId in dto.ActorIds)
             {
-                movie.MovieActors.Add(new MovieActor { ActorId = aId, MovieId = movie.Id });
+                movie.MovieActors.Add(new MovieActor { 
+                    ActorId = aId, 
+                    MovieId = movie.Id 
+                });
             }
 
             await movieRepository.UpdateAsync(movie);
@@ -87,19 +96,21 @@ namespace Backend.Services.Services
 
         public async Task<ReadMovieDto?> GetMovieByIdAsync(int id)
         {
-            var spec = new ById(id);
+            var spec = new MovieById(id);
             var movie = await movieRepository.GetFirstBySpecAsync(spec);
 
             return movie == null ? null : MapToDto(movie);
         }
 
 
-        public async Task<PagedResponse<ReadMovieDto>> GetAllMoviesAsync(MovieFilterDto filter)
+        public async Task<PagedResponse<ReadMovieDto>> GetAllMoviesAsync(
+                MovieFilterDto filter
+            )
         {
-            var filterSpec = new MovieSearchFilterSpec(filter);
+            var filterSpec = new MoviesByFilterSpec(filter);
             var totalCount = await movieRepository.CountAsync(filterSpec);
 
-            var pagedSpec = new MovieSearchPagedSpec(filter);
+            var pagedSpec = new MoviesByFilterPagedSpec(filter);
             var movies = await movieRepository.GetListBySpecAsync(pagedSpec);
 
             var items = movies.Select(MapToDto).ToList();
@@ -113,9 +124,9 @@ namespace Backend.Services.Services
         }
 
 
-        public async Task DeleteMovieAsync(int id)
+        public async Task<ReadMovieDto?> DeleteMovieAsync(int id)
         {
-            await movieRepository.DeleteAsync(id);
+            return MapToDto(await movieRepository.DeleteAsync(id));
         }
 
         private static ReadMovieDto MapToDto(Movie m)
@@ -139,8 +150,10 @@ namespace Backend.Services.Services
                 ImageUrl = m.ImageUrl,
                 TrailerUrl = m.TrailerUrl,
 
-                GenreNames = m.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
-                ActorNames = m.MovieActors.Select(ma => ma.Actor.Name).ToList()
+                GenreNames = m.MovieGenres
+                                .Select(mg => mg.Genre.Name).ToList(),
+                ActorNames = m.MovieActors
+                                .Select(ma => ma.Actor.Name).ToList()
             };
         }
     }

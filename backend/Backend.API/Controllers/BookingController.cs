@@ -22,7 +22,11 @@ internal static class BookingEndpoints
         int pageSize = 10) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var result = await bookingService.GetUserBookingHistoryAsync(userId, page, pageSize);
+            var result = await bookingService.GetUserBookingHistoryAsync(
+                userId, 
+                page, 
+                pageSize
+            );
             return Results.Ok(result);
         })
             .WithName("GetUserBookingHistory")
@@ -35,17 +39,22 @@ internal static class BookingEndpoints
             ClaimsPrincipal user) =>
         {
             var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userIdClaim)) return Results.Unauthorized();
+            if (string.IsNullOrEmpty(userIdClaim)) 
+               return Results.Unauthorized();
 
             var userId = int.Parse(userIdClaim);
 
             var result = await bookingService.LockBookingAsync(dto, userId);
 
-            return Results.Created($"/api/booking/{result.Id}/details", result);
+            return Results.Created(
+                $"/api/booking/{result.Id}/details", 
+                result
+            );
         })
             .AddEndpointFilter<ValidationFilter<CreateBookingDto>>()
             .WithName("LockBooking")
-            .WithSummary("Locks seats for 15 minutes with concurrency protection");
+            .WithSummary("Locks seats for 15 minutes with concurrency " +
+            "protection");
 
         group.MapPost("/confirm", async (
             ConfirmBookingDto dto,
@@ -59,7 +68,8 @@ internal static class BookingEndpoints
             return Results.Ok(result);
         })
             .WithName("ConfirmBooking")
-            .WithSummary("Finalizes a pending booking after successful payment");
+            .WithSummary("Finalizes a pending booking after successful " +
+            "payment");
 
         group.MapGet("/{id:int}", async (
                 int id,
@@ -88,9 +98,14 @@ internal static class BookingEndpoints
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var details = await bookingService.GetBookingDetailsByIdAsync(id, userId);
+            var details = await bookingService.GetBookingDetailsByIdAsync(
+                id, 
+                userId
+            );
 
-            return details is null ? Results.NotFound() : Results.Ok(details);
+            return details is null 
+                ? Results.NotFound() 
+                : Results.Ok(details);
         })
             .WithName("GetBookingDetails")
             .WithSummary("Get full booking details");

@@ -6,5 +6,9 @@ namespace Backend.Services.Interfaces;
 public interface ITicketService
 {
     Task<TicketResponseDto?> GetTicketByIdAsync(int ticketId, int userId);
-    Task<PagedResponse<TicketResponseDto>> GetUserTicketsAsync(int userId, int page = 1, int pageSize = 10);
+    Task<PagedResponse<TicketResponseDto>> GetUserTicketsAsync(
+            int userId, 
+            int page = 1, 
+            int pageSize = 10
+        );
 }

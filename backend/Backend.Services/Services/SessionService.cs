@@ -9,11 +9,12 @@ using Hall = Backend.Domain.Entities.Hall;
 namespace Backend.Services.Services;
 
 public class SessionService(
-    IRepository<Session> sessionRepository,
-    IRepository<Movie> movieRepository,
-    IRepository<Hall> hallRepository,
-    IRepository<Ticket> ticketRepository,
-    IRepository<Seat> seatRepository)
+        IRepository<Session> sessionRepository,
+        IRepository<Movie> movieRepository,
+        IRepository<Hall> hallRepository,
+        IRepository<Ticket> ticketRepository,
+        IRepository<Seat> seatRepository
+    )
     : ISessionService
 {
     public async Task<ReadSessionDto> CreateSessionAsync(CreateSessionDto dto)
@@ -26,13 +27,19 @@ public class SessionService(
 
 
         var endTime = dto.StartTime.AddMinutes(movie.Duration);
-        var overlapSpec = new SessionOverlapSpec(dto.HallId, dto.StartTime, endTime);
-        var conflictingSessions = await sessionRepository.CountAsync(overlapSpec);
+        var overlapSpec = new SessionOverlapSpec(
+                dto.HallId, 
+                dto.StartTime, 
+                endTime
+            );
+        var conflictingSessions = await sessionRepository
+                                        .CountAsync(overlapSpec);
 
         if (conflictingSessions > 0)
         {
             throw new Exception(
-                $"Collision Detected! Hall {hall.Name} is already booked during this time range."
+                $"Collision Detected! Hall {hall.Name} is already " +
+                $"booked during this time range."
             );
         }
 
@@ -59,17 +66,26 @@ public class SessionService(
         var newEndTime = dto.StartTime.AddMinutes(movie.Duration);
 
 
-        var overlapSpec = new SessionOverlapSpec(dto.HallId, dto.StartTime, newEndTime, dto.Id);
+        var overlapSpec = new SessionOverlapSpec(
+                dto.HallId, 
+                dto.StartTime, 
+                newEndTime, 
+                dto.Id
+            );
 
         if (await sessionRepository.CountAsync(overlapSpec) > 0)
         {
-            throw new Exception("Time conflict! The new time overlaps with another session.");
+            throw new Exception("Time conflict! The new time overlaps " +
+                "with another session.");
         }
 
-        var ticketsExist = await ticketRepository.AnyAsync(t => t.Booking.SessionId == session.Id);
+        var ticketsExist = 
+            await ticketRepository.AnyAsync(t => t.Booking.SessionId == session.Id);
+
         if (ticketsExist)
         {
-            throw new Exception("Cannot update session: tickets already sold");
+            throw new Exception("Cannot update session: tickets already " +
+                "sold");
         }
 
 
@@ -85,35 +101,44 @@ public class SessionService(
 
     public async Task<ReadSessionDto?> GetSessionByIdAsync(int id)
     {
-        var session = await sessionRepository.GetFirstBySpecAsync(new SessionWithDetailsSpec(id));
+        var session = await sessionRepository.GetFirstBySpecAsync(
+                new SessionWithDetailsByIdSpec(id)
+            );
         return session == null ? null : MapToDto(session);
     }
 
     public async Task<List<ReadSessionDto>> GetAllSessionsAsync()
     {
-        var sessions = await sessionRepository.GetListBySpecAsync(new SessionWithDetailsSpec());
+        var sessions = await sessionRepository.GetListBySpecAsync(
+                new SessionsWithDetailsSpec()
+            );
         return sessions.Select(MapToDto).ToList();
     }
 
-    public async Task DeleteSessionAsync(int id)
+    public async Task<ReadSessionDto?> DeleteSessionAsync(int id)
     {
-        await sessionRepository.DeleteAsync(id);
+        return MapToDto(await sessionRepository.DeleteAsync(id));
     }
 
-    public async Task<List<SeatStatusDto>> GetSeatsBySessionAsync(int sessionId)
+    public async Task<List<SeatStatusDto>> GetSeatsBySessionAsync(
+            int sessionId
+        )
     {
         var session = await sessionRepository.GetByIdAsync(sessionId);
         if (session == null) throw new Exception("Session not found");
 
         var seats = await seatRepository.GetListBySpecAsync(
-            new SeatsByHallSpec(session.HallId)
+            new SeatsByHallIdSpec(session.HallId)
         );
 
         var reservedTickets = await ticketRepository.GetListBySpecAsync(
-            new GetActiveTicketsForSeatsSpec(sessionId, seats.Select(s => s.Id).ToList())
+            new ActiveTicketsForSeatsBySessionIdSpec(
+                    sessionId, seats.Select(s => s.Id).ToList()
+                )
         );
 
-        var reservedSeatIds = reservedTickets.Select(t => t.SeatId).ToHashSet();
+        var reservedSeatIds = reservedTickets
+                                .Select(t => t.SeatId).ToHashSet();
 
 
         return seats.Select(s => new SeatStatusDto

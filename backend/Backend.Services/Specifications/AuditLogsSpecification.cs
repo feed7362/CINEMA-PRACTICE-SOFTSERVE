@@ -3,9 +3,9 @@ using Backend.Domain.Entities;
 
 namespace Backend.Services.Specifications
 {
-    public class AuditLogsFilterSpec : Specification<AuditLog>
+    public class AuditLogsByEmailSpec : Specification<AuditLog>
     {
-        public AuditLogsFilterSpec(string? email = null)
+        public AuditLogsByEmailSpec(string? email = null)
         {
             Query.OrderByDescending(x => x.Timestamp);
 
@@ -16,24 +16,32 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public sealed class AuditLogsPagedSpec : AuditLogsFilterSpec
+    public sealed class AuditLogsByEmailPagedSpec : AuditLogsByEmailSpec
     {
-        public AuditLogsPagedSpec(int page, int pageSize, string? email = null)
+        public AuditLogsByEmailPagedSpec(
+                int page, 
+                int pageSize, 
+                string? email = null
+            )
             : base(email)
         {
             Query.Skip((page - 1) * pageSize).Take(pageSize);
         }
     }
 
-    public class ErrorLogsFilterSpec : Specification<ErrorLog>
+    public class ErrorLogsByEmailAndPathSpec : Specification<ErrorLog>
     {
-        public ErrorLogsFilterSpec(string? email = null, string? path = null)
+        public ErrorLogsByEmailAndPathSpec(
+                string? email = null, 
+                string? path = null
+            )
         {
             Query.OrderByDescending(x => x.Timestamp);
 
             if (!string.IsNullOrWhiteSpace(email))
             {
-                Query.Where(x => x.UserEmail != null && x.UserEmail.Contains(email));
+                Query.Where(x => x.UserEmail != null 
+                                    && x.UserEmail.Contains(email));
             }
 
             if (!string.IsNullOrWhiteSpace(path))
@@ -43,9 +51,14 @@ namespace Backend.Services.Specifications
         }
     }
 
-    public sealed class ErrorLogsPagedSpec : ErrorLogsFilterSpec
+    public sealed class ErrorLogsByEmailAndPathPagedSpec : ErrorLogsByEmailAndPathSpec
     {
-        public ErrorLogsPagedSpec(int page, int pageSize, string? email = null, string? path = null)
+        public ErrorLogsByEmailAndPathPagedSpec(
+                int page, 
+                int pageSize, 
+                string? email = null, 
+                string? path = null
+            )
             : base(email, path)
         {
             Query.Skip((page - 1) * pageSize).Take(pageSize);

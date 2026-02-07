@@ -21,7 +21,9 @@ public class SessionConfiguration : IEntityTypeConfiguration<Session>
 
         builder.Property(s => s.StartTime)
             .IsRequired()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'");
+            .HasDefaultValueSql(
+                "CURRENT_TIMESTAMP AT TIME ZONE 'UTC'"
+            );
 
         builder.Property(s => s.EndTime)
             .IsRequired();

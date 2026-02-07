@@ -8,29 +8,45 @@ using Backend.Services.Specifications;
 
 namespace Backend.Services.Services;
 
-public class TicketService(IRepository<Ticket> ticketRepository) : ITicketService
+public class TicketService(
+        IRepository<Ticket> ticketRepository
+    ) : ITicketService
 {
-    public async Task<TicketResponseDto?> GetTicketByIdAsync(int ticketId, int userId)
+    public async Task<TicketResponseDto?> GetTicketByIdAsync(
+            int ticketId, 
+            int userId
+        )
     {
-        var ticket = await ticketRepository.GetFirstBySpecAsync(new TicketByIdAndUserSpec(ticketId, userId));
+        var ticket = await ticketRepository.GetFirstBySpecAsync(
+                new TicketByIdAndUserIdSpec(ticketId, userId)
+            );
 
         return ticket == null ? null : MapToTicketResponse(ticket);
     }
 
-    public async Task<PagedResponse<TicketResponseDto>> GetUserTicketsAsync(int userId, int page = 1, int pageSize = 10)
+    public async Task<PagedResponse<TicketResponseDto>> GetUserTicketsAsync(
+            int userId, 
+            int page = 1, 
+            int pageSize = 10
+        )
     {
         var countSpec = new Specification<Ticket>();
         countSpec.Query.Where(t => t.Booking.ApplicationUserId == userId);
         var totalCount = await ticketRepository.CountAsync(countSpec);
 
         
-        var pagedSpec = new UserTicketsPagedSpec(userId, page, pageSize);
+        var pagedSpec = new TicketsByUserIdPagedSpec(userId, page, pageSize);
         var tickets = await ticketRepository.GetListBySpecAsync(pagedSpec);
 
         
         var items = tickets.Select(MapToTicketResponse).ToList();
 
-        return new PagedResponse<TicketResponseDto>(items, totalCount, page, pageSize);
+        return new PagedResponse<TicketResponseDto>(
+                items, 
+                totalCount, 
+                page, 
+                pageSize
+            );
     }
 
     private TicketResponseDto MapToTicketResponse(Ticket ticket)

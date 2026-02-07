@@ -7,7 +7,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Backend.Services.Services.BackgroundServices;
 
-public class ExpiredBookingWorker(IServiceProvider serviceProvider, ILogger<ExpiredBookingWorker> logger)
+public class ExpiredBookingWorker(
+        IServiceProvider serviceProvider, 
+        ILogger<ExpiredBookingWorker> logger
+    )
     : BackgroundService
 {
     private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(1);
@@ -24,7 +27,10 @@ public class ExpiredBookingWorker(IServiceProvider serviceProvider, ILogger<Expi
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error occurred while canceling expired bookings.");
+                logger.LogError(
+                        ex, 
+                        "Error occurred while canceling expired bookings."
+                    );
             }
 
             await Task.Delay(_checkInterval, stoppingToken);
@@ -34,15 +40,22 @@ public class ExpiredBookingWorker(IServiceProvider serviceProvider, ILogger<Expi
     private async Task CancelExpiredBookingsAsync()
     {
         using var scope = serviceProvider.CreateScope();
-        var bookingRepository = scope.ServiceProvider.GetRequiredService<IRepository<Booking>>();
+        var bookingRepository = scope
+            .ServiceProvider
+            .GetRequiredService<IRepository<Booking>>();
 
-        logger.LogInformation("Checking for expired bookings at {Time}", DateTime.UtcNow);
+        logger.LogInformation(
+                "Checking for expired bookings at {Time}", 
+                DateTime.UtcNow
+            );
 
         var expiredSpec = new Specification<Booking>();
         expiredSpec.Query
-            .Where(b => b.Status == BookingStatus.PENDING && b.ExpirationTime < DateTime.UtcNow);
+            .Where(b => b.Status == BookingStatus.PENDING 
+                        && b.ExpirationTime < DateTime.UtcNow);
 
-        var expiredBookings = await bookingRepository.GetListBySpecAsync(expiredSpec);
+        var expiredBookings = await bookingRepository
+                                        .GetListBySpecAsync(expiredSpec);
 
         if (expiredBookings.Any())
         {
@@ -52,7 +65,10 @@ public class ExpiredBookingWorker(IServiceProvider serviceProvider, ILogger<Expi
             }
 
             await bookingRepository.SaveChangesAsync();
-            logger.LogInformation("Successfully canceled {Count} expired bookings.", expiredBookings.Count);
+            logger.LogInformation(
+                    "Successfully canceled {Count} expired bookings.", 
+                    expiredBookings.Count
+                );
         }
     }
 }

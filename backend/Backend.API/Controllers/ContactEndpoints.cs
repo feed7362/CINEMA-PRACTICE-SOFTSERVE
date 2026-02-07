@@ -25,7 +25,9 @@ public static class ContactEndpoints
 
             await repository.AddAsync(message);
 
-            return Results.Ok(new { message = "Повідомлення успішно відправлено" });
+            return Results.Ok(new { 
+                message = "Повідомлення успішно відправлено" 
+            });
         });
     }
 }

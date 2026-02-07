@@ -13,7 +13,7 @@ public interface ISessionService
 
     Task<List<ReadSessionDto>> GetAllSessionsAsync();
 
-    Task DeleteSessionAsync(int id);
+    Task<ReadSessionDto?> DeleteSessionAsync(int id);
 
     Task<List<SeatStatusDto>> GetSeatsBySessionAsync(int sessionId);
 

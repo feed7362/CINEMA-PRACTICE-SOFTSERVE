@@ -4,5 +4,7 @@ namespace Backend.Services.Interfaces;
 
 public interface IStudioService
 {
-    Task<IEnumerable<ReadStudioDto>> GetAllStudiosAsync(StudioFilterDto filter);
+    Task<IEnumerable<ReadStudioDto>> GetAllStudiosAsync(
+            StudioFilterDto filter
+        );
 }

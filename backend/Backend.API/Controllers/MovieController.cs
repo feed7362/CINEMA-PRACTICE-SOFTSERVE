@@ -31,12 +31,32 @@ internal static class MovieEndpoints
 
         group.MapGet("/{id:int}", async (
                 int id,
-                IMovieService movieService) =>
+                ClaimsPrincipal user,
+                IMovieService movieService,
+                IMovieRecommendationService recommendationService,
+                bool recordView = false) =>
             {
                 var movie = await movieService.GetMovieByIdAsync(id);
-                return movie is null
-                    ? Results.NotFound()
-                    : Results.Ok(movie);
+                if (movie is null) return Results.NotFound();
+
+                if (recordView)
+                {
+                    var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (userIdClaim != null)
+                    {
+                        var userId = int.Parse(userIdClaim);
+
+                        if (!user.IsInRole("Admin"))
+                        {
+                            await recommendationService.RecordMovieViewAsync(
+                                userId, 
+                                id
+                            );
+                        }
+                    }
+                }
+
+                return Results.Ok(movie);
             })
             .WithName("GetMovieById")
             .WithSummary("Get Movie by Id");
@@ -72,8 +92,8 @@ internal static class MovieEndpoints
                 int id,
                 IMovieService movieService) =>
             {
-                await movieService.DeleteMovieAsync(id);
-                return Results.NoContent();
+                var movie = await movieService.DeleteMovieAsync(id);
+                return Results.Ok(movie);
             })
             .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteMovie")
@@ -84,11 +104,13 @@ internal static class MovieEndpoints
                 IMovieRecommendationService recommendationService) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var recommendations = await recommendationService.GetRecommendationsForUserAsync(userId);
+            var recommendations = await recommendationService
+                                            .GetRecommendationsForUserAsync(userId);
             return Results.Ok(recommendations);
         })
             .RequireAuthorization()
             .WithName("GetUserRecommendations")
-            .WithSummary("Get personalized movie recommendations for the logged-in user");
+            .WithSummary("Get personalized movie recommendations for " +
+            "the logged-in user");
     }
 }
