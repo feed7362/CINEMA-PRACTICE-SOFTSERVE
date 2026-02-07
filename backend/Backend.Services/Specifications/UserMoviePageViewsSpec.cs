@@ -1,29 +1,33 @@
 ﻿using Backend.Domain.Entities;
 using Ardalis.Specification;
 
-namespace Backend.Services.Specifications;
-
-public class UserMoviePageViewsSpec : Specification<MoviePageView>
+namespace Backend.Services.Specifications
 {
-    public UserMoviePageViewsSpec(int userId)
+    public class RecentUserMovieViewsSpec : Specification<MoviePageView>
     {
-        Query
-            .Where(v => v.UserId == userId)
-            .Include(v => v.Movie)
-                .ThenInclude(m => m.MovieGenres)
-            .Include(v => v.Movie)
-                .ThenInclude(m => m.MovieActors);
+        public RecentUserMovieViewsSpec(int userId)
+        {
+            Query
+                .Where(v => v.UserId == userId)
+                .Include(v => v.Movie)
+                    .ThenInclude(m => m.MovieGenres)
+                .Include(v => v.Movie)
+                    .ThenInclude(m => m.MovieActors)
+                .OrderByDescending(v => v.LastViewedAt);
+        }
     }
-}
 
-public class MovieWithActorsAndGenresSpec : Specification<Movie>
-{
-    public MovieWithActorsAndGenresSpec()
+    public class RecommendedMoviesCandidateSpec : Specification<Movie>
     {
-        Query
-            .Include(m => m.MovieActors)
-                .ThenInclude(ma => ma.Actor)
-            .Include(m => m.MovieGenres)
-                .ThenInclude(mg => mg.Genre);
+        public RecommendedMoviesCandidateSpec(IEnumerable<int> genreIds, IEnumerable<int> actorIds, IEnumerable<int> excludedMovieIds)
+        {
+            Query
+                .Include(m => m.MovieActors).ThenInclude(ma => ma.Actor)
+                .Include(m => m.MovieGenres).ThenInclude(mg => mg.Genre)
+                .Where(m => (m.MovieGenres.Any(g => genreIds.Contains(g.GenreId)) ||
+                             m.MovieActors.Any(a => actorIds.Contains(a.ActorId))) &&
+                            !excludedMovieIds.Contains(m.Id))
+                .AsNoTracking(); 
+        }
     }
 }
