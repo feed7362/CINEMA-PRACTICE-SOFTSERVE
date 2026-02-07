@@ -126,11 +126,11 @@ public class HallService(
         }).ToList();
     }
 
-    public async Task DeleteHallAsync(int id)
+    public async Task<ReadHallDto?> DeleteHallAsync(int id)
     {
         //Soft delete cause sql blocks this to prevent data corruption(ticket and seats relations)
         var hall = await hallRepository.GetByIdAsync(id);
-        if (hall == null) return;
+        if (hall == null) return null;
 
         var hasActiveBookings = await sessionRepository.AnyAsync(s =>
             s.HallId == id && s.EndTime > DateTime.UtcNow);
@@ -143,5 +143,13 @@ public class HallService(
 
         hall.IsDeleted = true;
         await hallRepository.UpdateAsync(hall);
+
+        return new ReadHallDto
+        {
+            Id = hall.Id,
+            Name = hall.Name,
+            Capacity = hall.Capacity,
+            Format = hall.Format.ToString()
+        };
     }
 }

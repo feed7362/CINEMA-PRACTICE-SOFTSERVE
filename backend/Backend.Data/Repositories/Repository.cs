@@ -25,31 +25,10 @@ namespace Backend.Data.Repositories
             return await _dbSet.FindAsync(id);
         }
 
-        public void Insert(TEntity entity)
+        public TEntity Insert(TEntity entity)
         {
             _dbSet.Add(entity);
-        }
-
-        public void Delete(int id)
-        {
-            var entity = _dbSet.Find(id);
-            if (entity != null) Delete(entity);
-        }
-
-        public void Delete(TEntity entity)
-        {
-            if (context.Entry(entity).State == EntityState.Detached)
-            {
-                _dbSet.Attach(entity);
-            }
-
-            _dbSet.Remove(entity);
-        }
-
-        public void Update(TEntity entity)
-        {
-            _dbSet.Attach(entity);
-            context.Entry(entity).State = EntityState.Modified;
+            return entity;
         }
 
         public IEnumerable<TEntity> GetListBySpec(
@@ -80,20 +59,24 @@ namespace Backend.Data.Repositories
             return entity;
         }
 
-        public async Task UpdateAsync(TEntity entity)
+        public async Task<TEntity?> UpdateAsync(TEntity entity)
         {
             _dbSet.Attach(entity);
             context.Entry(entity).State = EntityState.Modified;
             await context.SaveChangesAsync();
+
+            return entity;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<TEntity?> DeleteAsync(int id)
         {
             var entity = await _dbSet.FindAsync(id);
             if (entity != null)
             {
                 await DeleteAsync(entity);
             }
+
+            return entity;
         }
 
         public async Task SaveChangesAsync()
@@ -101,7 +84,7 @@ namespace Backend.Data.Repositories
             await context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(TEntity entity)
+        public async Task<TEntity?> DeleteAsync(TEntity entity)
         {
             if (context.Entry(entity).State == EntityState.Detached)
             {
@@ -110,6 +93,8 @@ namespace Backend.Data.Repositories
 
             _dbSet.Remove(entity);
             await context.SaveChangesAsync();
+
+            return entity;
         }
 
         public async Task<List<TEntity>> GetListBySpecAsync(

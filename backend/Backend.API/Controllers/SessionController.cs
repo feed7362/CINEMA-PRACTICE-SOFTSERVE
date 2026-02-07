@@ -64,8 +64,8 @@ internal static class SessionEndpoints
                 int id,
                 ISessionService sessionService) =>
             {
-                await sessionService.DeleteSessionAsync(id);
-                return Results.NoContent();
+                var session = await sessionService.DeleteSessionAsync(id);
+                return Results.Ok(session);
             })
             .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteSession")

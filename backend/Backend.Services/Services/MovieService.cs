@@ -124,9 +124,9 @@ namespace Backend.Services.Services
         }
 
 
-        public async Task DeleteMovieAsync(int id)
+        public async Task<ReadMovieDto?> DeleteMovieAsync(int id)
         {
-            await movieRepository.DeleteAsync(id);
+            return MapToDto(await movieRepository.DeleteAsync(id));
         }
 
         private static ReadMovieDto MapToDto(Movie m)

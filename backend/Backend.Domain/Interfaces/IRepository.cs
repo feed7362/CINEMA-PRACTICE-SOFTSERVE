@@ -9,7 +9,7 @@ namespace Backend.Domain.Interfaces
     {
         Task<List<TEntity>> GetAllAsync();
         Task<TEntity?> GetByIdAsync(int? id);
-        void Insert(TEntity entity);
+        TEntity Insert(TEntity entity);
 
         IEnumerable<TEntity> GetListBySpec(
                 ISpecification<TEntity> specification
@@ -20,9 +20,9 @@ namespace Backend.Domain.Interfaces
 
 
         Task<TEntity> AddAsync(TEntity entity);
-        Task UpdateAsync(TEntity entity);
-        Task DeleteAsync(TEntity entity);
-        Task DeleteAsync(int id);
+        Task<TEntity?> UpdateAsync(TEntity entity);
+        Task<TEntity?> DeleteAsync(TEntity entity);
+        Task<TEntity?> DeleteAsync(int id);
         Task SaveChangesAsync();
 
         Task<TEntity?> GetFirstBySpecAsync(ISpecification<TEntity> spec);

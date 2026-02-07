@@ -92,8 +92,8 @@ internal static class MovieEndpoints
                 int id,
                 IMovieService movieService) =>
             {
-                await movieService.DeleteMovieAsync(id);
-                return Results.NoContent();
+                var movie = await movieService.DeleteMovieAsync(id);
+                return Results.Ok(movie);
             })
             .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteMovie")

@@ -115,9 +115,9 @@ public class SessionService(
         return sessions.Select(MapToDto).ToList();
     }
 
-    public async Task DeleteSessionAsync(int id)
+    public async Task<ReadSessionDto?> DeleteSessionAsync(int id)
     {
-        await sessionRepository.DeleteAsync(id);
+        return MapToDto(await sessionRepository.DeleteAsync(id));
     }
 
     public async Task<List<SeatStatusDto>> GetSeatsBySessionAsync(
