@@ -1,4 +1,6 @@
-﻿using Backend.Domain.Entities;
+﻿using AutoMapper;
+using Backend.Domain.Entities;
+using Backend.Domain.Exceptions;
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs;
 using Backend.Services.DTOs.Admin;
@@ -9,7 +11,8 @@ namespace Backend.Services.Services;
 
 public class AdminLogService(
     IRepository<AuditLog> auditRepository,
-    IRepository<ErrorLog> errorRepository) : IAdminLogService
+    IRepository<ErrorLog> errorRepository,
+    IMapper mapper) : IAdminLogService
 {
     public async Task<PagedResponse<AuditLogDto>> GetAuditLogsAsync(
             int page, 
@@ -23,14 +26,7 @@ public class AdminLogService(
         var total = await auditRepository.CountAsync(filterSpec);
         var logs = await auditRepository.GetListBySpecAsync(pagedSpec);
 
-        var items = logs.Select(l => new AuditLogDto(
-            l.Id,
-            l.TableName,
-            l.Action,
-            l.UserEmail,
-            l.Timestamp,
-            JsonSerializer.Deserialize<object>(l.Changes) ?? new { }
-        )).ToList();
+        var items = mapper.Map<List<AuditLogDto>>(logs);
 
         return new PagedResponse<AuditLogDto>(items, total, page, pageSize);
     }
@@ -48,19 +44,20 @@ public class AdminLogService(
         var total = await errorRepository.CountAsync(filterSpec);
         var logs = await errorRepository.GetListBySpecAsync(pagedSpec);
 
-        var items = logs.Select(l => new ErrorLogDto(
-            l.Id,
-            l.Message,
-            l.Path,
-            l.UserEmail,
-            l.Timestamp,
-            l.Method
-        )).ToList();
+        var items = mapper.Map<List<ErrorLogDto>>(logs);
 
         return new PagedResponse<ErrorLogDto>(items, total, page, pageSize);
     }
 
     public async Task<ErrorLog?> GetErrorDetailAsync(
             int id
-        ) => await errorRepository.GetByIdAsync(id);
+        )
+    {
+        var error = await errorRepository.GetByIdAsync(id);
+
+        if (error == null)
+            throw new EntityNotFoundException("Лог помилки", id);
+
+        return error;
+    }
 }

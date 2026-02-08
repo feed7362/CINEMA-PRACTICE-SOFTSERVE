@@ -1,4 +1,6 @@
-﻿using Backend.Domain.Entities;
+﻿using AutoMapper;
+using Backend.Domain.Entities;
+using Backend.Domain.Exceptions;
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs.Seat;
 using Backend.Services.DTOs.Session;
@@ -13,20 +15,22 @@ public class SessionService(
         IRepository<Movie> movieRepository,
         IRepository<Hall> hallRepository,
         IRepository<Ticket> ticketRepository,
-        IRepository<Seat> seatRepository
+        IRepository<Seat> seatRepository,
+        IMapper mapper
     )
     : ISessionService
 {
     public async Task<ReadSessionDto> CreateSessionAsync(CreateSessionDto dto)
     {
-        var movie = await movieRepository.GetByIdAsync(dto.MovieId);
-        if (movie == null) throw new Exception("Movie not found");
+        var movie = await movieRepository.GetByIdAsync(dto.MovieId)
+            ?? throw new EntityNotFoundException("Фільм", dto.MovieId);
 
-        var hall = await hallRepository.GetByIdAsync(dto.HallId);
-        if (hall == null) throw new Exception("Hall not found");
+        var hall = await hallRepository.GetByIdAsync(dto.HallId)
+            ?? throw new EntityNotFoundException("Зал", dto.HallId);
 
 
         var endTime = dto.StartTime.AddMinutes(movie.Duration);
+
         var overlapSpec = new SessionOverlapSpec(
                 dto.HallId, 
                 dto.StartTime, 
@@ -37,31 +41,30 @@ public class SessionService(
 
         if (conflictingSessions > 0)
         {
-            throw new Exception(
-                $"Collision Detected! Hall {hall.Name} is already " +
-                $"booked during this time range."
-            );
+            throw new ConflictException($"Колізія! Зал '{hall.Name}'" +
+                $" уже заброньований на цей час.");
         }
 
-        var session = new Session
-        {
-            MovieId = dto.MovieId,
-            HallId = dto.HallId,
-            StartTime = dto.StartTime,
-            EndTime = endTime
-        };
+        var session = mapper.Map<Session>(dto);
+        session.EndTime = endTime;
+
         await sessionRepository.AddAsync(session);
 
-        return MapToDto(session);
+        return mapper.Map<ReadSessionDto>(session);
     }
 
     public async Task<ReadSessionDto?> UpdateSessionAsync(UpdateSessionDto dto)
     {
-        var session = await sessionRepository.GetByIdAsync(dto.Id);
-        if (session == null) return null;
+        var session = await sessionRepository.GetByIdAsync(dto.Id)
+        ?? throw new EntityNotFoundException("Сеанс", dto.Id);
 
-        var movie = await movieRepository.GetByIdAsync(dto.MovieId);
-        if (movie == null) return null;
+        var movieId = dto.MovieId ?? session.MovieId;
+        var movie = await movieRepository.GetByIdAsync(movieId)
+            ?? throw new EntityNotFoundException("Фільм", movieId);
+
+        var hallId = dto.HallId ?? session.HallId;
+        var hall = await hallRepository.GetByIdAsync(hallId)
+            ?? throw new EntityNotFoundException("Зал", hallId);
 
         var newEndTime = dto.StartTime.AddMinutes(movie.Duration);
 
@@ -75,8 +78,8 @@ public class SessionService(
 
         if (await sessionRepository.CountAsync(overlapSpec) > 0)
         {
-            throw new Exception("Time conflict! The new time overlaps " +
-                "with another session.");
+            throw new ConflictException($"Конфлікт! Зал '{hall.Name}'" +
+                $" зайнятий іншим сеансом у цей час.");
         }
 
         var ticketsExist = 
@@ -84,27 +87,29 @@ public class SessionService(
 
         if (ticketsExist)
         {
-            throw new Exception("Cannot update session: tickets already " +
-                "sold");
+            throw new ConflictException("Оновлення заборонено: " +
+                "на цей сеанс уже куплені квитки.");
         }
 
 
-        session.MovieId = dto.MovieId;
-        session.HallId = dto.HallId;
-        session.StartTime = dto.StartTime;
+        mapper.Map(dto, session);
+        session.MovieId = movieId;
+        session.HallId = hallId;
         session.EndTime = newEndTime;
 
         await sessionRepository.UpdateAsync(session);
 
-        return MapToDto(session);
+        return await GetSessionByIdAsync(session.Id);
     }
 
     public async Task<ReadSessionDto?> GetSessionByIdAsync(int id)
     {
         var session = await sessionRepository.GetFirstBySpecAsync(
                 new SessionWithDetailsByIdSpec(id)
-            );
-        return session == null ? null : MapToDto(session);
+            )
+            ?? throw new EntityNotFoundException("Сеанс", id);
+
+        return mapper.Map<ReadSessionDto>(session);
     }
 
     public async Task<List<ReadSessionDto>> GetAllSessionsAsync()
@@ -112,20 +117,31 @@ public class SessionService(
         var sessions = await sessionRepository.GetListBySpecAsync(
                 new SessionsWithDetailsSpec()
             );
-        return sessions.Select(MapToDto).ToList();
+        return mapper.Map<List<ReadSessionDto>>(sessions);
     }
 
     public async Task<ReadSessionDto?> DeleteSessionAsync(int id)
     {
-        return MapToDto(await sessionRepository.DeleteAsync(id));
+        var session = await sessionRepository.GetByIdAsync(id)
+            ?? throw new EntityNotFoundException("Сеанс", id);
+
+        if (await ticketRepository.AnyAsync(t => t.Booking.SessionId == id))
+        {
+            throw new ConflictException("Неможливо видалити сеанс: " +
+                "на нього вже продано квитки.");
+        }
+
+        await sessionRepository.DeleteAsync(session);
+
+        return mapper.Map<ReadSessionDto>(session);
     }
 
     public async Task<List<SeatStatusDto>> GetSeatsBySessionAsync(
             int sessionId
         )
     {
-        var session = await sessionRepository.GetByIdAsync(sessionId);
-        if (session == null) throw new Exception("Session not found");
+        var session = await sessionRepository.GetByIdAsync(sessionId)
+            ?? throw new EntityNotFoundException("Сеанс", sessionId);
 
         var seats = await seatRepository.GetListBySpecAsync(
             new SeatsByHallIdSpec(session.HallId)
@@ -149,19 +165,5 @@ public class SessionService(
             SeatType = s.SeatType.ToString(),
             IsReserved = reservedSeatIds.Contains(s.Id)
         }).ToList();
-    }
-
-
-    private static ReadSessionDto MapToDto(Session s)
-    {
-        return new ReadSessionDto
-        {
-            Id = s.Id,
-            MovieId = s.MovieId,
-            HallName = s.Hall.Name,
-            HallFormat = s.Hall.Format.ToString(),
-            StartTime = s.StartTime,
-            EndTime = s.EndTime
-        };
     }
 }

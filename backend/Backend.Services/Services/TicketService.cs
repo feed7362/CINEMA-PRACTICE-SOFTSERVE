@@ -1,5 +1,7 @@
 ﻿using Ardalis.Specification;
+using AutoMapper;
 using Backend.Domain.Entities;
+using Backend.Domain.Exceptions;
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs;
 using Backend.Services.DTOs.Ticket;
@@ -9,7 +11,8 @@ using Backend.Services.Specifications;
 namespace Backend.Services.Services;
 
 public class TicketService(
-        IRepository<Ticket> ticketRepository
+        IRepository<Ticket> ticketRepository,
+        IMapper mapper
     ) : ITicketService
 {
     public async Task<TicketResponseDto?> GetTicketByIdAsync(
@@ -21,7 +24,10 @@ public class TicketService(
                 new TicketByIdAndUserIdSpec(ticketId, userId)
             );
 
-        return ticket == null ? null : MapToTicketResponse(ticket);
+        if (ticket == null)
+            throw new EntityNotFoundException("Квиток", ticketId);
+
+        return mapper.Map<TicketResponseDto>(ticket);
     }
 
     public async Task<PagedResponse<TicketResponseDto>> GetUserTicketsAsync(
@@ -38,8 +44,8 @@ public class TicketService(
         var pagedSpec = new TicketsByUserIdPagedSpec(userId, page, pageSize);
         var tickets = await ticketRepository.GetListBySpecAsync(pagedSpec);
 
-        
-        var items = tickets.Select(MapToTicketResponse).ToList();
+
+        var items = mapper.Map<List<TicketResponseDto>>(tickets);
 
         return new PagedResponse<TicketResponseDto>(
                 items, 
@@ -47,19 +53,5 @@ public class TicketService(
                 page, 
                 pageSize
             );
-    }
-
-    private TicketResponseDto MapToTicketResponse(Ticket ticket)
-    {
-        return new TicketResponseDto(
-            ticket.Id,
-            ticket.Booking.Session.Movie.TitleUkr,
-            ticket.Booking.Session.Hall.Name,
-            ticket.Seat.RowNumber,
-            ticket.Seat.SeatNumber,
-            ticket.Seat.SeatType.ToString(),
-            ticket.Booking.Session.StartTime,
-            ticket.Booking.Status.ToString()
-        );
     }
 }

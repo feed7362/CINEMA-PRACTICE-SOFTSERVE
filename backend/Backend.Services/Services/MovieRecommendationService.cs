@@ -1,5 +1,7 @@
 ﻿using Ardalis.Specification;
+using AutoMapper;
 using Backend.Domain.Entities;
+using Backend.Domain.Exceptions;
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs.Movie;
 using Backend.Services.Interfaces;
@@ -7,23 +9,19 @@ using Backend.Services.Specifications;
 
 namespace Backend.Services.Services;
 
-public class MovieRecommendationService : IMovieRecommendationService
+public class MovieRecommendationService(
+        IRepository<MoviePageView> viewRepository,
+        IRepository<Movie> movieRepository,
+        IMapper mapper
+    ) : IMovieRecommendationService
 {
-    private readonly IRepository<MoviePageView> _viewRepository;
-    private readonly IRepository<Movie> _movieRepository;
-
-    public MovieRecommendationService(
-            IRepository<MoviePageView> viewRepository, 
-            IRepository<Movie> movieRepository
-        )
-    {
-        _viewRepository = viewRepository;
-        _movieRepository = movieRepository;
-    }
 
     public async Task RecordMovieViewAsync(int userId, int movieId)
     {
-        var views = await _viewRepository.GetListBySpecAsync(
+        var movieExists = await movieRepository.AnyAsync(m => m.Id == movieId);
+        if (!movieExists) throw new EntityNotFoundException("Фільм", movieId);
+
+        var views = await viewRepository.GetListBySpecAsync(
                 new RecentMovieViewsByUserIdSpec(userId)
             );
         var existingView = views.FirstOrDefault(v => v.MovieId == movieId);
@@ -33,10 +31,10 @@ public class MovieRecommendationService : IMovieRecommendationService
             if (views.Count >= 10)
             {
                 var oldest = views.Last();
-                await _viewRepository.DeleteAsync(oldest);
+                await viewRepository.DeleteAsync(oldest);
             }
 
-            await _viewRepository.AddAsync(new MoviePageView
+            await viewRepository.AddAsync(new MoviePageView
             {
                 UserId = userId,
                 MovieId = movieId,
@@ -48,10 +46,8 @@ public class MovieRecommendationService : IMovieRecommendationService
         {
             existingView.ViewCount++;
             existingView.LastViewedAt = DateTime.UtcNow;
-            await _viewRepository.UpdateAsync(existingView);
+            await viewRepository.UpdateAsync(existingView);
         }
-
-        await _viewRepository.SaveChangesAsync();
     }
 
     public async Task<List<MovieRecommendationDto>> GetRecommendationsForUserAsync(
@@ -59,7 +55,7 @@ public class MovieRecommendationService : IMovieRecommendationService
             int top = 10
         )
     {
-        var views = await _viewRepository.GetListBySpecAsync(
+        var views = await viewRepository.GetListBySpecAsync(
                 new RecentMovieViewsByUserIdSpec(userId)
             );
         if (!views.Any()) return new List<MovieRecommendationDto>();
@@ -74,7 +70,7 @@ public class MovieRecommendationService : IMovieRecommendationService
 
         var viewedMovieIds = views.Select(v => v.MovieId).ToList();
 
-        var candidates = await _movieRepository.GetListBySpecAsync(
+        var candidates = await movieRepository.GetListBySpecAsync(
             new RecommendedMoviesCandidateSpec(
                     genreWeights.Keys, 
                     actorWeights.Keys, 
@@ -94,18 +90,7 @@ public class MovieRecommendationService : IMovieRecommendationService
             })
             .OrderByDescending(x => x.Score)
             .Take(top)
-            .Select(x => MapToDto(x.Movie))
+            .Select(x => mapper.Map<MovieRecommendationDto>(x.Movie))
             .ToList();
     }
-
-    private MovieRecommendationDto MapToDto(Movie m) => new()
-    {
-        Id = m.Id,
-        TitleOrg = m.TitleOrg,
-        TitleUkr = m.TitleUkr,
-        Director = m.Director,
-        ImdbRating = m.ImdbRating,
-        Genres = m.MovieGenres.Select(g => g.Genre.Name).ToList(),
-        Actors = m.MovieActors.Select(a => a.Actor.Name).ToList()
-    };
 }
