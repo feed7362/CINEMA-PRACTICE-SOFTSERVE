@@ -87,12 +87,4 @@ namespace Backend.Services.Specifications
                 .Take(pageSize);
         }
     }
-
-    public class DiscountByCodeSpec : Specification<Discount>
-    {
-        public DiscountByCodeSpec(string code)
-        {
-            Query.Where(d => d.Code == code && d.Type == DiscountType.PROMOCODE);
-        }
-    }
 }
