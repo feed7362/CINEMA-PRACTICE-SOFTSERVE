@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {useParams, useNavigate} from 'react-router-dom';
-import type {Seat, LockBookingResponse} from '@/types/booking';
+import type {Seat} from '@/types/booking';
 import api from "@/api/axiosClient.ts";
 import {parseBackendError} from "@/utils/errorUtils.ts";
 import {sessionApi, type ReadSessionDto} from '@/api/sessionApi';
 import {movieApi} from "@/api/movieApi.ts";
 import {formatHallFormat} from "@/utils/formatters.ts";
+import {bookingApi} from "@/api/bookingApi.ts";
 
 
 const SeatSelectionPage: React.FC = () => {
@@ -54,12 +55,12 @@ const SeatSelectionPage: React.FC = () => {
 
     const handleProceedToPayment = async () => {
         try {
-            const response = await api.post<LockBookingResponse>('/booking/lock', {
+            const data = await bookingApi.lock({
                 sessionId: Number(sessionId),
                 seatIds: selectedIds
             });
 
-            navigate('/checkout', {state: response.data});
+            navigate('/checkout', {state: data});
 
         } catch (err: any) {
             const backendMessage = parseBackendError(err.response?.data);

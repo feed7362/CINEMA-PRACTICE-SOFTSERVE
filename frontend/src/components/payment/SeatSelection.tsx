@@ -1,8 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import api from "@/api/axiosClient.ts";
-import type {BookingResponse, LockBookingPayload, Seat} from "@/types/booking.ts";
+import type {LockBookingPayload, Seat} from "@/types/booking.ts";
 import {parseBackendError} from "@/utils/errorUtils.ts";
+import {bookingApi} from "@/api/bookingApi.ts";
 
 const SeatSelection: React.FC = () => {
     const {sessionId} = useParams<{ sessionId: string }>();
@@ -37,9 +38,9 @@ const SeatSelection: React.FC = () => {
         };
 
         try {
-            const response = await api.post<BookingResponse>('/booking/lock', payload);
+            const data = await bookingApi.lock(payload);
 
-            navigate('/checkout', {state: response.data});
+            navigate('/checkout', {state: data});
         } catch (err: any) {
             const message = parseBackendError(err.response?.data);
             setError(message);
