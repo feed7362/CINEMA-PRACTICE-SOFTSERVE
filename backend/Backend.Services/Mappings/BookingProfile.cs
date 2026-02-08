@@ -37,8 +37,10 @@ public class BookingProfile : Profile
                 b.BookingTime,
                 b.ExpirationTime,
                 b.Status.ToString(),
+                b.Tickets.Sum(t => t.FinalPrice),
                 null, // ClientSecret (Stripe)
-                b.PaymentIntentId
+                b.PaymentIntentId,
+                null // AppliedPromoCode
             ));
 
 

@@ -264,7 +264,10 @@ public class BookingService(
             var response = mapper.Map<BookingResponseDto>(booking);
 
             var intent = await service.GetAsync(booking.PaymentIntentId);
-            return response with { ClientSecret = intent.ClientSecret };
+            return response with {
+                ClientSecret = intent.ClientSecret,
+                AppliedPromoCode = discount.Code
+            };
         }
         catch (StripeException ex)
         {
