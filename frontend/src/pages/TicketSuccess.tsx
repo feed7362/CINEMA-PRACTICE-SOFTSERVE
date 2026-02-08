@@ -1,24 +1,44 @@
-﻿import React from 'react';
+﻿import React, {useEffect, useState} from 'react';
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
-import type { LockBookingResponse } from '@/types/booking';
+import type {BookingDetails} from '@/types/booking';
 import BaseButton from '@/components/ui/BaseButton';
+import {bookingApi} from "@/api/bookingApi.ts";
 
 const TicketSuccess: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const bookingData = location.state as LockBookingResponse | null;
 
-    if (!bookingData) {
-        return <Navigate to="/" replace />;
-    }
+    const state = location.state as { id: number } | null;
+    const [booking, setBooking] = useState<BookingDetails | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDetails = async () => {
+            if (state?.id) {
+                try {
+                    const data = await bookingApi.getDetails(state.id);
+                    setBooking(data);
+                } catch (err) {
+                    console.error("Помилка завантаження квитків", err);
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+        };
+        fetchDetails();
+    }, [state?.id]);
+
+    if (!state?.id) return <Navigate to="/" replace />;
+    if (isLoading) return <div className="min-h-screen bg-[#020617] flex items-center justify-center text-white">Завантаження квитків...</div>;
+    if (!booking) return <Navigate to="/" replace />;
 
     return (
         <div className="min-h-screen bg-[#020617] text-white font-['Inter'] flex flex-col relative overflow-hidden">
-            
+
             <div className="absolute top-1/2 left-1/2 w-175 h-175 bg-[#0753E0] rounded-full blur-[200px] opacity-15 pointer-events-none -translate-x-1/2 -translate-y-1/2" />
 
             <main className="grow container mx-auto px-6 py-10 relative z-10 flex flex-col items-center justify-center pt-32 pb-20">
-                
+
                 <div className="text-center mb-10">
                     <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/50 shadow-[0_0_20px_rgba(34,197,94,0.3)]">
                         <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,16 +50,16 @@ const TicketSuccess: React.FC = () => {
                 </div>
 
                 <div className="w-full max-w-md bg-[#051329] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative">
-                    
+
                     <div className="p-8 space-y-6">
                         <div className="flex justify-between items-start">
                             <div>
                                 <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Кінотеатр</p>
-                                <h3 className="text-xl font-bold text-white">NetFilm Cinema</h3> 
+                                <h3 className="text-xl font-bold text-white">NetFilm Cinema</h3>
                             </div>
                             <div className="text-right">
                                 <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">ID Бронювання</p>
-                                <p className="text-sm font-mono text-[#0753E0]">#{bookingData.id}</p>
+                                <p className="text-sm font-mono text-[#0753E0]">#{booking.id}</p>
                             </div>
                         </div>
 
@@ -47,7 +67,7 @@ const TicketSuccess: React.FC = () => {
                             <div>
                                 <p className="text-xs text-gray-400 mb-1">Дата та Час</p>
                                 <p className="font-semibold text-lg text-white">
-                                    {new Date(bookingData.hall).toLocaleString('uk-UA', {
+                                    {new Date(booking.session.startTime).toLocaleString('uk-UA', {
                                         day: 'numeric',
                                         month: 'long',
                                         hour: '2-digit',
@@ -60,9 +80,9 @@ const TicketSuccess: React.FC = () => {
                         <div>
                             <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-3">Ваші місця</p>
                             <div className="flex flex-wrap gap-2">
-                                {bookingData.seats.map((s: any, index: number) => (
+                                {booking.tickets.map((t, index) => (
                                     <span key={index} className="px-3 py-1 bg-[#0753E0]/20 border border-[#0753E0]/50 rounded-lg text-sm font-medium text-blue-200">
-                                        Ряд {s.rowNumber}, Місце {s.seatNumber}
+                                        Ряд {t.rowNumber}, Місце {t.seatNumber}
                                     </span>
                                 ))}
                             </div>
@@ -86,13 +106,13 @@ const TicketSuccess: React.FC = () => {
                 </div>
 
                 <div className="mt-10 flex flex-col md:flex-row gap-4 w-full max-w-md">
-                    <BaseButton 
+                    <BaseButton
                         onClick={() => navigate('/profile')}
                         className="w-full py-3 bg-[#0753E0] hover:bg-[#0642b5] shadow-lg shadow-blue-900/40 rounded-xl font-bold"
                     >
                         Мої квитки
                     </BaseButton>
-                    
+
                     <button
                         onClick={() => navigate('/')}
                         className="w-full py-3 rounded-xl border border-white/10 hover:bg-white/5 transition-colors text-gray-300 font-semibold"
