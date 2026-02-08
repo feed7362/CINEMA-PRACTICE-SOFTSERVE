@@ -7,6 +7,14 @@ public abstract class BaseApplicationException : Exception
 {
     protected BaseApplicationException(string message) : base(message) { }
 }
+public class InternalServerException : BaseApplicationException
+{
+    public InternalServerException(string message)
+        : base(message) { }
+
+    public InternalServerException()
+        : base("Сталася внутрішня помилка сервера. Будь ласка, спробуйте пізніше.") { }
+}
 
 public class NotFoundException : BaseApplicationException
 {
