@@ -2,5 +2,6 @@
 
 public record CreateBookingDto(
     int SessionId,
-    List<int> SeatIds
+    List<int> SeatIds,
+    string? Promocode = null
 );

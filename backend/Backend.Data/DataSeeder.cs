@@ -511,25 +511,31 @@ public static class DataSeeder
         if (!await context.Set<Discount>().AnyAsync())
         {
             context.Set<Discount>().AddRange(
-                new Discount { 
-                    Type = DiscountType.REGULAR, 
-                    Percentage = 0, 
-                    IsActive = true 
+                new Discount
+                {
+                    Type = DiscountType.REGULAR,
+                    Percentage = 0,
+                    IsActive = true
                 },
-                new Discount { 
+                new Discount
+                {
                     Type = DiscountType.STUDENT,
-                    Percentage = 20, 
-                    IsActive = true 
+                    Percentage = 20,
+                    IsActive = true
                 },
-                new Discount { 
-                    Type = DiscountType.MILITARY, 
-                    Percentage = 30, 
-                    IsActive = true 
+                new Discount
+                {
+                    Type = DiscountType.MILITARY,
+                    Percentage = 30,
+                    IsActive = true
                 },
-                new Discount { 
-                    Type = DiscountType.PROMOCODE, 
-                    Percentage = 25, 
-                    IsActive = true 
+                new Discount
+                {
+                    Type = DiscountType.PROMOCODE,
+                    Code = "WELCOME25",
+                    Percentage = 25,
+                    IsActive = true,
+                    ExpiryDate = DateTime.UtcNow.AddYears(1)
                 }
             );
             await context.SaveChangesAsync();

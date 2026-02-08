@@ -8,6 +8,8 @@ public record BookingResponseDto(
     DateTime BookingTime,
     DateTime ExpirationTime,
     string Status,
+    decimal TotalAmount,
     string? ClientSecret = null,
-    string? PaymentIntentId = null
+    string? PaymentIntentId = null,
+    string? AppliedPromoCode = null
 );

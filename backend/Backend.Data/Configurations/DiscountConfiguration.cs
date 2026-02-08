@@ -18,11 +18,21 @@ public class DiscountConfiguration : IEntityTypeConfiguration<Discount>
             .HasColumnType("smallint")
             .IsRequired();
 
+        builder.Property(d => d.Code)
+            .HasMaxLength(50);
+
         builder.Property(d => d.Percentage)
             .IsRequired()
             .HasDefaultValue(0);
 
         builder.Property(d => d.IsActive)
             .IsRequired();
+
+        builder.Property(d => d.ExpiryDate)
+            .IsRequired(false);
+
+        builder.HasIndex(d => d.Code)
+            .IsUnique()
+            .HasFilter("\"Code\" IS NOT NULL");
     }
 }

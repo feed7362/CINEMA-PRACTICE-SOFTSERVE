@@ -1,4 +1,5 @@
 ﻿using Backend.Domain.Entities;
+using Backend.Domain.Exceptions;
 using Backend.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -77,56 +78,38 @@ public class ExceptionHandlingMiddleware(
                 $"log error to DB: {ex.Message}");
         }
     }
-    private static Task HandleExceptionAsync(
-        HttpContext context, 
-        Exception exception
-    )
+    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "application/json";
+        var traceId = System.Diagnostics.Activity.Current?.Id ?? context.TraceIdentifier;
 
-        var traceId = System.Diagnostics.Activity.Current?.Id 
-            ?? context.TraceIdentifier;
-
-        var (statusCode, message) = exception switch
+        var (statusCode, title) = exception switch
         {
-            InvalidOperationException => 
-                (HttpStatusCode.Conflict, exception.Message),
+            EntityNotFoundException => (HttpStatusCode.NotFound, "Resource Not Found"),
+            BookingConflictException => (HttpStatusCode.Conflict, "Business Rule Violation"),
+            PaymentRequiredException => (HttpStatusCode.PaymentRequired, "Stripe Payment Error"),
 
-            DbUpdateException { 
-                InnerException: PostgresException { 
-                    SqlState: "40001" 
-                } 
-            } => (
-                    HttpStatusCode.ServiceUnavailable, 
-                    "Concurrency conflict: Please try again."
-                ),
-            KeyNotFoundException => (
-                HttpStatusCode.NotFound, 
-                exception.Message
-                ),
-            _ => (
-                HttpStatusCode.InternalServerError, 
-                "An unexpected server error occurred."
-            )
+            KeyNotFoundException => (HttpStatusCode.NotFound, "Reference Not Found"),
+            DbUpdateException { InnerException: PostgresException { SqlState: "40001" } }
+                => (HttpStatusCode.ServiceUnavailable, "Concurrency Conflict"),
+
+            _ => (HttpStatusCode.InternalServerError, "Server Error")
         };
 
         context.Response.StatusCode = (int)statusCode;
 
         var response = new ProblemDetails
         {
-            Title = exception 
-                    is InvalidOperationException 
-                        ? "Domain Logic Conflict" 
-                        : statusCode.ToString(),
+            Title = title,
             Status = (int)statusCode,
-            Detail = message,
+            Detail = exception.Message,
             Instance = context.Request.Path
         };
 
         response.Extensions.Add("traceId", traceId);
 
-        return context.Response.WriteAsync(
-            JsonSerializer.Serialize(response)
-        );
+        response.Extensions.Add("exceptionType", exception.GetType().Name);
+
+        return context.Response.WriteAsync(JsonSerializer.Serialize(response));
     }
 }

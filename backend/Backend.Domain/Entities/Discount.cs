@@ -19,4 +19,7 @@ public class Discount : IEntity
     public int Percentage { get; set; }
 
     public bool IsActive { get; set; }
+
+    public string? Code { get; set; }
+    public DateTime? ExpiryDate { get; set; }
 }

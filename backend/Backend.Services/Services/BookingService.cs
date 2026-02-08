@@ -1,13 +1,15 @@
-﻿using Backend.Domain.Entities;
+﻿using AutoMapper;
+using Backend.Domain.Entities;
+using Backend.Domain.Exceptions;
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs;
 using Backend.Services.DTOs.Booking;
+using Backend.Services.Interfaces;
 using Backend.Services.Specifications;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Stripe;
 using System.Data;
-using Backend.Services.Interfaces;
 
 namespace Backend.Services.Services;
 
@@ -16,7 +18,9 @@ public class BookingService(
     IRepository<Session> sessionRepository,
     IRepository<Seat> seatRepository,
     IRepository<Domain.Entities.Discount> discountRepository,
-    IRepository<Ticket> ticketRepository)
+    IRepository<Ticket> ticketRepository,
+    IMapper mapper
+    )
     : IBookingService
 {
     public async Task<BookingResponseDto> LockBookingAsync(
@@ -38,9 +42,9 @@ public class BookingService(
 
             if (activeTickets.Count != 0)
             {
-                throw new InvalidOperationException(
-                        "Одне або декілька місць уже зайняті."
-                    );
+                throw new BookingConflictException(
+                    "Одне або декілька місць уже зайняті."
+                );
             }
 
             var booking = await CreateBookingEntityInternalAsync(dto, userId);
@@ -71,24 +75,17 @@ public class BookingService(
             // Commit
             await transaction.CommitAsync();
 
-            return new BookingResponseDto(
-                booking.Id,
-                booking.ApplicationUserId,
-                booking.SessionId,
-                booking.BookingTime,
-                booking.ExpirationTime,
-                booking.Status.ToString(),
-                intent.ClientSecret,
-                intent.Id
-            );
+            return mapper.Map<BookingResponseDto>(booking) with
+            {
+                ClientSecret = intent.ClientSecret,
+                PaymentIntentId = intent.Id
+            };
         }
         catch (DbUpdateException ex) 
-            when (ex.InnerException is PostgresException { SqlState: "40001" })
+        when (ex.InnerException is PostgresException { SqlState: "40001" })
         {
             await transaction.RollbackAsync();
-            throw new Exception(
-                "Конфлікт паралелізму: місця були змінені іншою " +
-                "транзакцією. Будь ласка, спробуйте ще раз.");
+            throw new BookingConflictException("Конфлікт паралелізму. Спробуйте ще раз.");
         }
         catch (InvalidOperationException)
         {
@@ -103,7 +100,7 @@ public class BookingService(
     }
 
     public async Task<BookingResponseDto> ConfirmBookingAsync(
-            ConfirmBookingDto dto, 
+            ConfirmBookingRequestDto dto, 
             int userId
         )
     {
@@ -111,9 +108,9 @@ public class BookingService(
             new BookingWithDetailsByIdSpec(dto.BookingId, userId));
 
         if (booking == null)
-            throw new KeyNotFoundException(
-                    $"Бронювання {dto.BookingId} не знайдено."
-                );
+            throw new EntityNotFoundException(
+                nameof(Booking), dto.BookingId
+            );
 
         var isExpired = booking.Status == BookingStatus.CANCELED 
                         || booking.ExpirationTime < DateTime.UtcNow;
@@ -123,7 +120,7 @@ public class BookingService(
 
         if (intent.Status != "succeeded")
         {
-            throw new InvalidOperationException("Оплата не була успішною.");
+            throw new BadRequestException("Оплата не була успішною.");
         }
 
         if (isExpired)
@@ -135,9 +132,8 @@ public class BookingService(
             var refundService = new RefundService();
             await refundService.CreateAsync(refundOptions);
 
-            throw new InvalidOperationException(
-                "Час вашого бронювання закінчився до завершення " +
-                "оплати. Здійснено повне повернення коштів.");
+            throw new BookingConflictException("Час вашого бронювання " +
+                "закінчився.Здійснено повне повернення коштів.");
         }
 
         booking.Status = BookingStatus.CONFIRMED;
@@ -145,47 +141,52 @@ public class BookingService(
         await bookingRepository.UpdateAsync(booking);
         var clientSecret = intent.ClientSecret;
 
-        return new BookingResponseDto(
-            booking.Id,
-            booking.ApplicationUserId,
-            booking.SessionId,
-            booking.BookingTime,
-            booking.ExpirationTime,
-            booking.Status.ToString(),
-            clientSecret,
-            booking.PaymentIntentId
-        );
+
+        return mapper.Map<BookingResponseDto>(booking) with
+        {
+            ClientSecret = clientSecret,
+            PaymentIntentId = intent.Id
+        };
     }
 
     private async Task<Booking> CreateBookingEntityInternalAsync(
-            CreateBookingDto dto, 
-            int userId
-        )
+    CreateBookingDto dto,
+    int userId)
     {
+        // 1. Завантажуємо сеанс із цінами
         var session = await sessionRepository.GetFirstBySpecAsync(
-                new SessionWithPricesByIdSpec(dto.SessionId)
-            );
-        if (session == null) throw new Exception("Сеанс не знайдено.");
+            new SessionWithPricesByIdSpec(dto.SessionId));
 
-        var seats = await seatRepository.GetListBySpecAsync(
-                new SeatsByListIdsSpec(dto.SeatIds)
-            );
-        if (seats.Count != dto.SeatIds.Count) 
-            throw new Exception("Одне або декілька місць не знайдено.");
+        if (session == null)
+            throw new EntityNotFoundException(nameof(Session), dto.SessionId);
 
         if (session.StartTime < DateTime.UtcNow)
-        {
-            throw new InvalidOperationException("Неможливо забронювати квитки на " +
-                "                           сеанс, який уже розпочався або пройшов.");
-        }
+            throw new BadRequestException("Неможливо забронювати квитки на сеанс, що минув.");
 
-        var regularDiscount =
-            await discountRepository.GetFirstBySpecAsync(
-                    new DiscountByTypeSpec(DiscountType.REGULAR)
-                );
-        if (regularDiscount == null) throw new Exception(
-                "Базову знижку 'REGULAR' не знайдено в системі."
-            );
+        // 2. Завантажуємо місця
+        var seats = await seatRepository.GetListBySpecAsync(
+            new SeatsByListIdsSpec(dto.SeatIds));
+
+        if (seats.Count != dto.SeatIds.Count)
+            throw new BadRequestException("Одне або декілька місць не знайдено.");
+
+        Backend.Domain.Entities.Discount selectedDiscount;
+        if (!string.IsNullOrEmpty(dto.Promocode))
+        {
+            var promo = await discountRepository.GetFirstBySpecAsync(
+                new DiscountByCodeSpec(dto.Promocode));
+
+            if (promo == null || !promo.IsActive || (promo.ExpiryDate < DateTime.UtcNow))
+                throw new BadRequestException("Промокод недійсний або прострочений.");
+
+            selectedDiscount = promo;
+        }
+        else
+        {
+            selectedDiscount = await discountRepository.GetFirstBySpecAsync(
+                new DiscountByTypeSpec(DiscountType.REGULAR))
+                ?? throw new BookingConflictException("Системна помилка: Базову знижку не знайдено.");
+        }
 
         var booking = new Booking
         {
@@ -198,24 +199,86 @@ public class BookingService(
 
         foreach (var seat in seats)
         {
-            var priceEntry = session.Prices.FirstOrDefault(
-                    p => p.SeatType == seat.SeatType
-                );
-            if (priceEntry == null) throw new Exception(
-                    $"Відсутня ціна для типу місця {seat.SeatType}"
-                );
+            var priceEntry = session.Prices.FirstOrDefault(p => p.SeatType == seat.SeatType)
+                ?? throw new BadRequestException($"Відсутня ціна для типу місця {seat.SeatType}");
+
+            decimal finalPrice = priceEntry.Value * (1 - (decimal)selectedDiscount.Percentage / 100);
 
             booking.Tickets.Add(new Ticket
             {
                 SeatId = seat.Id,
                 PriceId = priceEntry.Id,
-                DiscountId = regularDiscount.Id,
-                FinalPrice = priceEntry.Value,
+                DiscountId = selectedDiscount.Id,
+                FinalPrice = finalPrice,
                 PurchaseTime = DateTime.UtcNow
             });
         }
 
         return booking;
+    }
+
+    public async Task<BookingResponseDto> ApplyPromocodeAsync(
+    int bookingId,
+    string code,
+    int userId)
+    {
+        await using var transaction = await bookingRepository.BeginTransactionAsync(IsolationLevel.Serializable);
+
+        try
+        {
+            var booking = await bookingRepository.GetFirstBySpecAsync(
+                new BookingWithDetailsByIdSpec(bookingId, userId));
+
+            if (booking == null) throw new EntityNotFoundException(nameof(Booking), bookingId);
+
+            if (booking.Status != BookingStatus.PENDING)
+                throw new ConflictException("Промокод можна застосувати тільки до бронювання у статусі PENDING.");
+
+            var discount = await discountRepository.GetFirstBySpecAsync(new DiscountByCodeSpec(code));
+
+            if (discount == null || !discount.IsActive || (discount.ExpiryDate < DateTime.UtcNow))
+                throw new BadRequestException("Промокод недійсний, неактивний або термін його дії закінчився.");
+
+            foreach (var ticket in booking.Tickets)
+            {
+                var basePrice = ticket.Price.Value;
+
+                ticket.DiscountId = discount.Id;
+
+                var discountedPrice = basePrice * (1 - (decimal)discount.Percentage / 100);
+                ticket.FinalPrice = Math.Round(discountedPrice, 2);
+            }
+
+            await bookingRepository.SaveChangesAsync();
+
+            var totalAmountInCents = (long)Math.Round(booking.Tickets.Sum(t => t.FinalPrice) * 100, 0);
+
+            var service = new PaymentIntentService();
+            await service.UpdateAsync(booking.PaymentIntentId, new PaymentIntentUpdateOptions
+            {
+                Amount = totalAmountInCents
+            });
+
+            await transaction.CommitAsync();
+
+            var response = mapper.Map<BookingResponseDto>(booking);
+
+            var intent = await service.GetAsync(booking.PaymentIntentId);
+            return response with {
+                ClientSecret = intent.ClientSecret,
+                AppliedPromoCode = discount.Code
+            };
+        }
+        catch (StripeException ex)
+        {
+            await transaction.RollbackAsync();
+            throw new BadRequestException($"Помилка Stripe при оновленні суми: {ex.Message}");
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task<BookingResponseDto?> GetBookingByIdAsync(
@@ -224,43 +287,31 @@ public class BookingService(
         )
     {
         var booking = await bookingRepository.GetFirstBySpecAsync(
-            new BookingByIdAndUserId(bookingId, userId));
+        new BookingByIdAndUserId(bookingId, userId));
 
         if (booking == null) return null;
 
-        string? clientSecret = null;
+        var response = mapper.Map<BookingResponseDto>(booking);
 
-        if (booking.Status != BookingStatus.PENDING 
-            || string.IsNullOrEmpty(booking.PaymentIntentId))
-            return new BookingResponseDto(
-                booking.Id,
-                booking.ApplicationUserId,
-                booking.SessionId,
-                booking.BookingTime,
-                booking.ExpirationTime,
-                booking.Status.ToString(),
-                clientSecret,
-                booking.PaymentIntentId
-            );
+        if (booking.Status == BookingStatus.PENDING && !string.IsNullOrEmpty(booking.PaymentIntentId))
+        {
+            try
+            {
+                var service = new PaymentIntentService();
+                var intent = await service.GetAsync(booking.PaymentIntentId);
 
+                return response with { ClientSecret = intent.ClientSecret };
+            }
+            catch (StripeException)
+            {
+                return response;
+            }
+        }
 
-        var service = new PaymentIntentService();
-        var intent = await service.GetAsync(booking.PaymentIntentId);
-        clientSecret = intent.ClientSecret;
-
-        return new BookingResponseDto(
-            booking.Id,
-            booking.ApplicationUserId,
-            booking.SessionId,
-            booking.BookingTime,
-            booking.ExpirationTime,
-            booking.Status.ToString(),
-            clientSecret,
-            booking.PaymentIntentId
-        );
+        return response;
     }
 
-    public async Task<PagedResponse<BookingSummaryDto>> GetUserBookingHistoryAsync(
+    public async Task<PagedResponse<BookingSummaryResponseDto>> GetUserBookingHistoryAsync(
             int userId, 
             int page, 
             int pageSize
@@ -273,17 +324,9 @@ public class BookingService(
         var pagedSpec = new BookingsByUserIdPagedSpec(userId, page, pageSize);
         var bookings = await bookingRepository.GetListBySpecAsync(pagedSpec);
 
-        var items = bookings.Select(b => new BookingSummaryDto(
-            b.Id,
-            b.Session.Movie.TitleUkr,
-            b.Session.StartTime,
-            b.BookingTime,
-            b.Tickets.Count,
-            b.Tickets.Sum(t => t.FinalPrice),
-            b.Status.ToString()
-        )).ToList();
+        var items = mapper.Map<List<BookingSummaryResponseDto>>(bookings);
 
-        return new PagedResponse<BookingSummaryDto>(
+        return new PagedResponse<BookingSummaryResponseDto>(
                 items, 
                 totalCount, 
                 page, 
@@ -291,7 +334,7 @@ public class BookingService(
             );
     }
 
-    public async Task<BookingDetailDto?> GetBookingDetailsByIdAsync(
+    public async Task<BookingDetailResponseDto?> GetBookingDetailsByIdAsync(
             int bookingId, 
             int userId
         )
@@ -302,61 +345,25 @@ public class BookingService(
 
         if (booking == null) return null;
 
-        string? clientSecret = null;
+        var response = mapper.Map<BookingDetailResponseDto>(booking);
 
         if (booking.Status != BookingStatus.PENDING 
             || string.IsNullOrEmpty(booking.PaymentIntentId))
-            return new BookingDetailDto(
-                booking.Id,
-                booking.BookingTime,
-                booking.ExpirationTime,
-                booking.Status.ToString(),
-                booking.Tickets.Sum(t => t.FinalPrice),
-                new SessionShortDto(
-                    booking.Session.Id,
-                    booking.Session.Movie.TitleUkr,
-                    booking.Session.Hall.Name,
-                    booking.Session.StartTime
-                ),
-                booking.Tickets.Select(t => new TicketDetailDto(
-                    t.Id,
-                    t.Seat.RowNumber,
-                    t.Seat.SeatNumber,
-                    t.Seat.SeatType.ToString(),
-                    t.FinalPrice,
-                    t.Discount?.Type.ToString() ?? "ВІДСУТНЯ"
-                )).ToList(),
-                booking.PaymentIntentId,
-                clientSecret
-            );
+        {
+            try
+            {
+                var service = new PaymentIntentService();
+                var intent = await service.GetAsync(booking.PaymentIntentId);
 
-        var service = new PaymentIntentService();
-        var intent = await service.GetAsync(booking.PaymentIntentId);
-        clientSecret = intent.ClientSecret;
+                return response with { ClientSecret = intent.ClientSecret };
+            }
+            catch (StripeException)
+            {
+                return response;
+            }
+        }
 
-        return new BookingDetailDto(
-            booking.Id,
-            booking.BookingTime,
-            booking.ExpirationTime,
-            booking.Status.ToString(),
-            booking.Tickets.Sum(t => t.FinalPrice),
-            new SessionShortDto(
-                booking.Session.Id,
-                booking.Session.Movie.TitleUkr,
-                booking.Session.Hall.Name,
-                booking.Session.StartTime
-            ),
-            booking.Tickets.Select(t => new TicketDetailDto(
-                t.Id,
-                t.Seat.RowNumber,
-                t.Seat.SeatNumber,
-                t.Seat.SeatType.ToString(),
-                t.FinalPrice,
-                t.Discount?.Type.ToString() ?? "ВІДСУТНЯ"
-            )).ToList(),
-            booking.PaymentIntentId,
-            clientSecret
-        );
+        return response;
     }
 
     public async Task<RefundResponseDto> RefundBookingAsync(int bookingId, int userId)
@@ -364,26 +371,22 @@ public class BookingService(
         var booking = await bookingRepository.GetFirstBySpecAsync(
             new BookingWithDetailsByIdSpec(bookingId, userId));
 
-        if (booking == null) throw new KeyNotFoundException("Бронювання не знайдено.");
+        if (booking == null)
+            throw new EntityNotFoundException(nameof(Booking), bookingId);
 
         if (booking.Status == BookingStatus.CANCELED)
-            throw new InvalidOperationException("Це бронювання вже було повернуто.");
+            throw new ConflictException("Це бронювання вже було скасовано.");
 
         if (string.IsNullOrEmpty(booking.PaymentIntentId))
-        {
-            throw new InvalidOperationException("Це бронювання не має пов'язаного платежу для повернення.");
-        }
-
-        var refundOptions = new RefundCreateOptions
-        {
-            PaymentIntent = booking.PaymentIntentId
-        };
-
-        var refundService = new RefundService();
+            throw new ConflictException("Платіж не знайдено. Повернення неможливе.");
 
         try
         {
-            var refund = await refundService.CreateAsync(refundOptions);
+            var refundService = new RefundService();
+            var refund = await refundService.CreateAsync(new RefundCreateOptions
+            {
+                PaymentIntent = booking.PaymentIntentId
+            });
 
             booking.Status = BookingStatus.CANCELED;
             await bookingRepository.UpdateAsync(booking);
@@ -398,7 +401,8 @@ public class BookingService(
         }
         catch (StripeException ex)
         {
-            throw new InvalidOperationException($"Помилка Stripe: {ex.Message}");
+            throw new ConflictException($"Stripe заблокував повернення: " +
+                $"{ex.Message}");
         }
     }
 }

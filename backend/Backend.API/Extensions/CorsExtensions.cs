@@ -8,7 +8,7 @@ public static class CorsExtensions
         {
             options.AddPolicy("Default", policy =>
             {
-                policy.WithOrigins(allowedOrigins)
+                policy.WithOrigins(allowedOrigins ?? Array.Empty<string>())
                  .WithMethods("GET", "POST", "PUT", "DELETE")
                  .WithHeaders("Content-Type", "Authorization");
             });

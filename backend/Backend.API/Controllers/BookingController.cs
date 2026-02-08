@@ -1,7 +1,8 @@
 ﻿using Backend.API.Extensions;
 using Backend.Services.DTOs.Booking;
-using System.Security.Claims;
 using Backend.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Backend.API.Controllers;
 
@@ -57,7 +58,7 @@ internal static class BookingEndpoints
             "protection");
 
         group.MapPost("/confirm", async (
-            ConfirmBookingDto dto,
+            ConfirmBookingRequestDto dto,
             IBookingService bookingService,
             ClaimsPrincipal user) =>
         {
@@ -121,6 +122,20 @@ internal static class BookingEndpoints
                 return Results.Ok(result);
             })
             .WithName("RefundBooking");
+        group.MapPost("/{id:int}/apply-promo", async (
+            int id,
+            [FromBody] ApplyPromocodeRequest request, // Дані з тіла
+            IBookingService bookingService,
+            ClaimsPrincipal user) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var result = await bookingService.ApplyPromocodeAsync(id, request.Code, userId);
+
+            return Results.Ok(result);
+        })
+        .WithName("ApplyPromocode")
+        .WithSummary("Applies a promocode to a pending booking and updates Stripe amount");
     }
     
     
