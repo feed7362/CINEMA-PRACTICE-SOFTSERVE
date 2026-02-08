@@ -31,9 +31,8 @@ internal static class TicketEndpoints
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var ticket = await service.GetTicketByIdAsync(id, userId);
-            return ticket is null 
-                ? Results.NotFound() 
-                : Results.Ok(ticket);
+
+            return Results.Ok(ticket);
         });
 
     }

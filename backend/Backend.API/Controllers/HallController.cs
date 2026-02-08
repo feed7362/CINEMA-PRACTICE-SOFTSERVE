@@ -33,9 +33,7 @@ internal static class HallEndpoints
                 IHallService hallService) =>
             {
                 var hall = await hallService.GetHallByIdAsync(id);
-                return hall is null
-                    ? Results.NotFound()
-                    : Results.Ok(hall);
+                return Results.Ok(hall);
             })
             .WithName("GetHallById")
             .WithSummary("Get Hall by Id");

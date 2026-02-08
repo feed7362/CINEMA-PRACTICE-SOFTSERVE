@@ -12,41 +12,50 @@ internal static class SessionEndpoints
             .MapGroup("/api/session")
             .WithTags("Session");
 
-        group.MapPost("/", async (
-                CreateSessionDto dto,
-                ISessionService sessionService) =>
-            {
-                var result = await sessionService.CreateSessionAsync(dto);
-
-                return Results.Created(
-                    $"/api/session/{result.Id}",
-                    result
-                );
-            })
-            .AddEndpointFilter<ValidationFilter<CreateSessionDto>>()
-            .RequireAuthorization(p => p.RequireRole("Admin"))
-            .WithName("CreateSession")
-            .WithSummary("Create a new Session");
+        group.MapGet("/", async (ISessionService sessionService) =>
+        {
+            var sessions = await sessionService.GetAllSessionsAsync();
+            return Results.Ok(sessions);
+        })
+            .WithName("GetAllSessions")
+            .WithSummary("Get all Sessions");
 
         group.MapGet("/{id:int}", async (
                 int id,
                 ISessionService sessionService) =>
             {
                 var session = await sessionService.GetSessionByIdAsync(id);
-                return session is null
-                    ? Results.NotFound()
-                    : Results.Ok(session);
+                return Results.Ok(session);
             })
             .WithName("GetSessionById")
             .WithSummary("Get Session by Id");
 
-        group.MapGet("/", async (ISessionService sessionService) =>
-            {
-                var sessions = await sessionService.GetAllSessionsAsync();
-                return Results.Ok(sessions);
-            })
-            .WithName("GetAllSessions")
-            .WithSummary("Get all Sessions");
+        group.MapGet("/{id:int}/seats", async (
+            int id,
+            ISessionService sessionService
+        ) =>
+        {
+            var seats = await sessionService.GetSeatsBySessionAsync(id);
+            return Results.Ok(seats);
+        })
+            .WithName("GetSeatsBySession")
+            .WithSummary("Get all seats for a session with reservation status");
+
+        group.MapPost("/", async (
+                CreateSessionDto dto,
+                ISessionService sessionService) =>
+        {
+            var result = await sessionService.CreateSessionAsync(dto);
+
+            return Results.Created(
+                $"/api/session/{result.Id}",
+                result
+            );
+        })
+            .AddEndpointFilter<ValidationFilter<CreateSessionDto>>()
+            .RequireAuthorization(p => p.RequireRole("Admin"))
+            .WithName("CreateSession")
+            .WithSummary("Create a new Session");
 
         group.MapPut("/", async (
                 UpdateSessionDto dto,
@@ -70,17 +79,5 @@ internal static class SessionEndpoints
             .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteSession")
             .WithSummary("Delete session by Id");
-
-
-        group.MapGet("/{id:int}/seats", async (
-            int id, 
-            ISessionService sessionService
-        ) =>
-            {
-                var seats = await sessionService.GetSeatsBySessionAsync(id);
-                return Results.Ok(seats);
-            })
-            .WithName("GetSeatsBySession")
-            .WithSummary("Get all seats for a session with reservation status");
     }
 }

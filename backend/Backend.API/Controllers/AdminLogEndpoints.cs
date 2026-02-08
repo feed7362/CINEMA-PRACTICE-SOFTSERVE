@@ -46,7 +46,7 @@ internal static class AdminLogEndpoints
         ) =>
         {
             var error = await service.GetErrorDetailAsync(id);
-            return error is null ? Results.NotFound() : Results.Ok(error);
+            return Results.Ok(error);
         })
             .WithName("GetErrorLogById")
             .WithSummary("Get error log details")

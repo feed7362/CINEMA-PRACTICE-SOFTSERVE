@@ -1,5 +1,7 @@
 using Backend.Domain.Entities;
 using Backend.Domain.Interfaces;
+using Backend.Services.DTOs.Studio;
+using Backend.Services.Interfaces;
 using Backend.Services.Specifications;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,20 +11,17 @@ public static class StudioEndpoints
 {
     public static void MapStudiosEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/studio");
+        var group = app.MapGroup("/api/studio")
+            .WithTags("Studio");
 
-        group.MapGet("/", async (IRepository<Studio> studioRepository) =>
+        group.MapGet("/", async (
+                [AsParameters] StudioFilterDto filter,
+                IStudioService studioService) =>
         {
-            var spec = new AllStudiosSpec();
-            var studios = await studioRepository.GetListBySpecAsync(spec);
-
-            var studioDtos = studios.Select(s => new 
-            {
-                Id = s.Id,
-                Name = s.Name
-            }).ToList();
-
-            return Results.Ok(studioDtos);
-        });
+            var result = await studioService.GetAllStudiosAsync(filter);
+            return Results.Ok(result);
+        })
+            .WithName("GetAllStudios")
+            .WithSummary("Get all sessions");
     }
 }
