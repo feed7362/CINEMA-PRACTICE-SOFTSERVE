@@ -57,7 +57,7 @@ internal static class BookingEndpoints
             "protection");
 
         group.MapPost("/confirm", async (
-            ConfirmBookingDto dto,
+            ConfirmBookingRequestDto dto,
             IBookingService bookingService,
             ClaimsPrincipal user) =>
         {
