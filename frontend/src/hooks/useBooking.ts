@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from "@/api/axiosClient";
 import { parseBackendError } from "@/utils/errorUtils";
-import type { Seat, LockBookingResponse } from '@/types/booking';
+import type { Seat } from '@/types/booking';
+import {bookingApi} from "@/api/bookingApi.ts";
 
 export const useBooking = (sessionId: string | undefined) => {
     const navigate = useNavigate();
@@ -40,11 +41,11 @@ export const useBooking = (sessionId: string | undefined) => {
         if (!sessionId) return;
         
         try {
-            const response = await api.post<LockBookingResponse>('/booking/lock', {
+            const data = await bookingApi.lock({
                 sessionId: Number(sessionId),
                 seatIds: selectedIds
             });
-            navigate('/checkout', { state: response.data });
+            navigate('/checkout', { state: data });
         } catch (err: any) {
             const backendMessage = parseBackendError(err.response?.data);
             setError(backendMessage);
