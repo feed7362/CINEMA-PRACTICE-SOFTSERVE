@@ -85,7 +85,8 @@ public class BookingService(
         when (ex.InnerException is PostgresException { SqlState: "40001" })
         {
             await transaction.RollbackAsync();
-            throw new BookingConflictException("Конфлікт паралелізму. Спробуйте ще раз.");
+            throw new BookingConflictException("Конфлікт паралелізму. " +
+                "Спробуйте ще раз.");
         }
         catch (InvalidOperationException)
         {
@@ -158,17 +159,22 @@ public class BookingService(
             new SessionWithPricesByIdSpec(dto.SessionId));
 
         if (session == null)
-            throw new EntityNotFoundException(nameof(Session), dto.SessionId);
+            throw new EntityNotFoundException(
+                nameof(Session), 
+                dto.SessionId
+            );
 
         if (session.StartTime < DateTime.UtcNow)
-            throw new BadRequestException("Неможливо забронювати квитки на сеанс, що минув.");
+            throw new BadRequestException("Неможливо забронювати квитки на" +
+                " сеанс, що минув.");
 
         // 2. Завантажуємо місця
         var seats = await seatRepository.GetListBySpecAsync(
             new SeatsByListIdsSpec(dto.SeatIds));
 
         if (seats.Count != dto.SeatIds.Count)
-            throw new BadRequestException("Одне або декілька місць не знайдено.");
+            throw new BadRequestException("Одне або декілька місць не" +
+                " знайдено.");
 
         Backend.Domain.Entities.Discount selectedDiscount;
         if (!string.IsNullOrEmpty(dto.Promocode))
@@ -176,8 +182,12 @@ public class BookingService(
             var promo = await discountRepository.GetFirstBySpecAsync(
                 new DiscountByCodeSpec(dto.Promocode));
 
-            if (promo == null || !promo.IsActive || (promo.ExpiryDate < DateTime.UtcNow))
-                throw new BadRequestException("Промокод недійсний або прострочений.");
+            if (promo == null 
+                || !promo.IsActive 
+                || (promo.ExpiryDate < DateTime.UtcNow)
+                )
+                throw new BadRequestException("Промокод недійсний або" +
+                    " прострочений.");
 
             selectedDiscount = promo;
         }
@@ -185,7 +195,8 @@ public class BookingService(
         {
             selectedDiscount = await discountRepository.GetFirstBySpecAsync(
                 new DiscountByTypeSpec(DiscountType.REGULAR))
-                ?? throw new BookingConflictException("Системна помилка: Базову знижку не знайдено.");
+                ?? throw new BookingConflictException("Системна помилка: " +
+                "Базову знижку не знайдено.");
         }
 
         var booking = new Booking
@@ -199,10 +210,14 @@ public class BookingService(
 
         foreach (var seat in seats)
         {
-            var priceEntry = session.Prices.FirstOrDefault(p => p.SeatType == seat.SeatType)
-                ?? throw new BadRequestException($"Відсутня ціна для типу місця {seat.SeatType}");
+            var priceEntry = session
+                .Prices
+                .FirstOrDefault(p => p.SeatType == seat.SeatType)
+                ?? throw new BadRequestException($"Відсутня ціна" +
+                $" для типу місця {seat.SeatType}");
 
-            decimal finalPrice = priceEntry.Value * (1 - (decimal)selectedDiscount.Percentage / 100);
+            decimal finalPrice = priceEntry
+                .Value * (1 - (decimal)selectedDiscount.Percentage / 100);
 
             booking.Tickets.Add(new Ticket
             {
@@ -222,22 +237,30 @@ public class BookingService(
     string code,
     int userId)
     {
-        await using var transaction = await bookingRepository.BeginTransactionAsync(IsolationLevel.Serializable);
+        await using var transaction = await bookingRepository
+            .BeginTransactionAsync(IsolationLevel.Serializable);
 
         try
         {
             var booking = await bookingRepository.GetFirstBySpecAsync(
                 new BookingWithDetailsByIdSpec(bookingId, userId));
 
-            if (booking == null) throw new EntityNotFoundException(nameof(Booking), bookingId);
+            if (booking == null) 
+                throw new EntityNotFoundException(nameof(Booking), bookingId);
 
             if (booking.Status != BookingStatus.PENDING)
-                throw new ConflictException("Промокод можна застосувати тільки до бронювання у статусі PENDING.");
+                throw new ConflictException("Промокод можна застосувати" +
+                    " тільки до бронювання у статусі PENDING.");
 
-            var discount = await discountRepository.GetFirstBySpecAsync(new DiscountByCodeSpec(code));
+            var discount = await discountRepository
+                .GetFirstBySpecAsync(new DiscountByCodeSpec(code));
 
-            if (discount == null || !discount.IsActive || (discount.ExpiryDate < DateTime.UtcNow))
-                throw new BadRequestException("Промокод недійсний, неактивний або термін його дії закінчився.");
+            if (discount == null 
+                || !discount.IsActive 
+                || (discount.ExpiryDate < DateTime.UtcNow)
+                )
+                throw new BadRequestException("Промокод недійсний, неактивний" +
+                    " або термін його дії закінчився.");
 
             foreach (var ticket in booking.Tickets)
             {
@@ -245,16 +268,22 @@ public class BookingService(
 
                 ticket.DiscountId = discount.Id;
 
-                var discountedPrice = basePrice * (1 - (decimal)discount.Percentage / 100);
+                var discountedPrice 
+                    = basePrice * (1 - (decimal)discount.Percentage / 100);
+
                 ticket.FinalPrice = Math.Round(discountedPrice, 2);
             }
 
             await bookingRepository.SaveChangesAsync();
 
-            var totalAmountInCents = (long)Math.Round(booking.Tickets.Sum(t => t.FinalPrice) * 100, 0);
+            var totalAmountInCents = (long)Math.Round(
+                booking.Tickets.Sum(t => t.FinalPrice) * 100, 0
+            );
 
             var service = new PaymentIntentService();
-            await service.UpdateAsync(booking.PaymentIntentId, new PaymentIntentUpdateOptions
+            await service.UpdateAsync(
+                booking.PaymentIntentId, 
+                new PaymentIntentUpdateOptions
             {
                 Amount = totalAmountInCents
             });
@@ -272,7 +301,8 @@ public class BookingService(
         catch (StripeException ex)
         {
             await transaction.RollbackAsync();
-            throw new BadRequestException($"Помилка Stripe при оновленні суми: {ex.Message}");
+            throw new BadRequestException($"Помилка Stripe при " +
+                $"оновленні суми: {ex.Message}");
         }
         catch (Exception)
         {
@@ -293,7 +323,8 @@ public class BookingService(
 
         var response = mapper.Map<BookingResponseDto>(booking);
 
-        if (booking.Status == BookingStatus.PENDING && !string.IsNullOrEmpty(booking.PaymentIntentId))
+        if (booking.Status == BookingStatus.PENDING 
+            && !string.IsNullOrEmpty(booking.PaymentIntentId))
         {
             try
             {
@@ -311,7 +342,8 @@ public class BookingService(
         return response;
     }
 
-    public async Task<PagedResponse<BookingSummaryResponseDto>> GetUserBookingHistoryAsync(
+    public async Task<PagedResponse<BookingSummaryResponseDto>> 
+        GetUserBookingHistoryAsync(
             int userId, 
             int page, 
             int pageSize
@@ -366,7 +398,10 @@ public class BookingService(
         return response;
     }
 
-    public async Task<RefundResponseDto> RefundBookingAsync(int bookingId, int userId)
+    public async Task<RefundResponseDto> RefundBookingAsync(
+        int bookingId, 
+        int userId
+    )
     {
         var booking = await bookingRepository.GetFirstBySpecAsync(
             new BookingWithDetailsByIdSpec(bookingId, userId));
@@ -378,15 +413,17 @@ public class BookingService(
             throw new ConflictException("Це бронювання вже було скасовано.");
 
         if (string.IsNullOrEmpty(booking.PaymentIntentId))
-            throw new ConflictException("Платіж не знайдено. Повернення неможливе.");
+            throw new ConflictException("Платіж не знайдено." +
+                " Повернення неможливе.");
 
         try
         {
             var refundService = new RefundService();
-            var refund = await refundService.CreateAsync(new RefundCreateOptions
-            {
-                PaymentIntent = booking.PaymentIntentId
-            });
+            var refund = await refundService.CreateAsync(
+                new RefundCreateOptions
+                {
+                    PaymentIntent = booking.PaymentIntentId
+                });
 
             booking.Status = BookingStatus.CANCELED;
             await bookingRepository.UpdateAsync(booking);
