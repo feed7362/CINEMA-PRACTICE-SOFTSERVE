@@ -109,7 +109,9 @@ namespace Backend.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Type = table.Column<short>(type: "smallint", nullable: false),
                     Percentage = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    Code = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    ExpiryDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -598,6 +600,13 @@ namespace Backend.Data.Migrations
                 name: "IX_Bookings_SessionId",
                 table: "Bookings",
                 column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Discount_Code",
+                table: "Discount",
+                column: "Code",
+                unique: true,
+                filter: "\"Code\" IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ErrorLogs_Timestamp",
