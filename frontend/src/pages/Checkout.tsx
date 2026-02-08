@@ -70,6 +70,7 @@ const Checkout: React.FC = () => {
                                 onRemove={removePromoCode}
                                 appliedCode={appliedPromo?.code || null}
                                 error={promoError}
+                                isLoading={priceData.isApplying}
                              />
                         </div>
 

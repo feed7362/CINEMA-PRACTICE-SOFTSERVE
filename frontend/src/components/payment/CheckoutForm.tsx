@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {useStripe, useElements, PaymentElement} from '@stripe/react-stripe-js';
 import {useNavigate} from 'react-router-dom';
-import api from '@/api/axiosClient.ts';
 import {parseBackendError} from "@/utils/errorUtils.ts";
+import {bookingApi} from "@/api/bookingApi.ts";
 
 interface CheckoutFormProps {
     bookingId: number;
@@ -44,7 +44,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({bookingId, expirationTime}) 
 
         setIsProcessing(true);
 
-        const {error, paymentIntent} = await stripe.confirmPayment({
+        const { error, paymentIntent } = await stripe.confirmPayment({
             elements,
             redirect: 'if_required',
         });
@@ -56,26 +56,23 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({bookingId, expirationTime}) 
             };
             setMessage(errorMap[error.type] || error.message || "Сталася помилка при оплаті.");
             setIsProcessing(false);
-        } else if (paymentIntent?.status === 'succeeded') {
+            return;
+        }
 
+        if (paymentIntent?.status === 'succeeded') {
             try {
-                const response = await api.post('/booking/confirm', {
-                    bookingId: bookingId,
-                    paymentIntentId: paymentIntent.id
+                await bookingApi.confirm(bookingId, paymentIntent.id);
+
+                navigate("/tickets/success", {
+                    state: {
+                        id: bookingId,
+                        expirationTime
+                    }
                 });
 
-                // temporary for now remake when will be profile and 
-                if (response.status === 200) {
-                    navigate("/tickets/success", {
-                        state: {
-                            id: bookingId,
-                            expirationTime
-                        }
-                    });
-                }
             } catch (err: any) {
                 const backendMessage = parseBackendError(err.response?.data);
-                setMessage(backendMessage);
+                setMessage(`Оплата пройшла, але виникла помилка: ${backendMessage}. Зверніться до підтримки.`);
             } finally {
                 setIsProcessing(false);
             }
