@@ -23,6 +23,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<IMovieService, MovieService>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IDiscountService, DiscountService>();
         services.AddScoped<IAdminStatsService, AdminStatsService>();
         services.AddScoped<IMovieRecommendationService, MovieRecommendationService>();
         services.AddScoped<IAdminLogService, AdminLogService>();

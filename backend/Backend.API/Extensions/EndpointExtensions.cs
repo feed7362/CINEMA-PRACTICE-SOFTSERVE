@@ -14,5 +14,6 @@ public static class EndpointExtensions
         app.MapTicketEndpoints();
         app.MapAdminEndpoints();
         app.MapAdminLogEndpoints();
+        app.MapDiscountEndpoints();
     }
 }
