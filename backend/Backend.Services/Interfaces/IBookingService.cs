@@ -13,17 +13,17 @@ public interface IBookingService
             int bookingId, 
             int userId
         );
-    Task<BookingDetailDto?> GetBookingDetailsByIdAsync(
+    Task<BookingDetailResponseDto?> GetBookingDetailsByIdAsync(
             int bookingId, 
             int userId
         );
-    Task<PagedResponse<BookingSummaryDto>> GetUserBookingHistoryAsync(
+    Task<PagedResponse<BookingSummaryResponseDto>> GetUserBookingHistoryAsync(
             int userId, 
             int page = 1, int 
             pageSize = 10
         );
     Task<BookingResponseDto> ConfirmBookingAsync(
-            ConfirmBookingDto dto, 
+            ConfirmBookingRequestDto dto, 
             int userId
         );
     Task<RefundResponseDto> RefundBookingAsync(int bookingId, int userId);
