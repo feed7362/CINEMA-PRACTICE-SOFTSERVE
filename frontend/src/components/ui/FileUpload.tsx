@@ -11,7 +11,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ label, id }) => {
       <label htmlFor={id} className="text-white font-medium ml-1 cursor-pointer">
         {label}
       </label>
-      <div className="w-full h-full min-h-[48px] bg-white rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors border border-gray-300 relative overflow-hidden group">
+      <div className="w-full h-full min-h-12 bg-white rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors border border-gray-300 relative overflow-hidden group">
         <span className="text-gray-500 text-sm group-hover:scale-105 transition-transform">
           Оберіть файл
         </span>

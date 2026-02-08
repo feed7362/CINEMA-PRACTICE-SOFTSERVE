@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // Додав Link
+import { useNavigate, Link } from 'react-router-dom';
 import UserProfileCard from '@/components/profile/UserProfileCard';
 import BookingItem from '@/components/profile/BookingItem';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
 import LoadingSpinner from '@/components/loader/LoadingSpinner';
 import BaseButton from '@/components/ui/BaseButton';
-import { getMe, getMyBookings, refundBooking } from '@/api/profileApi'; // Переконайтеся, що імпорти вірні
+import { getMe, getMyBookings, refundBooking } from '@/api/profileApi';
 import type { BookingSummary } from '@/types/booking';
 import { isAdmin } from '@/utils/authUtils';
 

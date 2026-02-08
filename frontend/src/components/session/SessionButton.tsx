@@ -1,5 +1,11 @@
 import React from 'react';
-import type { SessionButtonProps } from '@/types/button';
+import type { BaseButtonProps } from '@/types/ui';
+
+interface SessionButtonProps extends Omit<BaseButtonProps, 'children'> {
+    time: string;
+    isSelected?: boolean;
+    price?: number;
+}
 
 const SessionButton: React.FC<SessionButtonProps> = ({ time, isSelected, onClick, className = "" }) => {
   return (

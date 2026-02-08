@@ -1,5 +1,5 @@
 export type BookingStatus = 'CONFIRMED' | 'CANCELLED' | 'PENDING';
-export type SeatType = 'Standard' | 'Vip' | string; 
+export type SeatType = 'Standard' | 'Vip' | string;
 
 export interface Seat {
     id: number;
@@ -7,6 +7,7 @@ export interface Seat {
     seatNumber: number;
     isReserved: boolean;
     seatType: SeatType;
+    price?: number;
 }
 
 export interface TicketDetail {
@@ -51,8 +52,10 @@ export interface BookingSummary {
     ticketCount: number;
     totalAmount: number;
     status: BookingStatus;
+    posterUrl?: string;
 }
 
 export interface BookingDetails extends BookingSummary {
     tickets: TicketDetail[];
+    hallName?: string;
 }

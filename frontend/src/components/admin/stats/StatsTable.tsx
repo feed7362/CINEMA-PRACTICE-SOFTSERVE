@@ -1,23 +1,12 @@
 import React from 'react';
-
-interface Movie {
-    title: string;
-    genre: string;
-    director: string;
-    country: string;
-    releaseYear: number;
-    imdbRating: number;
-    ageRating: string;
-    ticketsSold: number;
-    revenue: number;
-}
+import type { IStatsMovie } from '@/types/admin';
 
 interface StatsTableProps {
-    movies: Movie[];
+    movies: IStatsMovie[];
     isLoading: boolean;
 }
 
-const StatsTable: React.FC<StatsTableProps> = ({movies, isLoading}) => {
+const StatsTable: React.FC<StatsTableProps> = ({ movies, isLoading }) => {
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('uk-UA', {
             style: 'currency',
@@ -69,7 +58,9 @@ const StatsTable: React.FC<StatsTableProps> = ({movies, isLoading}) => {
                                 </td>
 
                                 <td className="py-4 px-6">
-                                    <div className="text-sm text-gray-300">{movie.genre}</div>
+                                    <div className="text-sm text-gray-300">
+                                        {Array.isArray(movie.genres) ? movie.genres.join(', ') : movie.genres}
+                                    </div>
                                     <div className="text-xs text-gray-500">{movie.releaseYear}</div>
                                 </td>
 

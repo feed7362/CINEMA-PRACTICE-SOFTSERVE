@@ -1,17 +1,20 @@
 import React from "react";
-import {useMovieNavigation} from "@/hooks/movies/useMovieNavigation";
-import type {MovieCardProps} from "@/types/movie";
-import {formatHallFormat} from "@/utils/formatters.ts";
+import { useMovieNavigation } from "@/hooks/movies/useMovieNavigation";
+import type { IMovieCard } from "@/types/movie"; 
+import type { SessionDisplay } from "@/types/session";
+import { formatHallFormat } from "@/utils/formatters.ts";
+import { PLACEHOLDER_IMAGE } from '@/constants';
 
-const PLACEHOLDER_IMAGE = "https://placehold.co/300x450/1e293b/ffffff?text=Постер+відсутній";
+interface MovieCardProps {
+    movie: IMovieCard & { sessions?: SessionDisplay[] };
+    isBlurred?: boolean;
+}
 
-const MovieCard: React.FC<MovieCardProps> = ({movie, isBlurred}) => {
-    const {id, title, poster, ageRating, sessions = []} = movie;
-
-    const {goToMovieDetails, goToBooking} = useMovieNavigation(Number(id));
-
-    const posterSrc = poster && poster.trim() !== '' ? poster : PLACEHOLDER_IMAGE;
-    const hasActiveSessions = sessions.length > 0;
+const MovieCard: React.FC<MovieCardProps> = ({ movie, isBlurred }) => {
+    const { id, title, imageUrl, ageRating, sessions = [] } = movie; 
+    const { goToMovieDetails, goToBooking } = useMovieNavigation(Number(id));
+    const posterSrc = imageUrl && imageUrl.trim() !== '' ? imageUrl : PLACEHOLDER_IMAGE;
+    const hasActiveSessions = sessions && sessions.length > 0;
 
     const handleBookingClick = (e: React.MouseEvent, sessionId: number) => {
         e.preventDefault();
@@ -51,15 +54,15 @@ const MovieCard: React.FC<MovieCardProps> = ({movie, isBlurred}) => {
                     <div
                         className="flex flex-wrap gap-2 justify-start w-full overflow-y-auto max-h-[80%] pr-1 custom-scrollbar">
                         {hasActiveSessions ? (
-                            sessions.map((session) => (
+                            sessions.map((session: SessionDisplay) => (
                                 <button
                                     key={session.id}
                                     onClick={(e) => handleBookingClick(e, session.id)}
-                                    className="flex flex-col items-center bg-[#0545BB] hover:bg-[#032d7b] text-white p-2 rounded-xl transition-all duration-300 shadow-md active:scale-95 min-w-[70px] border border-white/10"
+                                    className="flex flex-col items-center bg-[#0545BB] hover:bg-[#032d7b] text-white p-2 rounded-xl transition-all duration-300 shadow-md active:scale-95 min-w-17.5 border border-white/10"
                                 >
                                     <span className="text-[14px] font-black">{session.time}</span>
                                     <span className="text-[8px] uppercase opacity-80 whitespace-nowrap">
-                                {formatHallFormat(session.hallFormat)}
+                                        {session.hallFormat ? formatHallFormat(session.hallFormat) : '2D'}
                                     </span>
                                 </button>
                             ))

@@ -4,18 +4,16 @@ import FilterSidebar from '@/components/filters/FilterSidebar';
 import LoadingSpinner from '@/components/loader/LoadingSpinner';
 import {movieApi} from '@/api/movieApi';
 import {filterApi, type IFilterItem} from '@/api/filterApi';
-import type {IMovie} from '@/types/movie';
+import type { IMovieBase } from '@/types/common';
 import FullScreenLoader from '@/components/loader/FullScreenLoader';
 
 const Home: React.FC = () => {
     const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
     const [selectedStudio, setSelectedStudio] = useState<number | null>(null);
     const [selectedRating, setSelectedRating] = useState<number | null>(null);
-
-    const [movies, setMovies] = useState<IMovie[]>([]);
+    const [movies, setMovies] = useState<IMovieBase[]>([]);
     const [genres, setGenres] = useState<IFilterItem[]>([]);
     const [studios, setStudios] = useState<IFilterItem[]>([]);
-
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -95,7 +93,7 @@ const Home: React.FC = () => {
                             onReset={handleReset}
                         />
                     </div>
-
+                    
                     <div className="grow w-full">
                         {error && (
                             <div
@@ -110,7 +108,7 @@ const Home: React.FC = () => {
                                 За обраними фільтрами фільмів не знайдено 😔
                             </div>
                         )}
-
+                        
                         {!error && movies.length > 0 && (
                             <div
                                 className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 place-items-center">

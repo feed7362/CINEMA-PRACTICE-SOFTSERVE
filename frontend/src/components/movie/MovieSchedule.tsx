@@ -1,6 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-import type {IMovieScheduleItem} from '@/types/movie';
+import type {IMovieScheduleItem} from '@/types/session';
 import {formatHallFormat} from "@/utils/formatters.ts";
 
 interface MovieScheduleProps {

@@ -4,24 +4,31 @@ import InfoRow from '@/components/ui/InfoRow';
 import MovieSchedule from '@/components/movie/MovieSchedule';
 import MovieTrailer from '@/components/movie/MovieTrailer';
 import MovieRecommendations from '@/components/movie/MovieRecommendations';
-import type {IMovieDetails, IMovie} from '@/types/movie';
-
-const PLACEHOLDER_IMAGE = "https://placehold.co/300x450/1e293b/ffffff?text=Постер+відсутній";
+import type { IMovieDetails, IMovieCard } from '@/types/movie';
+import { PLACEHOLDER_IMAGE } from '@/constants';
 
 interface MovieDetailsContentProps {
     movie: IMovieDetails;
-    recommendations: IMovie[];
+    recommendations: IMovieCard[];
     onScrollToTrailer: () => void;
     playerRef: React.RefObject<HTMLDivElement>;
+    poster: string;
 }
 
 const MovieDetailsContent: React.FC<MovieDetailsContentProps> = ({
                                                                      movie,
                                                                      recommendations,
                                                                      onScrollToTrailer,
-                                                                     playerRef
+                                                                     playerRef,
+                                                                     poster
                                                                  }) => {
-    const posterSrc = movie.poster && movie.poster.trim() !== '' ? movie.poster : PLACEHOLDER_IMAGE;
+    const posterSrc = poster && poster.trim() !== '' ? poster : PLACEHOLDER_IMAGE;
+
+    const subtitlesValue = typeof movie.subtitles === 'boolean' 
+        ? (movie.subtitles ? 'Так' : 'Ні') 
+        : movie.subtitles;
+
+    const ratingValue = (movie as any).rating || (movie as any).imdbRating || 'N/A';
 
     return (
         <div className="relative w-full font-['Inter'] bg-[#020617] min-h-screen pb-20 overflow-hidden">
@@ -66,9 +73,9 @@ const MovieDetailsContent: React.FC<MovieDetailsContentProps> = ({
                             <InfoRow label="Рік" value={movie.year}/>
                             <InfoRow label="Країна" value={movie.country}/>
                             <InfoRow label="Жанр" value={movie.genre}/>
-                            <InfoRow label="Рейтинг" value={movie.rating}/>
+                            <InfoRow label="Рейтинг експертів" value={ratingValue}/>
                             <InfoRow label="Мова" value={movie.language}/>
-                            <InfoRow label="Субтитри" value={movie.subtitles}/>
+                            <InfoRow label="Субтитри" value={subtitlesValue}/>
                             <InfoRow label="У головних ролях" value={movie.cast.toString()}/>
                         </div>
 
@@ -93,7 +100,7 @@ const MovieDetailsContent: React.FC<MovieDetailsContentProps> = ({
 
                 <MovieRecommendations
                     movies={recommendations}
-                    currentMovieId={movie.id}
+                    currentMovieId={Number(movie.id)}
                 />
 
             </div>

@@ -14,3 +14,11 @@ export const getFormatId = (formatStr: string | undefined): number => {
     if (!formatStr) return 0;
     return HALL_FORMAT_MAP[formatStr.toUpperCase()]?.id ?? 0;
 };
+
+export const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('uk-UA', {
+        style: 'currency',
+        currency: 'UAH',
+        maximumFractionDigits: 0,
+    }).format(amount);
+};

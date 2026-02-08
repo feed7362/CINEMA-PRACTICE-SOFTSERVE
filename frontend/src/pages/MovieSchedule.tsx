@@ -1,8 +1,8 @@
 import React from 'react';
 import DateSelector from '@/components/schedule/DateSelector';
 import ScheduleMovieCard from '@/components/schedule/ScheduleMovieCard';
-import LoadingSpinner from '@/components/loader/LoadingSpinner';
 import { useMovieSchedule } from '@/hooks/movies/useMovieSchedule';
+import FullScreenLoader from '@/components/loader/FullScreenLoader';
 
 const MovieSchedule: React.FC = () => {
     const { activeDate, movies, loading, error, handleDateSelect } = useMovieSchedule();
@@ -22,9 +22,7 @@ const MovieSchedule: React.FC = () => {
                 />
 
                 {loading ? (
-                <div className="flex justify-center py-20">
-                    <LoadingSpinner />
-                </div>
+                    <FullScreenLoader />
                 ) : error ? (
                     <div className="text-center text-red-500 text-xl py-10 bg-red-500/10 rounded-xl mt-4 border border-red-500/20">
                         {error}

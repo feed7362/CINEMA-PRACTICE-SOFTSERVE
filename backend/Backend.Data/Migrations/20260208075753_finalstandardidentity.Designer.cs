@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20260207084516_finalstandardidentity")]
+    [Migration("20260208075753_finalstandardidentity")]
     partial class finalstandardidentity
     {
         /// <inheritdoc />
