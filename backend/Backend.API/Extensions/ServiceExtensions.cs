@@ -1,6 +1,6 @@
 ﻿using Backend.API.Context;
 using Backend.Domain.Interfaces;
-using Backend.Services;
+using Backend.Services.Mappings;
 using Backend.Services.Interfaces;
 using Backend.Services.Services;
 using Backend.Services.Services.BackgroundServices;
@@ -24,6 +24,10 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IAdminStatsService, AdminStatsService>();
         services.AddScoped<IMovieRecommendationService, MovieRecommendationService>();
         services.AddScoped<IAdminLogService, AdminLogService>();
+        services.AddAutoMapper(cfg =>
+        {
+            cfg.AddMaps(typeof(BookingProfile).Assembly);
+        });
         services.AddScoped<IUserContext, UserContext>();
         services.AddHttpContextAccessor();
         services.AddHostedService<ExpiredBookingWorker>();
