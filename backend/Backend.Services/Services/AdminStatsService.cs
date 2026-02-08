@@ -1,4 +1,6 @@
+using AutoMapper;
 using Backend.Domain.Entities;
+using Backend.Domain.Exceptions;
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs.Admin;
 using Backend.Services.Interfaces;
@@ -8,8 +10,9 @@ using static Backend.Services.Specifications.TicketsByPerformanceSpec;
 namespace Backend.Services.Services;
 
 public class AdminStatsService(
-    IRepository<Ticket> ticketRepository,
-    IRepository<Session> sessionRepository) : IAdminStatsService
+        IRepository<Ticket> ticketRepository,
+        IRepository<Session> sessionRepository
+    ) : IAdminStatsService
 {
     private static DateTime? Normalize(DateTime? date)
     {
@@ -38,17 +41,19 @@ public class AdminStatsService(
 
     public async Task<double> GetSessionOccupancyAsync(int sessionId)
     {
+
+        var sessionWithHall = await sessionRepository
+            .GetFirstBySpecAsync(new SessionsByIdsSpec([sessionId]))
+            ?? throw new EntityNotFoundException("Сеанс", sessionId);
+
+
         var spec = new TicketsByPerformanceSpec(
                 new AdminStatsFilterDto(), 
                 sessionId: sessionId
             );
         var ticketsSold = await ticketRepository.CountAsync(spec);
 
-        var sessionWithHall = await sessionRepository.GetFirstBySpecAsync(
-                new SessionsByIdsSpec([sessionId])
-            );
-        var capacity = sessionWithHall?.Hall.Capacity ?? 0;
-
+        var capacity = sessionWithHall.Hall.Capacity;
         return capacity > 0 ? (double)ticketsSold / capacity * 100 : 0;
     }
 
@@ -74,6 +79,8 @@ public class AdminStatsService(
                 new ConfirmedHallSeatsSpec(hallId)
             );
 
+        if (!seats.Any()) return [];
+
         var stats = seats
             .GroupBy(s => s)
             .Select(g => new { 
@@ -83,12 +90,14 @@ public class AdminStatsService(
             })
             .ToList();
 
-        if (stats.Count == 0) return new List<SeatHeatmapDto>();
-
         var average = stats.Average(x => x.Count);
 
+
         return stats.Select(s => new SeatHeatmapDto(
-            s.Row, s.Number, s.Count, s.Count >= average ? "Red" : "Blue"
+            s.Row,
+            s.Number,
+            s.Count,
+            s.Count >= average ? "Red" : "Blue"
         )).ToList();
     }
 

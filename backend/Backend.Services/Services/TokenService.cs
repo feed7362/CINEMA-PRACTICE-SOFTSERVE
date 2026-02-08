@@ -19,7 +19,6 @@ public class TokenService(IConfiguration config) : ITokenService
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
-        // Додаємо ролі користувача в токен
         claims.AddRange(roles.Select(
                 role => new Claim(ClaimTypes.Role, role)
             ));

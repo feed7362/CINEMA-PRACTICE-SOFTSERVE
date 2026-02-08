@@ -13,6 +13,16 @@ internal static class MovieEndpoints
             .MapGroup("/api/movie")
             .WithTags("Movie");
 
+        group.MapGet("/", async (
+                IMovieService movieService,
+                [AsParameters] MovieFilterDto filter) =>
+        {
+            var movies = await movieService.GetAllMoviesAsync(filter);
+            return Results.Ok(movies);
+        })
+            .WithName("GetAllMovies")
+            .WithSummary("Get all Movies");
+
         group.MapPost("/", async (
                 CreateMovieDto dto,
                 IMovieService movieService) =>
@@ -37,7 +47,6 @@ internal static class MovieEndpoints
                 bool recordView = false) =>
             {
                 var movie = await movieService.GetMovieByIdAsync(id);
-                if (movie is null) return Results.NotFound();
 
                 if (recordView)
                 {
@@ -61,26 +70,12 @@ internal static class MovieEndpoints
             .WithName("GetMovieById")
             .WithSummary("Get Movie by Id");
 
-
-        group.MapGet("/", async (
-                IMovieService movieService,
-                [AsParameters] MovieFilterDto filter) =>
-            {
-                var movies = await movieService.GetAllMoviesAsync(filter);
-                return Results.Ok(movies);
-            })
-            .WithName("GetAllMovies")
-            .WithSummary("Get all Movies");
-
-
         group.MapPut("/", async (
                 UpdateMovieDto dto,
                 IMovieService movieService) =>
             {
                 var movie = await movieService.UpdateMovieAsync(dto);
-                return movie is null
-                    ? Results.NotFound()
-                    : Results.Ok(movie);
+                return Results.Ok(movie);
             })
             .AddEndpointFilter<ValidationFilter<UpdateMovieDto>>()
             .RequireAuthorization(p => p.RequireRole("Admin"))

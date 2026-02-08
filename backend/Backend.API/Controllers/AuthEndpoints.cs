@@ -1,10 +1,11 @@
 ﻿using Backend.API.Extensions;
 using Backend.Domain.Entities;
+using Backend.Domain.Exceptions;
 using Backend.Services.DTOs.Auth;
 using Backend.Services.Interfaces;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
-using Google.Apis.Auth;
 namespace Backend.API.Controllers;
 
 internal static class AuthEndpoints
@@ -26,15 +27,13 @@ internal static class AuthEndpoints
                 || !await userManager
                             .CheckPasswordAsync(user, dto.Password))
             {
-                return Results.Json(new { 
-                    message = "Невірна електронна пошта або пароль" 
-                }, statusCode: 401);
+                return Results.Unauthorized();
             }
 
             var roles = await userManager.GetRolesAsync(user);
             var token = tokenService.CreateToken(user, roles);
 
-            return Results.Ok(new
+            return Results.Ok((object)new
             {
                 Token = token,
                 Email = user.Email,
@@ -62,9 +61,7 @@ internal static class AuthEndpoints
             var roleResult = await userManager.AddToRoleAsync(user, "Customer");
             if (!roleResult.Succeeded)
             {
-                return Results.Json(new { 
-                    message = "Не вдалося призначити роль користувачеві" 
-                }, statusCode: 500);
+                throw new InternalServerException("Не вдалося призначити роль користувачеві");
             }
 
             return Results.Created(
@@ -92,9 +89,8 @@ internal static class AuthEndpoints
                 dto.IdToken, 
                 settings
             );
-            if (payload == null) return Results.BadRequest(
-                                            "Invalid Google Token"
-                                        );
+            if (payload == null) 
+                throw new BadRequestException("Невалідний Google токен");
 
 
             var user = await userManager.FindByEmailAsync(payload.Email);

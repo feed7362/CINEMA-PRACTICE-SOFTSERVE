@@ -15,6 +15,8 @@ public static class ApplicationServiceExtensions
         this IServiceCollection services
     )
     {
+        services.AddScoped<IGenreService, GenreService>();
+        services.AddScoped<IStudioService, StudioService>();
         services.AddScoped<IHallService, HallService>();
         services.AddScoped<ISessionService, SessionService>();
         services.AddScoped<IBookingService, BookingService>();

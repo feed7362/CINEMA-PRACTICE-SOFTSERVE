@@ -84,9 +84,7 @@ internal static class BookingEndpoints
 
             var booking = await bookingService.GetBookingByIdAsync(id, userId);
 
-            return booking is null
-                ? Results.NotFound()
-                : Results.Ok(booking);
+            return Results.Ok(booking);
         })
             .WithName("GetBookingById")
             .WithSummary("Get user booking by Id");
@@ -104,9 +102,7 @@ internal static class BookingEndpoints
                 userId
             );
 
-            return details is null 
-                ? Results.NotFound() 
-                : Results.Ok(details);
+            return Results.Ok(details);
         })
             .WithName("GetBookingDetails")
             .WithSummary("Get full booking details");
@@ -124,7 +120,7 @@ internal static class BookingEndpoints
             .WithName("RefundBooking");
         group.MapPost("/{id:int}/apply-promo", async (
             int id,
-            [FromBody] ApplyPromocodeRequest request, // Дані з тіла
+            [FromBody] ApplyPromocodeRequest request,
             IBookingService bookingService,
             ClaimsPrincipal user) =>
         {
