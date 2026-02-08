@@ -26,5 +26,6 @@ public interface IBookingService
             ConfirmBookingRequestDto dto, 
             int userId
         );
+    Task<BookingResponseDto> ApplyPromocodeAsync(int bookingId, string code, int userId);
     Task<RefundResponseDto> RefundBookingAsync(int bookingId, int userId);
 }

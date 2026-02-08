@@ -150,35 +150,43 @@ public class BookingService(
     }
 
     private async Task<Booking> CreateBookingEntityInternalAsync(
-            CreateBookingDto dto, 
-            int userId
-        )
+    CreateBookingDto dto,
+    int userId)
     {
+        // 1. Завантажуємо сеанс із цінами
         var session = await sessionRepository.GetFirstBySpecAsync(
-                new SessionWithPricesByIdSpec(dto.SessionId)
-            );
-        if (session == null) 
+            new SessionWithPricesByIdSpec(dto.SessionId));
+
+        if (session == null)
             throw new EntityNotFoundException(nameof(Session), dto.SessionId);
 
+        if (session.StartTime < DateTime.UtcNow)
+            throw new BadRequestException("Неможливо забронювати квитки на сеанс, що минув.");
+
+        // 2. Завантажуємо місця
         var seats = await seatRepository.GetListBySpecAsync(
-                new SeatsByListIdsSpec(dto.SeatIds)
-            );
+            new SeatsByListIdsSpec(dto.SeatIds));
+
         if (seats.Count != dto.SeatIds.Count)
             throw new BadRequestException("Одне або декілька місць не знайдено.");
 
-        if (session.StartTime < DateTime.UtcNow)
+        Backend.Domain.Entities.Discount selectedDiscount;
+        if (!string.IsNullOrEmpty(dto.Promocode))
         {
-            throw new BadRequestException("Неможливо забронювати " +
-                "квитки на сеанс, що минув.");
-        }
+            var promo = await discountRepository.GetFirstBySpecAsync(
+                new DiscountByCodeSpec(dto.Promocode));
 
-        var regularDiscount =
-            await discountRepository.GetFirstBySpecAsync(
-                    new DiscountByTypeSpec(DiscountType.REGULAR)
-                );
-        if (regularDiscount == null) 
-            throw new BookingConflictException("Системна помилка:" +
-                " Базову знижку не знайдено.");
+            if (promo == null || !promo.IsActive || (promo.ExpiryDate < DateTime.UtcNow))
+                throw new BadRequestException("Промокод недійсний або прострочений.");
+
+            selectedDiscount = promo;
+        }
+        else
+        {
+            selectedDiscount = await discountRepository.GetFirstBySpecAsync(
+                new DiscountByTypeSpec(DiscountType.REGULAR))
+                ?? throw new BookingConflictException("Системна помилка: Базову знижку не знайдено.");
+        }
 
         var booking = new Booking
         {
@@ -191,24 +199,83 @@ public class BookingService(
 
         foreach (var seat in seats)
         {
-            var priceEntry = session.Prices.FirstOrDefault(
-                    p => p.SeatType == seat.SeatType
-                );
-            if (priceEntry == null) throw new Exception(
-                    $"Відсутня ціна для типу місця {seat.SeatType}"
-                );
+            var priceEntry = session.Prices.FirstOrDefault(p => p.SeatType == seat.SeatType)
+                ?? throw new BadRequestException($"Відсутня ціна для типу місця {seat.SeatType}");
+
+            decimal finalPrice = priceEntry.Value * (1 - (decimal)selectedDiscount.Percentage / 100);
 
             booking.Tickets.Add(new Ticket
             {
                 SeatId = seat.Id,
                 PriceId = priceEntry.Id,
-                DiscountId = regularDiscount.Id,
-                FinalPrice = priceEntry.Value,
+                DiscountId = selectedDiscount.Id,
+                FinalPrice = finalPrice,
                 PurchaseTime = DateTime.UtcNow
             });
         }
 
         return booking;
+    }
+
+    public async Task<BookingResponseDto> ApplyPromocodeAsync(
+    int bookingId,
+    string code,
+    int userId)
+    {
+        await using var transaction = await bookingRepository.BeginTransactionAsync(IsolationLevel.Serializable);
+
+        try
+        {
+            var booking = await bookingRepository.GetFirstBySpecAsync(
+                new BookingWithDetailsByIdSpec(bookingId, userId));
+
+            if (booking == null) throw new EntityNotFoundException(nameof(Booking), bookingId);
+
+            if (booking.Status != BookingStatus.PENDING)
+                throw new ConflictException("Промокод можна застосувати тільки до бронювання у статусі PENDING.");
+
+            var discount = await discountRepository.GetFirstBySpecAsync(new DiscountByCodeSpec(code));
+
+            if (discount == null || !discount.IsActive || (discount.ExpiryDate < DateTime.UtcNow))
+                throw new BadRequestException("Промокод недійсний, неактивний або термін його дії закінчився.");
+
+            foreach (var ticket in booking.Tickets)
+            {
+                var basePrice = ticket.Price.Value;
+
+                ticket.DiscountId = discount.Id;
+
+                var discountedPrice = basePrice * (1 - (decimal)discount.Percentage / 100);
+                ticket.FinalPrice = Math.Round(discountedPrice, 2);
+            }
+
+            await bookingRepository.SaveChangesAsync();
+
+            var totalAmountInCents = (long)Math.Round(booking.Tickets.Sum(t => t.FinalPrice) * 100, 0);
+
+            var service = new PaymentIntentService();
+            await service.UpdateAsync(booking.PaymentIntentId, new PaymentIntentUpdateOptions
+            {
+                Amount = totalAmountInCents
+            });
+
+            await transaction.CommitAsync();
+
+            var response = mapper.Map<BookingResponseDto>(booking);
+
+            var intent = await service.GetAsync(booking.PaymentIntentId);
+            return response with { ClientSecret = intent.ClientSecret };
+        }
+        catch (StripeException ex)
+        {
+            await transaction.RollbackAsync();
+            throw new BadRequestException($"Помилка Stripe при оновленні суми: {ex.Message}");
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task<BookingResponseDto?> GetBookingByIdAsync(
