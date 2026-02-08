@@ -217,22 +217,26 @@ public class BookingService(
         )
     {
         var booking = await bookingRepository.GetFirstBySpecAsync(
-            new BookingByIdAndUserId(bookingId, userId));
+        new BookingByIdAndUserId(bookingId, userId));
 
         if (booking == null) return null;
 
-        string? clientSecret = null;
-
         var response = mapper.Map<BookingResponseDto>(booking);
 
-        if (booking.Status != BookingStatus.PENDING 
-            || string.IsNullOrEmpty(booking.PaymentIntentId))
-            return response;
+        if (booking.Status == BookingStatus.PENDING && !string.IsNullOrEmpty(booking.PaymentIntentId))
+        {
+            try
+            {
+                var service = new PaymentIntentService();
+                var intent = await service.GetAsync(booking.PaymentIntentId);
 
-
-        var service = new PaymentIntentService();
-        var intent = await service.GetAsync(booking.PaymentIntentId);
-        clientSecret = intent.ClientSecret;
+                return response with { ClientSecret = intent.ClientSecret };
+            }
+            catch (StripeException)
+            {
+                return response;
+            }
+        }
 
         return response;
     }
