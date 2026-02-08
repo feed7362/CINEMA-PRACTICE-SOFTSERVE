@@ -54,13 +54,15 @@ namespace Backend.Services.Specifications
             Query
                 .Where(b => b.Id == bookingId && b.ApplicationUserId == userId)
                 .Include(b => b.Session)
-                .ThenInclude(s => s.Movie)
+                    .ThenInclude(s => s.Movie)
                 .Include(b => b.Session)
-                .ThenInclude(s => s.Hall)
+                    .ThenInclude(s => s.Hall)
                 .Include(b => b.Tickets)
-                .ThenInclude(t => t.Seat)
+                    .ThenInclude(t => t.Seat)
                 .Include(b => b.Tickets)
-                .ThenInclude(t => t.Discount);
+                    .ThenInclude(t => t.Discount)
+                .Include(b => b.Tickets)
+                    .ThenInclude(t => t.Price);
         }
     }
 
@@ -83,6 +85,14 @@ namespace Backend.Services.Specifications
                 .OrderByDescending(b => b.BookingTime)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize);
+        }
+    }
+
+    public class DiscountByCodeSpec : Specification<Discount>
+    {
+        public DiscountByCodeSpec(string code)
+        {
+            Query.Where(d => d.Code == code && d.Type == DiscountType.PROMOCODE);
         }
     }
 }
