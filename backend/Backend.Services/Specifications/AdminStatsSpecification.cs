@@ -37,7 +37,7 @@ public class TicketsByPerformanceSpec : Specification<Ticket>
             )
         {
             AdminStatsFiltering.Apply(Query, filter, movieId);
-            Query.Where(t => t.DiscountId != null);
+            Query.Where(t => true);
         }
     }
 

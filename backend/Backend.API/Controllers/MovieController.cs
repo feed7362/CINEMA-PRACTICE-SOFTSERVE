@@ -71,17 +71,6 @@ internal static class MovieEndpoints
             .WithSummary("Get Movie by Id");
 
 
-        group.MapGet("/", async (
-                IMovieService movieService,
-                [AsParameters] MovieFilterDto filter) =>
-            {
-                var movies = await movieService.GetAllMoviesAsync(filter);
-                return Results.Ok(movies);
-            })
-            .WithName("GetAllMovies")
-            .WithSummary("Get all Movies");
-
-
         group.MapPut("/", async (
                 UpdateMovieDto dto,
                 IMovieService movieService) =>

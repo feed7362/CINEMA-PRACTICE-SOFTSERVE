@@ -14,8 +14,7 @@ public interface IMovieService
     Task<PagedResponse<ReadMovieDto>> GetAllMoviesAsync(MovieFilterDto filter);
 
     Task<ReadMovieDto?> DeleteMovieAsync(int id);
-    
+
     Task<List<string>> GetDirectorsAsync();
     Task<List<string>> GetCountriesAsync();
-    }
 }
