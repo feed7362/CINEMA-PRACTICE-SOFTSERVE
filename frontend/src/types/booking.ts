@@ -1,12 +1,13 @@
-export type BookingStatus = 'CONFIRMED' | 'CANCELED' | 'PENDING';
-export type SeatType = 'Standard' | 'Vip' | string;
+export type BookingStatus = 'CONFIRMED' | 'CANCELLED' | 'PENDING';
+export type SeatType = 'Standard' | 'Vip' | string; 
 
 export interface Seat {
-    id: number;
-    rowNumber: number;
-    seatNumber: number;
-    isReserved: boolean;
-    seatType: SeatType;
+	id: number;
+	rowNumber: number;
+	seatNumber: number;
+	isReserved: boolean;
+	seatType: SeatType;
+	price?: number;
 }
 
 export interface TicketDetail {
@@ -49,15 +50,21 @@ export interface BookingResponse {
 }
 
 export interface BookingSummary {
-    id: number;
-    movieTitle: string;
-    startTime: string;
-    bookingTime: string;
-    ticketCount: number;
-    totalAmount: number;
-    status: BookingStatus;
+	id: number;
+	movieTitle: string;
+	startTime: string;
+	bookingTime: string;
+	ticketCount: number;
+	totalAmount: number;
+	status: BookingStatus;
+	posterUrl?: string;
 }
 
+export interface BookingDetails extends BookingSummary {
+	tickets: TicketDetail[];
+	hallName?: string;
+}
+    
 export interface SessionShort {
     id: number;
     movieTitle: string;

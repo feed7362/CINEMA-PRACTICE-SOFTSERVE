@@ -3,21 +3,21 @@ import { movieApi } from '@/api/movieApi';
 import type { IMovieDetails } from '@/types/movie';
 
 export const useMovieDetails = (id: string | undefined) => {
-  const [movie, setMovie] = useState<IMovieDetails | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+	const [movie, setMovie] = useState<IMovieDetails | null>(null);
+	const [loading, setLoading] = useState<boolean>(true);
   
-  useEffect(() => {
-    if (!id) return;
+	useEffect(() => {
+		if (!id) return;
     
-    const fetch = async () => {
-      setLoading(true);
-      const data = await movieApi.getMovieById(id);
-      setMovie(data);
-      setLoading(false);
-    };
+		const fetch = async () => {
+			setLoading(true);
+			const data = await movieApi.getMovieById(id);
+			setMovie(data);
+			setLoading(false);
+		};
 
-    fetch();
-  }, [id]);
+		fetch();
+	}, [id]);
 
-  return { movie, loading };
+	return { movie, loading };
 };

@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {useStripe, useElements, PaymentElement} from '@stripe/react-stripe-js';
 import {useNavigate} from 'react-router-dom';
+import api from '@/api/axiosClient.ts';
 import {parseBackendError} from "@/utils/errorUtils.ts";
-import {bookingApi} from "@/api/bookingApi.ts";
 
 interface CheckoutFormProps {
     bookingId: number;
@@ -44,7 +44,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({bookingId, expirationTime}) 
 
         setIsProcessing(true);
 
-        const { error, paymentIntent } = await stripe.confirmPayment({
+        const {error, paymentIntent} = await stripe.confirmPayment({
             elements,
             redirect: 'if_required',
         });
@@ -56,8 +56,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({bookingId, expirationTime}) 
             };
             setMessage(errorMap[error.type] || error.message || "Сталася помилка при оплаті.");
             setIsProcessing(false);
-            return;
-        }
+        } else if (paymentIntent?.status === 'succeeded') {
 
         if (paymentIntent?.status === 'succeeded') {
             try {
