@@ -36,7 +36,7 @@ export const useProfile = () => {
 
 	const handleLogout = () => {
 		localStorage.removeItem('token');
-		navigate('/auth');
+		navigate('/login');
 	};
 
 	const removeBookingFromState = (id: number) => {
