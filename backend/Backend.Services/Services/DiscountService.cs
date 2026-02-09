@@ -16,7 +16,8 @@ public class DiscountService(
 {
     public async Task<List<DiscountResponseDto>> GetAllDiscountsAsync()
     {
-        var discounts = await repository.GetAllAsync();
+        var spec = new ActiveDiscountsSpec();
+        var discounts = await repository.GetListBySpecAsync(spec);
         return mapper.Map<List<DiscountResponseDto>>(discounts);
     }
 
@@ -30,7 +31,8 @@ public class DiscountService(
             throw new ConflictException("Промокод з такою назвою вже існує.");
 
         var discount = mapper.Map<Discount>(dto);
-        discount.Code = discount.Code.ToUpper();
+        discount.Code = discount.Code?.ToUpper();
+
 
         await repository.AddAsync(discount);
         return mapper.Map<DiscountResponseDto>(discount);
@@ -41,7 +43,14 @@ public class DiscountService(
         var discount = await repository.GetByIdAsync(id)
             ?? throw new EntityNotFoundException("Знижка", id);
 
-        await repository.DeleteAsync(discount);
+        discount.IsActive = false;
+
+        if (!string.IsNullOrEmpty(discount.Code))
+        {
+            discount.Code = $"DELETED_{DateTime.UtcNow.Ticks}_{discount.Code}";
+        }
+
+        await repository.UpdateAsync(discount);
     }
 
     public async Task<DiscountResponseDto> ValidatePromocodeAsync(string code)
@@ -65,7 +74,14 @@ public class DiscountService(
         var types = Enum.GetValues<DiscountType>()
             .Select(t => new DiscountTypeDto(
                 (int)t,
-                "Відсоток (%)"
+                t switch
+                {
+                    DiscountType.REGULAR => "Звичайна",
+                    DiscountType.STUDENT => "Студентська",
+                    DiscountType.MILITARY => "Військова",
+                    DiscountType.PROMOCODE => "Промокод",
+                    _ => "Невідомо"
+                }
             ))
             .ToList();
 
