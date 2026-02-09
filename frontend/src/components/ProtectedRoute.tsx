@@ -7,7 +7,7 @@ const ProtectedRoute: React.FC = () => {
 	const userIsAdmin = isAdmin();
 
 	if (!role) {
-		return <Navigate to="/auth" replace />;
+		return <Navigate to="/login" replace />;
 	}
 
 	if (!userIsAdmin) {
