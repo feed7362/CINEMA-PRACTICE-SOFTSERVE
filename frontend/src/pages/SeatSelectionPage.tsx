@@ -67,7 +67,7 @@ const SeatSelectionPage: React.FC = () => {
             setError(backendMessage);
 
             if (err.response?.status === 401) {
-                navigate('/auth');
+                navigate('/login');
             }
         }
     };

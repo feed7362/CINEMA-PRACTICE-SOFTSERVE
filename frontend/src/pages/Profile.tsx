@@ -44,7 +44,7 @@ const Profile: React.FC = () => {
 
 	const handleLogout = () => {
 		localStorage.removeItem('token');
-		navigate('/auth');
+		navigate('/login');
 	};
 
 	const { activeBookings, historyBookings } = useMemo(() => {
