@@ -4,7 +4,6 @@ using Backend.Domain.Interfaces;
 using Backend.Services.DTOs;
 using Backend.Services.DTOs.Studio;
 using Backend.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Backend.Services.Specifications;
 
 namespace Backend.Services.Services;
@@ -14,10 +13,9 @@ public class StudioService(
     IMapper mapper
 ) : IStudioService
 {
-
     public async Task<PagedResponse<ReadStudioDto>> GetAllStudiosAsync(
-            StudioFilterDto filter
-        )
+        StudioFilterDto filter
+    )
     {
         var filterSpec = new StudiosByFilterSpec(filter.SearchTerm);
         var totalCount = await repository.CountAsync(filterSpec);
@@ -35,8 +33,8 @@ public class StudioService(
         return new PagedResponse<ReadStudioDto>(
             items,
             totalCount,
-            filter.PageNumber,
-            filter.PageSize
+            filter.PageNumber ?? 1,
+            filter.PageSize ?? 10
         );
     }
 }

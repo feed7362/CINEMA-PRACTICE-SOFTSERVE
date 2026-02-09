@@ -18,12 +18,15 @@ namespace Backend.Services.Specifications
 
     public class StudiosByFilterPagedSpec : StudiosByFilterSpec
     {
-        public StudiosByFilterPagedSpec(string? searchTerm, int pageNumber, int pageSize)
+        public StudiosByFilterPagedSpec(string? searchTerm, int? pageNumber, int? pageSize)
             : base(searchTerm)
         {
+            var page = pageNumber ?? 1;
+            var size = pageSize ?? 100;
+
             Query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize);
+                .Skip((page - 1) * size)
+                .Take(size);
         }
     }
 }
