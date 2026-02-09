@@ -9,11 +9,11 @@ public static class EndpointExtensions
         app.MapAuthEndpoints();
         app.MapHallEndpoints();
         app.MapMovieEndpoints();
-        app.MapMoviePageViewEndpoints();
         app.MapSessionEndpoints();
         app.MapBookingEndpoints();
         app.MapTicketEndpoints();
         app.MapAdminEndpoints();
         app.MapAdminLogEndpoints();
+        app.MapDiscountEndpoints();
     }
 }

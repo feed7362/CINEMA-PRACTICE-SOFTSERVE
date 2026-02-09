@@ -1,5 +1,5 @@
 ﻿namespace Backend.Services.DTOs.Booking;
-public record BookingSummaryDto(
+public record BookingSummaryResponseDto(
     int Id,
     string MovieTitle,
     DateTime StartTime,

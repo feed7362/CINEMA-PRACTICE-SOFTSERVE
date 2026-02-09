@@ -8,7 +8,9 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Backend.Data.Repositories
 {
-    public class Repository<TEntity>(ApplicationContext context) : IRepository<TEntity>
+    public class Repository<TEntity>(
+        ApplicationContext context
+    ) : IRepository<TEntity>
         where TEntity : class, IEntity
     {
         private readonly DbSet<TEntity> _dbSet = context.Set<TEntity>();
@@ -23,44 +25,29 @@ namespace Backend.Data.Repositories
             return await _dbSet.FindAsync(id);
         }
 
-        public void Insert(TEntity entity)
+        public TEntity Insert(TEntity entity)
         {
             _dbSet.Add(entity);
+            return entity;
         }
 
-        public void Delete(int id)
-        {
-            var entity = _dbSet.Find(id);
-            if (entity != null) Delete(entity);
-        }
-
-        public void Delete(TEntity entity)
-        {
-            if (context.Entry(entity).State == EntityState.Detached)
-            {
-                _dbSet.Attach(entity);
-            }
-
-            _dbSet.Remove(entity);
-        }
-
-        public void Update(TEntity entity)
-        {
-            _dbSet.Attach(entity);
-            context.Entry(entity).State = EntityState.Modified;
-        }
-
-        public IEnumerable<TEntity> GetListBySpec(ISpecification<TEntity> specification)
+        public IEnumerable<TEntity> GetListBySpec(
+                ISpecification<TEntity> specification
+            )
         {
             return ApplySpecification(specification).ToList();
         }
 
-        public TEntity? GetFirstBySpec(ISpecification<TEntity> specification)
+        public TEntity? GetFirstBySpec(
+                ISpecification<TEntity> specification
+            )
         {
             return ApplySpecification(specification).FirstOrDefault();
         }
         
-        public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+        public async Task<bool> AnyAsync(
+                Expression<Func<TEntity, bool>> predicate
+            )
         {
             return await _dbSet.AnyAsync(predicate);
         }
@@ -72,20 +59,24 @@ namespace Backend.Data.Repositories
             return entity;
         }
 
-        public async Task UpdateAsync(TEntity entity)
+        public async Task<TEntity?> UpdateAsync(TEntity entity)
         {
             _dbSet.Attach(entity);
             context.Entry(entity).State = EntityState.Modified;
             await context.SaveChangesAsync();
+
+            return entity;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<TEntity?> DeleteAsync(int id)
         {
             var entity = await _dbSet.FindAsync(id);
             if (entity != null)
             {
                 await DeleteAsync(entity);
             }
+
+            return entity;
         }
 
         public async Task SaveChangesAsync()
@@ -93,7 +84,7 @@ namespace Backend.Data.Repositories
             await context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(TEntity entity)
+        public async Task<TEntity?> DeleteAsync(TEntity entity)
         {
             if (context.Entry(entity).State == EntityState.Detached)
             {
@@ -102,17 +93,59 @@ namespace Backend.Data.Repositories
 
             _dbSet.Remove(entity);
             await context.SaveChangesAsync();
+
+            return entity;
         }
 
-        public async Task<List<TEntity>> GetListBySpecAsync(ISpecification<TEntity> specification)
+        public async Task<List<TEntity>> GetListBySpecAsync(
+                ISpecification<TEntity> specification
+            )
         {
-            return await ApplySpecification(specification).ToListAsync();
+            return await ApplySpecification(specification)
+                            .ToListAsync();
         }
 
-        public async Task<TEntity?> GetFirstBySpecAsync(ISpecification<TEntity> specification)
+        public async Task<TEntity?> GetFirstBySpecAsync(
+                ISpecification<TEntity> specification
+            )
         {
-            return await ApplySpecification(specification).FirstOrDefaultAsync();
+            return await ApplySpecification(specification)
+                            .FirstOrDefaultAsync();
         }
+
+
+
+        // optimized query for projections
+        public async Task<List<TResult>> GetListBySpecAsync<TResult>(
+                ISpecification<TEntity, TResult> specification
+            )
+        {
+            return await ApplySpecification(specification)
+                            .ToListAsync();
+        }
+
+        public async Task<TResult> GetBySpecAsync<TResult>(
+                ISpecification<TEntity, TResult> specification
+            )
+        {
+            return await ApplySpecification(specification)
+                            .FirstOrDefaultAsync();
+        }
+
+        protected IQueryable<TResult> ApplySpecification<TResult>(
+                ISpecification<TEntity, TResult> specification
+            )
+        {
+            return SpecificationEvaluator
+                        .Default
+                        .GetQuery(
+                            context.Set<TEntity>().AsQueryable(), 
+                            specification
+                        );
+        }
+
+
+
 
         public async Task<int> CountAsync(ISpecification<TEntity> spec)
         {
@@ -120,12 +153,18 @@ namespace Backend.Data.Repositories
             return await query.CountAsync();
         }
 
-        public async Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel)
+        public async Task<IDbContextTransaction> BeginTransactionAsync(
+                IsolationLevel isolationLevel
+            )
         {
-            return await context.Database.BeginTransactionAsync(isolationLevel);
+            return await context
+                            .Database
+                            .BeginTransactionAsync(isolationLevel);
         }
 
-        private IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> specification)
+        private IQueryable<TEntity> ApplySpecification(
+                ISpecification<TEntity> specification
+            )
         {
             var evaluator = new SpecificationEvaluator();
             return evaluator.GetQuery(_dbSet, specification);

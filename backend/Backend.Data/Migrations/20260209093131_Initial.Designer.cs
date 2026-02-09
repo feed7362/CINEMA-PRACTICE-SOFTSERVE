@@ -12,7 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
+<<<<<<<< HEAD:backend/Backend.Data/Migrations/20260208093619_Initial.Designer.cs
+    [Migration("20260208093619_Initial")]
+========
     [Migration("20260209093131_Initial")]
+>>>>>>>> origin/feature/misc_changes:backend/Backend.Data/Migrations/20260209093131_Initial.Designer.cs
     partial class Initial
     {
         /// <inheritdoc />
@@ -230,6 +234,13 @@ namespace Backend.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Code")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -242,6 +253,10 @@ namespace Backend.Data.Migrations
                         .HasColumnType("smallint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasFilter("\"Code\" IS NOT NULL");
 
                     b.ToTable("Discount");
                 });

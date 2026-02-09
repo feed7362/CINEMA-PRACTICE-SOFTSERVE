@@ -3,9 +3,9 @@ using Backend.Domain.Entities;
 
 namespace Backend.Services.Specifications
 {
-    public class BookingByUserIdAndUserId : Specification<Booking>
+    public class BookingByIdAndUserId : Specification<Booking>
     {
-        public BookingByUserIdAndUserId(int bookingId, int userId)
+        public BookingByIdAndUserId(int bookingId, int userId)
         {
             Query
                 .Where(b => b.Id == bookingId && b.ApplicationUserId == userId)
@@ -54,27 +54,29 @@ namespace Backend.Services.Specifications
             Query
                 .Where(b => b.Id == bookingId && b.ApplicationUserId == userId)
                 .Include(b => b.Session)
-                .ThenInclude(s => s.Movie)
+                    .ThenInclude(s => s.Movie)
                 .Include(b => b.Session)
-                .ThenInclude(s => s.Hall)
+                    .ThenInclude(s => s.Hall)
                 .Include(b => b.Tickets)
-                .ThenInclude(t => t.Seat)
+                    .ThenInclude(t => t.Seat)
                 .Include(b => b.Tickets)
-                .ThenInclude(t => t.Discount);
+                    .ThenInclude(t => t.Discount)
+                .Include(b => b.Tickets)
+                    .ThenInclude(t => t.Price);
         }
     }
 
-    public class UserBookingHistorySpec : Specification<Booking>
+    public class BookingsByUserIdSpec : Specification<Booking>
     {
-        public UserBookingHistorySpec(int userId)
+        public BookingsByUserIdSpec(int userId)
         {
             Query.Where(b => b.ApplicationUserId == userId);
         }
     }
 
-    public class UserBookingPagedSpec : Specification<Booking>
+    public class BookingsByUserIdPagedSpec : Specification<Booking>
     {
-        public UserBookingPagedSpec(int userId, int page, int pageSize)
+        public BookingsByUserIdPagedSpec(int userId, int page, int pageSize)
         {
             Query
                 .Where(b => b.ApplicationUserId == userId)

@@ -1,17 +1,20 @@
 ﻿using Backend.API.Extensions;
 using Backend.Domain.Entities;
+using Backend.Domain.Exceptions;
 using Backend.Services.DTOs.Auth;
 using Backend.Services.Interfaces;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
-using Google.Apis.Auth;
 namespace Backend.API.Controllers;
 
 internal static class AuthEndpoints
 {
     public static void MapAuthEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var group = endpoints.MapGroup("/api/auth").WithTags("Auth");
+        var group = endpoints
+            .MapGroup("/api/auth")
+            .WithTags("Auth");
 
         group.MapPost("/login", async (
                 LoginDto dto,
@@ -20,15 +23,17 @@ internal static class AuthEndpoints
         {
             var user = await userManager.FindByEmailAsync(dto.Email);
 
-            if (user == null || !await userManager.CheckPasswordAsync(user, dto.Password))
+            if (user == null 
+                || !await userManager
+                            .CheckPasswordAsync(user, dto.Password))
             {
-                return Results.Json(new { message = "Невірна електронна пошта або пароль" }, statusCode: 401);
+                return Results.Unauthorized();
             }
 
             var roles = await userManager.GetRolesAsync(user);
             var token = tokenService.CreateToken(user, roles);
 
-            return Results.Ok(new
+            return Results.Ok((object)new
             {
                 Token = token,
                 Email = user.Email,
@@ -41,7 +46,11 @@ internal static class AuthEndpoints
                 RegisterDto dto,
                 UserManager<ApplicationUser> userManager) =>
         {
-            var user = new ApplicationUser { UserName = dto.Email, Email = dto.Email };
+            var user = new ApplicationUser { 
+                UserName = dto.Email, 
+                Email = dto.Email 
+            };
+
             var result = await userManager.CreateAsync(user, dto.Password);
 
             if (!result.Succeeded)
@@ -52,10 +61,13 @@ internal static class AuthEndpoints
             var roleResult = await userManager.AddToRoleAsync(user, "Customer");
             if (!roleResult.Succeeded)
             {
-                return Results.Json(new { message = "Не вдалося призначити роль користувачеві" }, statusCode: 500);
+                throw new InternalServerException("Не вдалося призначити роль користувачеві");
             }
 
-            return Results.Created($"/api/auth/user/{user.Id}", new { user.Email });
+            return Results.Created(
+                $"/api/auth/user/{user.Id}", 
+                new { user.Email }
+            );
         })
             .AddEndpointFilter<ValidationFilter<RegisterDto>>()
             .WithName("Register");
@@ -68,11 +80,18 @@ internal static class AuthEndpoints
         {
             var settings = new GoogleJsonWebSignature.ValidationSettings()
             {
-                Audience = new List<string> { config["Google:ClientId"]! }
+                Audience = new List<string> { 
+                    config["Google:ClientId"]! 
+                }
             };
 
-            var payload = await GoogleJsonWebSignature.ValidateAsync(dto.IdToken, settings);
-            if (payload == null) return Results.BadRequest("Invalid Google Token");
+            var payload = await GoogleJsonWebSignature.ValidateAsync(
+                dto.IdToken, 
+                settings
+            );
+            if (payload == null) 
+                throw new BadRequestException("Невалідний Google токен");
+
 
             var user = await userManager.FindByEmailAsync(payload.Email);
 
@@ -89,7 +108,12 @@ internal static class AuthEndpoints
                 await userManager.AddToRoleAsync(user, "Customer");
             }
 
-            var info = new UserLoginInfo("Google", payload.Subject, "Google");
+            var info = new UserLoginInfo(
+                "Google", 
+                payload.Subject, 
+                "Google"
+            );
+
             var existingLogin = await userManager.GetLoginsAsync(user);
 
             if (existingLogin.All(x => x.ProviderKey != info.ProviderKey))
@@ -101,7 +125,11 @@ internal static class AuthEndpoints
             var roles = await userManager.GetRolesAsync(user);
             var token = tokenService.CreateToken(user, roles);
 
-            return Results.Ok(new { Token = token, Email = user.Email, Roles = roles });
+            return Results.Ok(new { 
+                Token = token, 
+                Email = user.Email,
+                Roles = roles }
+            );
         });
 
         group.MapGet("/me", async (
@@ -110,11 +138,17 @@ internal static class AuthEndpoints
         {
             var email = claims.FindFirstValue(ClaimTypes.Email);
             if (email == null)
-                return Results.Json(new { message = "Сесія закінчилася" }, statusCode: 401);
+                return Results.Json(new { 
+                    message = "Сесія закінчилася" }, 
+                    statusCode: 401
+                );
 
             var user = await userManager.FindByEmailAsync(email);
             if (user == null)
-                return Results.Json(new { message = "Користувача не знайдено" }, statusCode: 401);
+                return Results.Json(new { 
+                    message = "Користувача не знайдено" }, 
+                    statusCode: 401
+                );
 
             var roles = await userManager.GetRolesAsync(user);
 

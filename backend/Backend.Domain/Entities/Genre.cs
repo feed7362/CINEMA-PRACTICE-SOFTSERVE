@@ -8,5 +8,6 @@ public class Genre : IEntity
 
     public string Name { get; set; } = null!;
 
-    public ICollection<MovieGenre> MovieGenres { get; set; } = new List<MovieGenre>();
+    public ICollection<MovieGenre> MovieGenres { get; set; } 
+        = new List<MovieGenre>();
 }

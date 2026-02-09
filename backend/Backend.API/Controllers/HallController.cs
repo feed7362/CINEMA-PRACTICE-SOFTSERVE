@@ -33,9 +33,7 @@ internal static class HallEndpoints
                 IHallService hallService) =>
             {
                 var hall = await hallService.GetHallByIdAsync(id);
-                return hall is null
-                    ? Results.NotFound()
-                    : Results.Ok(hall);
+                return Results.Ok(hall);
             })
             .WithName("GetHallById")
             .WithSummary("Get Hall by Id");
@@ -67,8 +65,8 @@ internal static class HallEndpoints
                 int id,
                 IHallService hallService) =>
             {
-                await hallService.DeleteHallAsync(id);
-                return Results.NoContent();
+                var hall = await hallService.DeleteHallAsync(id);
+                return Results.Ok(hall);
             })
             .RequireAuthorization(p => p.RequireRole("Admin"))
             .WithName("DeleteHall")

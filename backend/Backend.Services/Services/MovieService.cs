@@ -1,107 +1,89 @@
-﻿using Backend.Domain.Entities;
+﻿using AutoMapper;
+using Backend.Domain.Entities;
+using Backend.Domain.Exceptions;
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs;
 using Backend.Services.DTOs.Movie;
 using Backend.Services.Interfaces;
 using Backend.Services.Specifications;
-using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Services.Services
 {
-    public class MovieService(IRepository<Movie> movieRepository) : IMovieService
+    public class MovieService(
+        IRepository<Movie> movieRepository,
+        IMapper mapper
+    ) : IMovieService
     {
         public async Task<ReadMovieDto> CreateMovieAsync(CreateMovieDto dto)
         {
-            var movie = new Movie
-            {
-                StudioId = dto.StudioId,
-                TitleOrg = dto.TitleOrg,
-                TitleUkr = dto.TitleUkr,
-                Description = dto.Description,
-                Duration = dto.Duration,
-                ReleaseDate = dto.ReleaseDate,
-                FinishDate = dto.FinishDate,
-                AgeRating = dto.AgeRating,
-                ImdbRating = dto.ImdbRating,
-                Director = dto.Director,
-                Country = dto.Country,
-                Subtitles = dto.Subtitles,
-                ImageUrl = dto.ImageUrl,
-                TrailerUrl = dto.TrailerUrl,
+            var movie = mapper.Map<Movie>(dto);
 
-                MovieGenres = dto.GenreIds.Select(gId => new MovieGenre
-                {
-                    GenreId = gId
-                }).ToList(),
-
-                MovieActors = dto.ActorIds.Select(aId => new MovieActor
-                {
-                    ActorId = aId
-                }).ToList()
-            };
+            movie.MovieGenres = dto.GenreIds.Select(gId => new MovieGenre { GenreId = gId }).ToList();
+            movie.MovieActors = dto.ActorIds.Select(aId => new MovieActor { ActorId = aId }).ToList();
 
             await movieRepository.AddAsync(movie);
 
             var fullMovieDto = await GetMovieByIdAsync(movie.Id);
-            return fullMovieDto ?? throw new Exception("Error retrieving created movie.");
+            return fullMovieDto
+                    ?? throw new InternalServerException("Помилка при отриманні" +
+                    " щойно створеного фільму.");
         }
 
         public async Task<ReadMovieDto?> UpdateMovieAsync(UpdateMovieDto dto)
         {
-            var spec = new ById(dto.Id);
+            var spec = new MovieById(dto.Id);
             var movie = await movieRepository.GetFirstBySpecAsync(spec);
-            if (movie == null) return null;
+            if (movie == null)
+                throw new EntityNotFoundException("Фільм", dto.Id);
 
-            movie.StudioId = dto.StudioId;
-            movie.TitleOrg = dto.TitleOrg;
-            movie.TitleUkr = dto.TitleUkr;
-            movie.Description = dto.Description;
-            movie.Duration = dto.Duration;
-            movie.ReleaseDate = dto.ReleaseDate;
-            movie.FinishDate = dto.FinishDate;
-            movie.AgeRating = dto.AgeRating;
-            movie.ImdbRating = dto.ImdbRating;
-            movie.Director = dto.Director;
-            movie.Country = dto.Country;
-            movie.Subtitles = dto.Subtitles;
-            movie.ImageUrl = dto.ImageUrl;
-            movie.TrailerUrl = dto.TrailerUrl;
+            mapper.Map(dto, movie);
 
             movie.MovieGenres.Clear();
             foreach (var gId in dto.GenreIds)
             {
-                movie.MovieGenres.Add(new MovieGenre { GenreId = gId, MovieId = movie.Id });
+                movie.MovieGenres.Add(new MovieGenre { 
+                    GenreId = gId, 
+                    MovieId = movie.Id 
+                });
             }
 
             movie.MovieActors.Clear();
             foreach (var aId in dto.ActorIds)
             {
-                movie.MovieActors.Add(new MovieActor { ActorId = aId, MovieId = movie.Id });
+                movie.MovieActors.Add(new MovieActor { 
+                    ActorId = aId, 
+                    MovieId = movie.Id 
+                });
             }
 
             await movieRepository.UpdateAsync(movie);
 
-            return MapToDto(movie);
+            return mapper.Map<ReadMovieDto>(movie);
         }
 
         public async Task<ReadMovieDto?> GetMovieByIdAsync(int id)
         {
-            var spec = new ById(id);
+            var spec = new MovieById(id);
             var movie = await movieRepository.GetFirstBySpecAsync(spec);
 
-            return movie == null ? null : MapToDto(movie);
+            if (movie == null)
+                throw new EntityNotFoundException($"Фільм", id);
+
+            return mapper.Map<ReadMovieDto>(movie);
         }
 
 
-        public async Task<PagedResponse<ReadMovieDto>> GetAllMoviesAsync(MovieFilterDto filter)
+        public async Task<PagedResponse<ReadMovieDto>> GetAllMoviesAsync(
+                MovieFilterDto filter
+            )
         {
-            var filterSpec = new MovieSearchFilterSpec(filter);
+            var filterSpec = new MoviesByFilterSpec(filter);
             var totalCount = await movieRepository.CountAsync(filterSpec);
 
-            var pagedSpec = new MovieSearchPagedSpec(filter);
+            var pagedSpec = new MoviesByFilterPagedSpec(filter);
             var movies = await movieRepository.GetListBySpecAsync(pagedSpec);
 
-            var items = movies.Select(MapToDto).ToList();
+            var items = mapper.Map<List<ReadMovieDto>>(movies);
 
             return new PagedResponse<ReadMovieDto>(
                 items,
@@ -111,16 +93,19 @@ namespace Backend.Services.Services
             );
         }
 
-        public async Task DeleteMovieAsync(int id)
+
+        public async Task<ReadMovieDto?> DeleteMovieAsync(int id)
         {
-            await movieRepository.DeleteAsync(id);
+            var movie = await movieRepository.GetByIdAsync(id);
+            if (movie == null)
+                throw new EntityNotFoundException($"Фільм", id);
+
+            await movieRepository.DeleteAsync(movie);
+            return mapper.Map<ReadMovieDto>(movie);
         }
-
-        // --- НОВІ МЕТОДИ ---
-
+        
         public async Task<List<string>> GetDirectorsAsync()
         {
-            // Отримуємо всі фільми (або використовуємо легку специфікацію без Include)
             var movies = await movieRepository.GetAllAsync();
             
             return movies
@@ -141,34 +126,6 @@ namespace Backend.Services.Services
                 .Distinct()
                 .OrderBy(c => c)
                 .ToList();
-        }
-
-        // -------------------
-
-        private static ReadMovieDto MapToDto(Movie m)
-        {
-            return new ReadMovieDto
-            {
-                Id = m.Id,
-                StudioName = m.Studio?.Name ?? "Unknown", // Додано null-check
-
-                TitleOrg = m.TitleOrg,
-                TitleUkr = m.TitleUkr,
-                Description = m.Description,
-                Duration = m.Duration,
-                ReleaseDate = m.ReleaseDate,
-                FinishDate = m.FinishDate,
-                AgeRating = m.AgeRating,
-                ImdbRating = m.ImdbRating,
-                Director = m.Director,
-                Country = m.Country,
-                Subtitles = m.Subtitles,
-                ImageUrl = m.ImageUrl,
-                TrailerUrl = m.TrailerUrl,
-
-                GenreNames = m.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
-                ActorNames = m.MovieActors.Select(ma => ma.Actor.Name).ToList()
-            };
         }
     }
 }

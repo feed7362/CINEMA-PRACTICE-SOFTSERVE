@@ -1,6 +1,6 @@
 ﻿namespace Backend.Services.DTOs.Booking;
 
-public record BookingDetailDto(
+public record BookingDetailResponseDto(
     int Id,
     DateTime BookingTime,
     DateTime ExpirationTime,

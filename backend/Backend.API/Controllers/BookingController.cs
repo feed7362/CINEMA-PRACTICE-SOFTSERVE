@@ -1,7 +1,8 @@
 ﻿using Backend.API.Extensions;
 using Backend.Services.DTOs.Booking;
-using System.Security.Claims;
 using Backend.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Backend.API.Controllers;
 
@@ -22,7 +23,11 @@ internal static class BookingEndpoints
         int pageSize = 10) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var result = await bookingService.GetUserBookingHistoryAsync(userId, page, pageSize);
+            var result = await bookingService.GetUserBookingHistoryAsync(
+                userId, 
+                page, 
+                pageSize
+            );
             return Results.Ok(result);
         })
             .WithName("GetUserBookingHistory")
@@ -35,20 +40,25 @@ internal static class BookingEndpoints
             ClaimsPrincipal user) =>
         {
             var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userIdClaim)) return Results.Unauthorized();
+            if (string.IsNullOrEmpty(userIdClaim)) 
+               return Results.Unauthorized();
 
             var userId = int.Parse(userIdClaim);
 
             var result = await bookingService.LockBookingAsync(dto, userId);
 
-            return Results.Created($"/api/booking/{result.Id}/details", result);
+            return Results.Created(
+                $"/api/booking/{result.Id}/details", 
+                result
+            );
         })
             .AddEndpointFilter<ValidationFilter<CreateBookingDto>>()
             .WithName("LockBooking")
-            .WithSummary("Locks seats for 15 minutes with concurrency protection");
+            .WithSummary("Locks seats for 15 minutes with concurrency " +
+            "protection");
 
         group.MapPost("/confirm", async (
-            ConfirmBookingDto dto,
+            ConfirmBookingRequestDto dto,
             IBookingService bookingService,
             ClaimsPrincipal user) =>
         {
@@ -59,7 +69,8 @@ internal static class BookingEndpoints
             return Results.Ok(result);
         })
             .WithName("ConfirmBooking")
-            .WithSummary("Finalizes a pending booking after successful payment");
+            .WithSummary("Finalizes a pending booking after successful " +
+            "payment");
 
         group.MapGet("/{id:int}", async (
                 int id,
@@ -73,9 +84,7 @@ internal static class BookingEndpoints
 
             var booking = await bookingService.GetBookingByIdAsync(id, userId);
 
-            return booking is null
-                ? Results.NotFound()
-                : Results.Ok(booking);
+            return Results.Ok(booking);
         })
             .WithName("GetBookingById")
             .WithSummary("Get user booking by Id");
@@ -88,9 +97,12 @@ internal static class BookingEndpoints
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var details = await bookingService.GetBookingDetailsByIdAsync(id, userId);
+            var details = await bookingService.GetBookingDetailsByIdAsync(
+                id, 
+                userId
+            );
 
-            return details is null ? Results.NotFound() : Results.Ok(details);
+            return Results.Ok(details);
         })
             .WithName("GetBookingDetails")
             .WithSummary("Get full booking details");
@@ -106,6 +118,20 @@ internal static class BookingEndpoints
                 return Results.Ok(result);
             })
             .WithName("RefundBooking");
+        group.MapPost("/{id:int}/apply-promo", async (
+            int id,
+            [FromBody] ApplyPromocodeRequest request,
+            IBookingService bookingService,
+            ClaimsPrincipal user) =>
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var result = await bookingService.ApplyPromocodeAsync(id, request.Code, userId);
+
+            return Results.Ok(result);
+        })
+        .WithName("ApplyPromocode")
+        .WithSummary("Applies a promocode to a pending booking and updates Stripe amount");
     }
     
     

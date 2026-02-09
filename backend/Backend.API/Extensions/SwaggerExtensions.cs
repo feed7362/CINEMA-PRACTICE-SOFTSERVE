@@ -4,7 +4,9 @@ namespace Backend.API.Extensions;
 
 public static class SwaggerExtensions
 {
-    public static IServiceCollection AddSwaggerWithJwt(this IServiceCollection services)
+    public static IServiceCollection AddSwaggerWithJwt(
+        this IServiceCollection services
+    )
     {
         services.AddOpenApi(options =>
         {
@@ -27,16 +29,25 @@ public static class SwaggerExtensions
                 };
 
                 document.Components ??= new OpenApiComponents();
-                document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+                document.Components.SecuritySchemes ??= 
+                    new Dictionary<string, IOpenApiSecurityScheme>();
 
-                document.Components.SecuritySchemes.TryAdd(schemeName, securityScheme);
+                document.Components.SecuritySchemes.TryAdd(
+                    schemeName, 
+                    securityScheme
+                );
 
                 var requirement = new OpenApiSecurityRequirement();
-                var schemeReference = new OpenApiSecuritySchemeReference(schemeName, document);
+                var schemeReference = new OpenApiSecuritySchemeReference(
+                    schemeName, 
+                    document
+                );
 
                 requirement.Add(schemeReference, new List<string>());
 
-                document.Security = new List<OpenApiSecurityRequirement> { requirement };
+                document.Security = new List<OpenApiSecurityRequirement> { 
+                    requirement 
+                };
 
                 return Task.CompletedTask;
             });

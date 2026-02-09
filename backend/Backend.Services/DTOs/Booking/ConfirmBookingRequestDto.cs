@@ -1,6 +1,6 @@
 ﻿namespace Backend.Services.DTOs.Booking;
 
-public record ConfirmBookingDto(
+public record ConfirmBookingRequestDto(
     int BookingId,
     string PaymentIntentId
 );
