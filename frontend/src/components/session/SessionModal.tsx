@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminInput from '../admin/AdminInput';
 import AdminSelect from '../admin/AdminSelect';
-import type { SessionFormData, Option } from '@/types/session';
+import type { SessionData, Option } from '@/types/session';
 
 interface SessionModalProps {
 	isOpen: boolean;
