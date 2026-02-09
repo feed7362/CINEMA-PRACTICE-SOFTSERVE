@@ -6,6 +6,7 @@ import FullScreenLoader from '@/components/loader/FullScreenLoader';
 
 const MovieSchedule: React.FC = () => {
     const { activeDate, movies, loading, error, handleDateSelect } = useMovieSchedule();
+    console.log(movies);
 
     return (
         <div className="min-h-screen bg-[#020617] text-white font-['Inter'] relative overflow-hidden">
@@ -39,7 +40,7 @@ const MovieSchedule: React.FC = () => {
                                         movie={{
                                             id: String(movie.id),
                                             title: movie.title,
-                                            poster: movie.poster,
+                                            poster: movie.imageUrl,
                                             sessions: movie.sessions || []
                                         }}
                                     />

@@ -1,11 +1,8 @@
 import type { IMovieBase } from './common';
 import type {IMovieScheduleItem } from './session';
-import type { SessionDisplay } from "./session";
 
 export interface MoviePreviewProps {
-    movie: IMovieCard & { 
-        sessions?: SessionDisplay[] 
-    };
+    movie: IMovieCard;
     isBlurred?: boolean;
 }
 
