@@ -5,7 +5,7 @@ const UserIcon: React.FC<{ className?: string }> = ({ className = "w-7 h-7" }) =
     className={className} 
     fill="none" 
     stroke="currentColor" 
-    viewBox="0 0 24 24"
+    viewBox="0 2 24 24"
   >
     <path 
       strokeLinecap="round" 

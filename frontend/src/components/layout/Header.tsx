@@ -47,8 +47,8 @@ const Header: React.FC = () => {
           )}
           
           <Link to={token ? "/profile" : "/login"}>
-            <BaseButton className="w-14 h-11 rounded-lg flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors">
-               <UserIcon className="w-6 h-6 text-white" />
+            <BaseButton className="w-14 h-12 p-0 rounded-lg grid place-items-center bg-white/5 hover:bg-white/10 transition-colors">
+              <UserIcon className="w-12 h-8 text-white" />
             </BaseButton>
           </Link>
         </div>
