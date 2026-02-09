@@ -1,48 +1,77 @@
 import axiosClient from './axiosClient';
+import { hallApi } from './hallApi';
 
 export interface IFilterItem {
-    id: number;
-    name: string;
+	id: number;
+	name: string;
 }
 
 export const filterApi = {
-    getGenres: async (): Promise<IFilterItem[]> => {
-        try {
-            const {data} = await axiosClient.get('/genre');
+	getHalls: async (): Promise<IFilterItem[]> => {
+		return hallApi.getAllHalls(); 
+	},
 
-            if (data.items && Array.isArray(data.items)) {
-                return data.items;
-            }
+	getGenres: async (): Promise<IFilterItem[]> => {
+		try {
+			const { data } = await axiosClient.get('/genre');
 
-            if (Array.isArray(data)) {
-                return data;
-            }
+			if (data.items && Array.isArray(data.items)) {
+				return data.items;
+			}
 
-            return [];
-        } catch (error) {
-            console.error(error);
-            return [];
-        }
-    },
+			if (Array.isArray(data)) {
+				return data;
+			}
 
-    getStudios: async (): Promise<IFilterItem[]> => {
-        try {
-            const {data} = await axiosClient.get('/studio', {
-                params: {PageSize: 100}
-            });
+			return [];
+		} catch (error) {
+			console.error(error);
+			return [];
+		}
+	},
 
-            if (data.items && Array.isArray(data.items)) {
-                return data.items;
-            }
+	getStudios: async (): Promise<IFilterItem[]> => {
+		try {
+			const { data } = await axiosClient.get('/studio', {
+				params: { PageSize: 100 },
+			});
 
-            if (Array.isArray(data)) {
-                return data;
-            }
+			if (data.items && Array.isArray(data.items)) {
+				return data.items;
+			}
 
-            return [];
-        } catch (error) {
-            console.error(error);
-            return [];
-        }
-    }
+			if (Array.isArray(data)) {
+				return data;
+			}
+
+			return [];
+		} catch (error) {
+			console.error(error);
+			return [];
+		}
+	},
+
+	getCountries: async (): Promise<string[]> => {
+		try {
+			const { data } = await axiosClient.get('/movie/countries');
+			return data;
+		} catch (error) {
+			console.error('Failed to fetch countries:', error);
+			return [];
+		}
+	},
+
+	getDirectors: async (): Promise<string[]> => {
+		try {
+			const { data } = await axiosClient.get('/movie/directors');
+			return data;
+		} catch (error) {
+			console.error('Failed to fetch directors:', error);
+			return [];
+		}
+	},
+
+	getAgeRatings: async (): Promise<number[]> => {
+		return Promise.resolve([0, 6, 12, 16, 18]); 
+	},
 };

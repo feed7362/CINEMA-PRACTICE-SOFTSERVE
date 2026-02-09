@@ -2,6 +2,7 @@
 using Backend.API.Extensions;
 using Backend.Services.DTOs.Movie;
 using Backend.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.API.Controllers;
 
@@ -18,11 +19,7 @@ internal static class MovieEndpoints
                 IMovieService movieService) =>
             {
                 var result = await movieService.CreateMovieAsync(dto);
-
-                return Results.Created(
-                    $"/api/movie/{result.Id}",
-                    result
-                );
+                return Results.Created($"/api/movie/{result.Id}", result);
             })
             .AddEndpointFilter<ValidationFilter<CreateMovieDto>>()
             .RequireAuthorization(p => p.RequireRole("Admin"))
@@ -41,7 +38,6 @@ internal static class MovieEndpoints
             .WithName("GetMovieById")
             .WithSummary("Get Movie by Id");
 
-
         group.MapGet("/", async (
                 IMovieService movieService,
                 [AsParameters] MovieFilterDto filter) =>
@@ -51,7 +47,6 @@ internal static class MovieEndpoints
             })
             .WithName("GetAllMovies")
             .WithSummary("Get all Movies");
-
 
         group.MapPut("/", async (
                 UpdateMovieDto dto,
@@ -67,7 +62,6 @@ internal static class MovieEndpoints
             .WithName("UpdateMovie")
             .WithSummary("Update movie by Id");
 
-
         group.MapDelete("/{id:int}", async (
                 int id,
                 IMovieService movieService) =>
@@ -82,13 +76,29 @@ internal static class MovieEndpoints
         group.MapGet("/me/recommendations", async (
                 ClaimsPrincipal user,
                 IMovieRecommendationService recommendationService) =>
-        {
-            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var recommendations = await recommendationService.GetRecommendationsForUserAsync(userId);
-            return Results.Ok(recommendations);
-        })
+            {
+                var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var recommendations = await recommendationService.GetRecommendationsForUserAsync(userId);
+                return Results.Ok(recommendations);
+            })
             .RequireAuthorization()
             .WithName("GetUserRecommendations")
-            .WithSummary("Get personalized movie recommendations for the logged-in user");
+            .WithSummary("Get personalized movie recommendations");
+
+        group.MapGet("/directors", async (IMovieService movieService) =>
+            {
+                var directors = await movieService.GetDirectorsAsync();
+                return Results.Ok(directors);
+            })
+            .WithName("GetDirectors")
+            .WithSummary("Get unique directors list");
+
+        group.MapGet("/countries", async (IMovieService movieService) =>
+            {
+                var countries = await movieService.GetCountriesAsync();
+                return Results.Ok(countries);
+            })
+            .WithName("GetCountries")
+            .WithSummary("Get unique countries list");
     }
 }

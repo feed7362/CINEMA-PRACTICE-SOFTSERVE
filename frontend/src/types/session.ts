@@ -1,28 +1,24 @@
+export type IdType = number | string;
+
 export interface Session {
-  id: number;
-  movieId: string;
-  hallId: string;
-  time: string;
-  date: string;
-  price: number;
-  hallFormat: string;
+	id: number;
+	movieId: number;
+	hallId: number;
+	startTime: string;
+	price: number;
 }
 
-export interface SessionData {
-  movieId: number;
-  hallId: number;
-  startTime: string;
-  price: number;
+export interface SessionDisplay {
+	id: number;
+	time: string;
+	hallName?: string;
+	hallFormat?: string;
+	price?: number;
 }
 
-export interface SessionFormData {
-    movieId: string;
-    hallId: string;
-    time: string;
-    date: string;
+export interface IMovieScheduleItem {
+	date: string;
+	sessions: SessionDisplay[];
 }
 
-export interface Option {
-    value: string;
-    label: string;
-}
+export type SessionData = Omit<Session, 'id'>;

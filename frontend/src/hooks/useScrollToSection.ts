@@ -1,14 +1,14 @@
 import { useRef } from 'react';
 
 export const useScrollToSection = () => {
-  const ref = useRef<HTMLDivElement>(null);
+	const ref = useRef<HTMLDivElement>(null);
 
-  const scrollTo = () => {
-    ref.current?.scrollIntoView({ 
-      behavior: 'smooth', 
-      block: 'center' 
-    });
-  };
+	const scrollTo = () => {
+		ref.current?.scrollIntoView({ 
+			behavior: 'smooth', 
+			block: 'center', 
+		});
+	};
 
-  return { ref, scrollTo };
+	return { ref, scrollTo };
 };

@@ -23,6 +23,7 @@ builder.Services
 
 builder.Services.AddScoped<IGenreService, GenreService>();
 builder.Services.AddScoped<IStudioService, StudioService>();
+
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 var app = builder.Build();
