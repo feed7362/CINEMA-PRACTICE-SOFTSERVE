@@ -515,19 +515,25 @@ public static class DataSeeder
                 {
                     Type = DiscountType.REGULAR,
                     Percentage = 0,
-                    IsActive = true
+                    Code = "REGULAR",
+                    IsActive = true,
+                    ExpiryDate = DateTime.UtcNow.AddYears(1)
                 },
                 new Discount
                 {
                     Type = DiscountType.STUDENT,
                     Percentage = 20,
-                    IsActive = true
+                    Code = "STUDENT25",
+                    IsActive = true,
+                    ExpiryDate = DateTime.UtcNow.AddYears(1)
                 },
                 new Discount
                 {
                     Type = DiscountType.MILITARY,
                     Percentage = 30,
-                    IsActive = true
+                    Code = "MILITARY25",
+                    IsActive = true,
+                    ExpiryDate = DateTime.UtcNow.AddYears(1)
                 },
                 new Discount
                 {
