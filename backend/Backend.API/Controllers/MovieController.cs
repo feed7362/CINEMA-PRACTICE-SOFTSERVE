@@ -70,6 +70,18 @@ internal static class MovieEndpoints
             .WithName("GetMovieById")
             .WithSummary("Get Movie by Id");
 
+
+        group.MapGet("/", async (
+                IMovieService movieService,
+                [AsParameters] MovieFilterDto filter) =>
+            {
+                var movies = await movieService.GetAllMoviesAsync(filter);
+                return Results.Ok(movies);
+            })
+            .WithName("GetAllMovies")
+            .WithSummary("Get all Movies");
+
+
         group.MapPut("/", async (
                 UpdateMovieDto dto,
                 IMovieService movieService) =>
@@ -107,5 +119,21 @@ internal static class MovieEndpoints
             .WithName("GetUserRecommendations")
             .WithSummary("Get personalized movie recommendations for " +
             "the logged-in user");
+
+        group.MapGet("/directors", async (IMovieService movieService) =>
+            {
+                var directors = await movieService.GetDirectorsAsync();
+                return Results.Ok(directors);
+            })
+            .WithName("GetDirectors")
+            .WithSummary("Get unique directors list");
+
+        group.MapGet("/countries", async (IMovieService movieService) =>
+            {
+                var countries = await movieService.GetCountriesAsync();
+                return Results.Ok(countries);
+            })
+            .WithName("GetCountries")
+            .WithSummary("Get unique countries list");
     }
 }

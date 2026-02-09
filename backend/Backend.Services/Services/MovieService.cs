@@ -103,5 +103,29 @@ namespace Backend.Services.Services
             await movieRepository.DeleteAsync(movie);
             return mapper.Map<ReadMovieDto>(movie);
         }
+        
+        public async Task<List<string>> GetDirectorsAsync()
+        {
+            var movies = await movieRepository.GetAllAsync();
+            
+            return movies
+                .Select(m => m.Director)
+                .Where(d => !string.IsNullOrWhiteSpace(d))
+                .Distinct()
+                .OrderBy(d => d)
+                .ToList();
+        }
+
+        public async Task<List<string>> GetCountriesAsync()
+        {
+            var movies = await movieRepository.GetAllAsync();
+            
+            return movies
+                .Select(m => m.Country)
+                .Where(c => !string.IsNullOrWhiteSpace(c))
+                .Distinct()
+                .OrderBy(c => c)
+                .ToList();
+        }
     }
 }

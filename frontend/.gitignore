@@ -7,12 +7,13 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# Editor / IDE
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -23,4 +24,37 @@ dist-ssr
 *.sln
 *.sw?
 
+# Environment / Secrets
 .env
+.env.*
+env
+!env.example
+
+# Storybook boilerplate
+# Якщо ви не плануєте використовувати дефолтні демо-компоненти Storybook:
+src/stories/assets/
+src/stories/*.stories.tsx
+src/stories/*.tsx
+!src/stories/UIKitLayout.tsx
+
+# Build & Temporary
+*storybook.log
+storybook-static
+temp
+bin
+obj
+
+# OS specific files
+Thumbs.db
+desktop.ini
+
+# Сміття від Storybook (дефолтні приклади)
+frontend/src/stories/assets/
+frontend/src/stories/Configure.mdx
+
+# Секретні файли (якщо файл називається просто env)
+frontend/env
+.env
+
+# Тимчасові файли тестів
+vitest.setup.ts

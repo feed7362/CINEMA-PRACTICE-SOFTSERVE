@@ -5,200 +5,160 @@ import BookingItem from '@/components/profile/BookingItem';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
 import LoadingSpinner from '@/components/loader/LoadingSpinner';
 import BaseButton from '@/components/ui/BaseButton';
+import { getMe, getMyBookings, refundBooking } from '@/api/profileApi';
+import type { BookingSummary } from '@/types/booking';
 import { isAdmin } from '@/utils/authUtils';
-import type { BookingSummary as BookingSummaryDto } from '@/types/booking';
-import {getMe, getMyBookings, refundBooking} from "@/api/profileApi.ts";
 
 const Profile: React.FC = () => {
-    const navigate = useNavigate();
-    const [user, setUser] = useState<any>(null);
-    const [bookings, setBookings] = useState<BookingSummaryDto[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [refundId, setRefundId] = useState<number | null>(null);
-    const [isRefunding, setIsRefunding] = useState(false);
-    const [feedback, setFeedback] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+	const navigate = useNavigate();
+	const [user, setUser] = useState<any>(null);
+	const [bookings, setBookings] = useState<BookingSummary[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [refundId, setRefundId] = useState<number | null>(null);
+	const [isRefunding, setIsRefunding] = useState(false);
+	const [feedback, setFeedback] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
 
-    const isUserAdmin = useMemo(() => isAdmin(), []);
+	useEffect(() => {
+		loadProfile();
+	}, []);
 
-    useEffect(() => {
-        loadProfile();
-    }, []);
+	const loadProfile = async () => {
+		try {
+			setLoading(true);
+			const [me, bookingsData] = await Promise.all([
+				getMe(),
+				getMyBookings(),
+			]);
 
-    const loadProfile = async () => {
-        try {
-            setLoading(true);
-            const [me, bookingsData] = await Promise.all([
-                getMe(),
-                getMyBookings()
-            ]);
+			setUser({
+				name: me.email,
+				email: me.email,
+			});
+			setBookings(bookingsData.items || []);
+		} catch (e) {
+			console.error('Profile load error:', e);
+		} finally {
+			setLoading(false);
+		}
+	};
 
-            setUser({
-                name: me.email,
-                email: me.email,
-            });
+	const handleLogout = () => {
+		localStorage.removeItem('token');
+		navigate('/auth');
+	};
 
-            // Handle potential array or paginated response structure
-            setBookings(Array.isArray(bookingsData) ? bookingsData : bookingsData.items || []);
+	const { activeBookings, historyBookings } = useMemo(() => {
+		const now = new Date();
+		const active: BookingSummary[] = [];
+		const history: BookingSummary[] = [];
 
-        } catch (e) {
-            console.error("Profile load error:", e);
-        } finally {
-            setLoading(false);
-        }
-    };
+		bookings.forEach((b) => {
+			const bookingDate = new Date(b.startTime);
+			const isConfirmed = b.status === 'CONFIRMED';
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/auth');
-    };
+			if (isConfirmed && bookingDate > now) {
+				active.push(b);
+			} else {
+				history.push(b);
+			}
+		});
 
-    const { activeBookings, historyBookings } = useMemo(() => {
-        const now = new Date();
-        const active: BookingSummaryDto[] = [];
-        const history: BookingSummaryDto[] = [];
+		active.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+		history.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
 
-        bookings.forEach(b => {
-            const bookingDate = new Date(b.startTime);
-            const isConfirmed = b.status === 'CONFIRMED';
+		return { activeBookings: active, historyBookings: history };
+	}, [bookings]);
 
-            if (isConfirmed && bookingDate > now) {
-                active.push(b);
-            } else {
-                history.push(b);
-            }
-        });
+	const handleRefund = (id: number) => {
+		setRefundId(id);
+	};
 
-        active.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-        history.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
+	const confirmRefund = async () => {
+		if (!refundId) return;
+		try {
+			setIsRefunding(true);
+			const response = await refundBooking(refundId);
+			setFeedback({
+				msg: `Успішно! ₴${response.amountRefunded} буде повернуто на карту.`,
+				type: 'success',
+			});
+			setBookings((prev) => prev.map((b) => b.id === refundId ? { ...b, status: 'CANCELLED' } : b));
+			setRefundId(null);
+		} catch (error: any) {
+			const errorMsg = error.response?.data?.message || 'Не вдалося повернути кошти';
+			setFeedback({ msg: errorMsg, type: 'error' });
+		} finally {
+			setIsRefunding(false);
+			setTimeout(() => setFeedback(null), 5000);
+		}
+	};
 
-        return { activeBookings: active, historyBookings: history };
-    }, [bookings]);
+	const isUserAdmin = useMemo(() => isAdmin(), []);
 
-    const handleRefund = (id: number) => {
-        setRefundId(id);
-    };
+	if (loading) return <LoadingSpinner />;
+	if (!user) return <div className="text-white p-10 text-center">Не вдалося завантажити профіль</div>;
 
-    const confirmRefund = async () => {
-        if (!refundId) return;
+	return (
+		<div id="profile-page" className="text-white p-10 font-['Inter']">
+			<div className="max-w-6xl mx-auto space-y-12">
+				{feedback && (
+					<div className={`fixed top-10 right-10 z-100 p-4 rounded-2xl border shadow-2xl ${
+						feedback.type === 'success' ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-red-500/20 border-red-500 text-red-400'
+					}`}>
+						<p className="font-bold">{feedback.msg}</p>
+					</div>
+				)}
 
-        try {
-            setIsRefunding(true);
-            const response = await refundBooking(refundId);
+				<div className="space-y-6">
+					<UserProfileCard
+						user={user}
+						onUpdate={setUser}
+						onLogout={handleLogout}
+					/>
 
-            setFeedback({
-                msg: `Успішно! ₴${response.amountRefunded} буде повернуто на вашу карту.`,
-                type: 'success'
-            });
+					{isUserAdmin && (
+						<div className="flex justify-end">
+							<Link to="/admin">
+								<BaseButton className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-900/20 border border-emerald-500/30 transition-all">
+									Панель Адміністратора
+								</BaseButton>
+							</Link>
+						</div>
+					)}
+				</div>
 
-            setBookings(prev => prev.map(b =>
-                b.id === refundId ? { ...b, status: 'CANCELLED' } : b
-            ));
+				<section id="profile-active" className="bg-linear-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 space-y-6">
+					<h3 className="text-3xl font-bold">Активні бронювання</h3>
+					{activeBookings.length === 0 ? (
+						<p className="text-zinc-400">Немає активних бронювань</p>
+					) : (
+						activeBookings.map((booking) => (
+							<BookingItem key={booking.id} booking={booking} onRefund={handleRefund} isHistory={false} />
+						))
+					)}
+				</section>
 
-            setRefundId(null);
-        } catch (error: any) {
-            console.error(error);
-            const errorMsg = error.response?.data?.message || "Не вдалося повернути кошти";
-            setFeedback({ msg: errorMsg, type: 'error' });
-        } finally {
-            setIsRefunding(false);
-            setTimeout(() => setFeedback(null), 5000);
-        }
-    };
+				<section id="profile-history" className="bg-linear-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 space-y-6">
+					<h3 className="text-3xl font-bold">Історія сеансів</h3>
+					{historyBookings.length === 0 ? (
+						<p className="text-zinc-400">Історія порожня</p>
+					) : (
+						historyBookings.map((booking) => (
+							<BookingItem key={booking.id} booking={booking} onRefund={handleRefund} isHistory={true} />
+						))
+					)}
+				</section>
+			</div>
 
-    if (loading) return <LoadingSpinner />;
-
-    if (!user) {
-        return <div className="text-white p-10 text-center">Не вдалося завантажити профіль</div>;
-    }
-
-    return (
-        <div id="profile-page" className="text-white p-10 font-['Inter']">
-            <div className="max-w-6xl mx-auto space-y-12">
-                {/* Feedback Toast */}
-                {feedback && (
-                    <div
-                        className={`fixed top-10 right-10 z-50 p-4 rounded-2xl border shadow-2xl animate-in fade-in slide-in-from-right-10 ${
-                            feedback.type === 'success'
-                                ? 'bg-green-500/20 border-green-500 text-green-400'
-                                : 'bg-red-500/20 border-red-500 text-red-400'
-                        }`}
-                    >
-                        <p className="font-bold">{feedback.msg}</p>
-                    </div>
-                )}
-
-                {/* Profile Header & Admin Button */}
-                <div className="space-y-6">
-                    <UserProfileCard
-                        user={user}
-                        onUpdate={setUser}
-                        onLogout={handleLogout}
-                    />
-
-                    {isUserAdmin && (
-                        <div className="flex justify-end animate-in fade-in slide-in-from-top-2 duration-500">
-                            <Link to="/admin">
-                                <BaseButton className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-900/20 border border-emerald-500/30 transition-all flex items-center gap-2">
-                                    Панель Адміністратора
-                                </BaseButton>
-                            </Link>
-                        </div>
-                    )}
-                </div>
-
-                <section
-                    id="profile-active"
-                    // Changed bg-linear-to-r to bg-gradient-to-r (Standard Tailwind)
-                    className="bg-linear-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 space-y-6"
-                >
-                    <h3 className="text-3xl font-bold">Активні бронювання</h3>
-
-                    {activeBookings.length === 0 && (
-                        <p className="text-zinc-400">Немає активних бронювань</p>
-                    )}
-
-                    {activeBookings.map(booking => (
-                        <BookingItem
-                            key={booking.id}
-                            booking={booking}
-                            onRefund={handleRefund}
-                            isHistory={false}
-                        />
-                    ))}
-                </section>
-
-                {/* History Section */}
-                <section
-                    id="profile-history"
-                    className="bg-linear-to-r from-blue-900/80 to-blue-800/80 rounded-3xl p-8 space-y-6"
-                >
-                    <h3 className="text-3xl font-bold">Історія сеансів</h3>
-
-                    {historyBookings.length === 0 && (
-                        <p className="text-zinc-400">Історія порожня</p>
-                    )}
-
-                    {historyBookings.map(booking => (
-                        <BookingItem
-                            key={booking.id}
-                            booking={booking}
-                            onRefund={handleRefund}
-                            isHistory={true}
-                        />
-                    ))}
-                </section>
-            </div>
-
-            {/* Modal - Placed once at the bottom */}
-            <ConfirmationModal
-                isOpen={refundId !== null}
-                title="Скасувати бронювання?"
-                message="Кошти будуть повернуті на карту. Ви впевнені?"
-                onCancel={() => !isRefunding && setRefundId(null)}
-                onConfirm={confirmRefund}
-            />
-        </div>
-    );
+			<ConfirmationModal
+				isOpen={refundId !== null}
+				title="Скасувати бронювання?"
+				message="Кошти будуть повернуті на карту. Ви впевнені?"
+				onCancel={() => !isRefunding && setRefundId(null)}
+				onConfirm={confirmRefund}
+			/>
+		</div>
+	);
 };
 
 export default Profile;

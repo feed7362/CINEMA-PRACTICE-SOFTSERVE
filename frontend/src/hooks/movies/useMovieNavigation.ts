@@ -1,15 +1,15 @@
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 export const useMovieNavigation = (movieId: number) => {
-    const navigate = useNavigate();
+	const navigate = useNavigate();
 
-    const goToMovieDetails = () => {
-        navigate(`/movie/${movieId}`);
-    };
+	const goToMovieDetails = () => {
+		navigate(`/movie/${movieId}`);
+	};
 
-    const goToBooking = (sessionId : number) => {
-        navigate(`/booking/${sessionId}`);
-    };
+	const goToBooking = (sessionId : number) => {
+		navigate(`/booking/${sessionId}`);
+	};
 
-    return {goToMovieDetails, goToBooking};
+	return { goToMovieDetails, goToBooking };
 };

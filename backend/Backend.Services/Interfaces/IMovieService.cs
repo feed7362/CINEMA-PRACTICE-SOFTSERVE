@@ -1,5 +1,5 @@
-﻿using Backend.Services.DTOs;
-using Backend.Services.DTOs.Movie;
+﻿using Backend.Services.DTOs.Movie;
+using Backend.Services.DTOs;
 
 namespace Backend.Services.Interfaces;
 
@@ -14,4 +14,8 @@ public interface IMovieService
     Task<PagedResponse<ReadMovieDto>> GetAllMoviesAsync(MovieFilterDto filter);
 
     Task<ReadMovieDto?> DeleteMovieAsync(int id);
+    
+    Task<List<string>> GetDirectorsAsync();
+    Task<List<string>> GetCountriesAsync();
+    }
 }
