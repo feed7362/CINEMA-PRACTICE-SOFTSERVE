@@ -22,6 +22,7 @@ import Statistics from '@/pages/admin/Statistics';
 import Halls from '@/pages/Halls';
 
 import ProtectedRoute from '@/components/ProtectedRoute';
+import EditDiscountsList from "@/pages/admin/EditDiscountsList.tsx";
 
 const AppRoutes: React.FC = () => {
 
@@ -51,6 +52,7 @@ const AppRoutes: React.FC = () => {
                 <Route path="/admin/editMoviesList" element={<EditMoviesList/>} />
                 <Route path="/admin/sessions" element={<Sessions/>} />
                 <Route path="/admin/halls" element={<Halls/>} />
+                <Route path="/admin/discounts" element={<EditDiscountsList/>} />
             </Route>
 
             <Route path="/forbidden" element={<Forbidden />} />
