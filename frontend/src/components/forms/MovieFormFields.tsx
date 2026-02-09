@@ -2,7 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import AdminInput from '../admin/AdminInput';
 import AdminTextarea from '../admin/AdminTextarea';
-import type { CreateMovie } from '@/types/movie';
+import type { CreateMovie } from '@/types/admin';
 
 const MovieFormFields: React.FC = () => {
   const { register, formState: { errors } } = useFormContext<CreateMovie>();
@@ -82,7 +82,7 @@ const MovieFormFields: React.FC = () => {
         />
         <div className="flex flex-col gap-2">
             <label className="text-white font-medium ml-1">Субтитри</label>
-            <div className="bg-white rounded-lg px-4 py-3 h-[50px] flex items-center">
+            <div className="bg-white rounded-lg px-4 py-3 h-12.5 flex items-center">
                  <label className="flex items-center gap-2 cursor-pointer text-black w-full">
                     <input 
                         type="checkbox" 

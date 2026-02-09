@@ -1,84 +1,66 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import BackgroundEffects from '@/components/ui/BackgroundEffects';
-import StatsFilters from '@/components/stats/StatsFilters';
-import StatsCards from '@/components/stats/StatsCards';
-import StatsCharts from '@/components/stats/StatsCharts';
-import StatsTable from '@/components/stats/StatsTable';
-import {statsApi} from '@/api/statsApi';
+import StatsCards from '@/components/admin/stats/StatsCards';
+import RevenueDetailsModal from '@/components/admin/stats/RevenueDetailsModal';
+import MovieAnalyticsBlock from '@/components/admin/stats/MovieAnalyticsBlock';
+import HallHeatmap from '@/components/admin/stats/HallHeatmap';
+import { useStatisticsPage } from '@/hooks/useStatisticsPage';
+import { StatisticsHeader } from '@/components/admin/stats/sections/StatisticsHeader';
+import { DetailedStatsSection } from '@/components/admin/stats/sections/DetailedStatsSection';
 
 const Statistics: React.FC = () => {
-    const [data, setData] = useState({
-        revenue: 0,
-        specialTickets: 0,
-        popularMovies: [] as any[]
-    });
-
-    const [trend, setTrend] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
-    const [isLoading, setIsLoading] = useState(false);
-
-    const [dateRange, setDateRange] = useState({
-        from: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-        to: new Date().toISOString().split('T')[0]
-    });
-
-    useEffect(() => {
-        loadAllStats(dateRange.from, dateRange.to);
-    }, [dateRange]);
-
-    const loadAllStats = async (from: string, to: string) => {
-        setIsLoading(true);
-        try {
-            const [revRes, specialRes, moviesRes] = await Promise.all([
-                statsApi.getRevenue(from, to),
-                statsApi.getSpecialTicketsCount(from, to),
-                statsApi.getPopularMovies({
-                    DateFrom: from,
-                    DateTo: to,
-                    Amount: 5
-                })
-            ]);
-
-            setData({
-                revenue: revRes.totalRevenue || 0,
-                specialTickets: specialRes.specialTicketsCount,
-                popularMovies: moviesRes || []
-            });
-
-            setTrend([0, 0, 0, 0, 0, 0, 0]);
-
-        } catch (err) {
-            console.error("Failed to load statistics:", err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const {
+        dateRange, setDateRange,
+        generalData, isGeneralLoading,
+        localFilters, handleLocalFilterChange, handleFormReport,
+        movies, isTableLoading,
+        revenueModal
+    } = useStatisticsPage();
 
     return (
         <div className="min-h-screen bg-main-dark text-white relative overflow-hidden flex flex-col font-sans">
-            <BackgroundEffects/>
+            <BackgroundEffects />
 
             <div className="grow flex flex-col items-center relative z-10 px-4 py-8">
-                <div className="w-full max-w-6xl space-y-8">
-
-                    <StatsFilters
-                        currentFilters={dateRange}
-                        onFilterChange={(newRange) => setDateRange(newRange)}
+                <div className="w-full max-w-7xl">
+                    
+                    <StatisticsHeader 
+                        dateRange={dateRange} 
+                        setDateRange={setDateRange} 
                     />
 
-                    <StatsCards
-                        revenue={data.revenue}
-                        specialTickets={data.specialTickets}
-                        isLoading={isLoading}
+                    <StatsCards 
+                        revenue={generalData.revenue} 
+                        ticketsCount={generalData.totalTickets} 
+                        isLoading={isGeneralLoading}
+                        onRevenueClick={revenueModal.open}
                     />
 
-                    {/*<StatsCharts trendData={trend} isLoading={isLoading}/>*/}
+                    <div className="my-8">
+                        <MovieAnalyticsBlock />
+                    </div>
 
-                    <StatsTable
-                        movies={data.popularMovies}
-                        isLoading={isLoading}
+                    <div className="my-8">
+                        <HallHeatmap />
+                    </div>
+
+                    <DetailedStatsSection 
+                        localFilters={localFilters}
+                        onFilterChange={handleLocalFilterChange}
+                        onSearch={handleFormReport}
+                        movies={movies}
+                        isLoading={isTableLoading}
                     />
                 </div>
             </div>
+
+            <RevenueDetailsModal 
+                isOpen={revenueModal.isOpen}
+                onClose={() => revenueModal.setIsOpen(false)}
+                movies={revenueModal.data}
+                isLoading={revenueModal.isLoading}
+                dateRange={dateRange}
+            />
         </div>
     );
 };

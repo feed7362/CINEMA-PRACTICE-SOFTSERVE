@@ -1,5 +1,8 @@
 import axiosClient from './axiosClient';
-import type {IMovie, MoviePreviewProps, IMovieDetails, IMovieScheduleItem, CreateMovie, Session} from '@/types/movie';
+import type { IMovieBase } from '@/types/common';
+import type { IMovieScheduleItem, SessionDisplay } from '@/types/session';
+import type { CreateMovie } from '@/types/admin';
+import type { MoviePreviewProps, IMovieDetails } from '@/types/movie'; 
 import { parseBackendError } from '@/utils/errorUtils';
 
 interface SessionDto {
@@ -40,7 +43,7 @@ export const movieApi = {
         }
     },
 
-    getNowPlaying: async (filterParams?: any): Promise<IMovie[]> => {
+    getNowPlaying: async (filterParams?: any): Promise<IMovieBase[]> => {
         try {
             const now = new Date();
             const [moviesResponse, sessionsResponse] = await Promise.all([
@@ -100,7 +103,7 @@ export const movieApi = {
                 return {
                     id: item.id,
                     title: item.titleUkr || "Без назви",
-                    poster: item.imageUrl || '',
+                    imageUrl: item.imageUrl || '',
                     ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
                     sessions: formattedSessions,
                     hall: item.hall || item.hallName || "Зал 1"
@@ -132,7 +135,7 @@ export const movieApi = {
                 .map((item: any) => ({
                     id: item.id,
                     title: item.titleUkr || item.title || "Без назви",
-                    poster: item.imageUrl || '',
+                    imageUrl: item.imageUrl || '',
                     ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
                     releaseDate: item.releaseDate
                         ? new Date(item.releaseDate).toLocaleDateString('uk-UA', {day: 'numeric', month: 'long'})
@@ -150,7 +153,7 @@ export const movieApi = {
         }
     },
 
-    getScheduleByDate: async (date: Date): Promise<IMovie[]> => {
+    getScheduleByDate: async (date: Date): Promise<IMovieBase[]> => {
         try {
             const [moviesResponse, sessionsResponse] = await Promise.all([
                 axiosClient.get('/movie', {params: {SortDirection: 0}}),
@@ -195,14 +198,14 @@ export const movieApi = {
                 return {
                     id: item.id,
                     title: item.titleUkr || "Без назви",
-                    poster: item.imageUrl || '',
+                    imageUrl: item.imageUrl || '',
                     ageRating: item.ageRating ? `${item.ageRating}+` : "0+",
                     sessions: formattedSessions,
                     hall: item.hall || item.hallName || "Зал 1"
                 };
             });
 
-            return scheduledMovies.filter((movie: IMovie): movie is IMovie => movie !== null);
+            return scheduledMovies.filter((movie: IMovieBase): movie is IMovieBase => movie !== null);
 
         } catch (error: any) {
             const errorMessage = parseBackendError(error.response?.data);
@@ -223,7 +226,7 @@ export const movieApi = {
 
             const movieSessions = allSessions.filter(s => String(s.movieId) === String(id));
 
-            const scheduleMap = new Map<string, Session[]>();
+            const scheduleMap = new Map<string, SessionDisplay[]>();
 
             movieSessions.forEach(session => {
                 const dateObj = new Date(session.startTime);
@@ -253,7 +256,7 @@ export const movieApi = {
             return {
                 id: data.id,
                 title: data.titleUkr || "Без назви",
-                poster: data.imageUrl || '',
+                imageUrl: data.imageUrl,
                 ageRating: data.ageRating ? `${data.ageRating}+` : "0+",
                 originalTitle: data.titleOrg || data.originalTitle || "",
                 director: data.director || "Не вказано",
@@ -270,7 +273,6 @@ export const movieApi = {
                 schedule: schedule,
                 trailerUrl: data.trailerUrl || "",
                 status: data.status,
-                imageUrl: data.imageUrl 
             };
         } catch (error: any) {
             const errorMessage = parseBackendError(error.response?.data);

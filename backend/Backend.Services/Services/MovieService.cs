@@ -4,6 +4,7 @@ using Backend.Services.DTOs;
 using Backend.Services.DTOs.Movie;
 using Backend.Services.Interfaces;
 using Backend.Services.Specifications;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Services.Services
 {
@@ -28,13 +29,11 @@ namespace Backend.Services.Services
                 ImageUrl = dto.ImageUrl,
                 TrailerUrl = dto.TrailerUrl,
 
-                // Convert List<int> -> List<MovieGenre>
                 MovieGenres = dto.GenreIds.Select(gId => new MovieGenre
                 {
                     GenreId = gId
                 }).ToList(),
 
-                // Convert List<int> -> List<MovieActor>
                 MovieActors = dto.ActorIds.Select(aId => new MovieActor
                 {
                     ActorId = aId
@@ -112,18 +111,46 @@ namespace Backend.Services.Services
             );
         }
 
-
         public async Task DeleteMovieAsync(int id)
         {
             await movieRepository.DeleteAsync(id);
         }
+
+        // --- НОВІ МЕТОДИ ---
+
+        public async Task<List<string>> GetDirectorsAsync()
+        {
+            // Отримуємо всі фільми (або використовуємо легку специфікацію без Include)
+            var movies = await movieRepository.GetAllAsync();
+            
+            return movies
+                .Select(m => m.Director)
+                .Where(d => !string.IsNullOrWhiteSpace(d))
+                .Distinct()
+                .OrderBy(d => d)
+                .ToList();
+        }
+
+        public async Task<List<string>> GetCountriesAsync()
+        {
+            var movies = await movieRepository.GetAllAsync();
+            
+            return movies
+                .Select(m => m.Country)
+                .Where(c => !string.IsNullOrWhiteSpace(c))
+                .Distinct()
+                .OrderBy(c => c)
+                .ToList();
+        }
+
+        // -------------------
 
         private static ReadMovieDto MapToDto(Movie m)
         {
             return new ReadMovieDto
             {
                 Id = m.Id,
-                StudioName = m.Studio.Name,
+                StudioName = m.Studio?.Name ?? "Unknown", // Додано null-check
 
                 TitleOrg = m.TitleOrg,
                 TitleUkr = m.TitleUkr,

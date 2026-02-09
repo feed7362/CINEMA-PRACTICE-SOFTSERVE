@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import type {Session} from "@/types/movie.ts";
+import type { SessionDisplay} from "@/types/session";
 import { PLACEHOLDER_IMAGE } from '@/constants';
 import {formatHallFormat} from "@/utils/formatters.ts";
 
@@ -8,7 +8,7 @@ interface ScheduleMovie {
     id: string;
     title: string;
     poster: string;
-    sessions: Session[];
+    sessions: SessionDisplay[];
 }
 
 interface ScheduleMovieCardProps {
