@@ -5,18 +5,18 @@ import { MemoryRouter } from 'react-router-dom';
 import PaymentsDemo from './PaymentsDemo';
 
 const meta = {
-  title: 'Stories/PaymentsDemo',
-  component: PaymentsDemo,
-  parameters: { layout: 'fullscreen' },
-  decorators: [
-    (Story) => (
-      <MemoryRouter>
-        <div className="bg-[#020617] min-h-screen p-8 text-white font-['Inter']">
-          <Story />
-        </div>
-      </MemoryRouter>
-    ),
-  ],
+	title: 'Stories/PaymentsDemo',
+	component: PaymentsDemo,
+	parameters: { layout: 'fullscreen' },
+	decorators: [
+		(Story) => (
+			<MemoryRouter>
+				<div className="bg-[#020617] min-h-screen p-8 text-white font-['Inter']">
+					<Story />
+				</div>
+			</MemoryRouter>
+		),
+	],
 } satisfies Meta<typeof PaymentsDemo>;
 
 export default meta;
