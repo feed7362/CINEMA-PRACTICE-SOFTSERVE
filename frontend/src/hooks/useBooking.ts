@@ -50,7 +50,7 @@ export const useBooking = (sessionId: string | undefined) => {
             const backendMessage = parseBackendError(err.response?.data);
             setError(backendMessage);
             if (err.response?.status === 401) {
-                navigate('/auth');
+                navigate('/login');
             }
         }
     };

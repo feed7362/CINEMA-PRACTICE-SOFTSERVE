@@ -103,7 +103,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 				<p className="text-zinc-400 text-xs">
 					Вже є акаунт?{' '}
 					<Link
-						to="/auth"
+						to="/login"
 						className="text-white font-semibold hover:text-[#0753E0] transition-colors ml-1"
 					>
 						Увійти

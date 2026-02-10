@@ -45,13 +45,11 @@ export const useSignUp = () => {
 			return;
 		}
 
-		// API Call
 		try {
 			setLoading(true);
-			// Примітка: переконайтеся, що ваш метод register приймає name, якщо бекенд цього вимагає
 			await register(email, password, confirmPassword); 
 			alert('Реєстрація успішна');
-			navigate('/auth');
+			navigate('/login');
 		} catch (err: any) {
 			resetCaptcha();
 			const data = err?.response?.data;

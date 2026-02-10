@@ -12,7 +12,7 @@ public class Ticket : IEntity
 
     public int PriceId { get; set; }
 
-    public int DiscountId { get; set; }
+    public int? DiscountId { get; set; }
 
     public DateTime PurchaseTime { get; set; } = DateTime.UtcNow;
 
@@ -21,5 +21,6 @@ public class Ticket : IEntity
     public Seat Seat { get; set; } = null!;
     public Booking Booking { get; set; } = null!;
     public Price Price { get; set; } = null!;
-    public Discount? Discount { get; set; }
+    public virtual Discount? Discount { get; set; }
+    
 }

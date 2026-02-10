@@ -59,14 +59,11 @@ public class DiscountService(
             await repository.GetFirstBySpecAsync(new DiscountByCodeSpec(code))
             ?? throw new EntityNotFoundException("Промокод", code);
 
-        if (discount.ExpiryDate < DateTime.UtcNow)
-        {
-            discount.IsActive = false;
-            await repository.UpdateAsync(discount);
-            throw new ConflictException("Термін дії промокоду закінчився.");
-        }
+        if (!(discount.ExpiryDate < DateTime.UtcNow)) return mapper.Map<DiscountResponseDto>(discount);
+        discount.IsActive = false;
+        await repository.UpdateAsync(discount);
+        throw new ConflictException("Термін дії промокоду закінчився.");
 
-        return mapper.Map<DiscountResponseDto>(discount);
     }
 
     public async Task<List<DiscountTypeDto>> GetDiscountTypesAsync()
@@ -76,10 +73,10 @@ public class DiscountService(
                 (int)t,
                 t switch
                 {
-                    DiscountType.REGULAR => "Звичайна",
                     DiscountType.STUDENT => "Студентська",
                     DiscountType.MILITARY => "Військова",
-                    DiscountType.PROMOCODE => "Промокод",
+                    DiscountType.BIRTHDAY => "День народження",
+                    DiscountType.CHILDREN => "Дитяча",
                     _ => "Невідомо"
                 }
             ))

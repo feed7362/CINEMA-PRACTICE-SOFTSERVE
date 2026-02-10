@@ -10,6 +10,7 @@ namespace Backend.Services.Specifications
             Query
                 .Where(t => t.Booking.ApplicationUserId == userId)
                 .Include(t => t.Seat)
+                .Include(t => t.Discount)
                 .Include(t => t.Booking)
                 .ThenInclude(b => b.Session)
                 .ThenInclude(s => s.Movie)
@@ -30,6 +31,7 @@ namespace Backend.Services.Specifications
                 .Where(t => t.Id == ticketId 
                             && t.Booking.ApplicationUserId == userId)
                 .Include(t => t.Seat)
+                .Include(t => t.Discount)
                 .Include(t => t.Booking)
                 .ThenInclude(b => b.Session)
                 .ThenInclude(s => s.Movie)
