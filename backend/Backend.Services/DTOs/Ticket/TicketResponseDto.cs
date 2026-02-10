@@ -8,5 +8,6 @@ public record TicketResponseDto(
     int SeatNumber,
     string SeatType,
     DateTime StartTime,
-    string Status // Linked to the Booking status
+    string Status, // Linked to the Booking status
+    string DiscountType
 );

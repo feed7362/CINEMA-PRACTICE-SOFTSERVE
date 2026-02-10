@@ -132,7 +132,7 @@ namespace Backend.Data.Repositories
                             .FirstOrDefaultAsync();
         }
 
-        protected IQueryable<TResult> ApplySpecification<TResult>(
+        private IQueryable<TResult> ApplySpecification<TResult>(
                 ISpecification<TEntity, TResult> specification
             )
         {

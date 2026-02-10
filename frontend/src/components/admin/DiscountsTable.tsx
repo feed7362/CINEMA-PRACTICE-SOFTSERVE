@@ -1,6 +1,6 @@
 import React from 'react';
 import DeleteIcon from '@/assets/icons/DeleteIcon';
-import type { IDiscount } from '@/api/discountApi';
+import type {IDiscount} from '@/api/discountApi';
 
 interface DiscountsTableProps {
     discounts: IDiscount[];
@@ -8,7 +8,7 @@ interface DiscountsTableProps {
     discountTypeLabels: Record<number, string>;
 }
 
-const DiscountsTable: React.FC<DiscountsTableProps> = ({ discounts, onDelete, discountTypeLabels }) => {
+const DiscountsTable: React.FC<DiscountsTableProps> = ({discounts, onDelete, discountTypeLabels}) => {
 
 
     const getStatus = (expiryDate: string) => {
@@ -31,7 +31,8 @@ const DiscountsTable: React.FC<DiscountsTableProps> = ({ discounts, onDelete, di
     };
 
     return (
-        <div className="w-full overflow-x-auto rounded-xl border border-white/10 bg-[#020617]/50 backdrop-blur-sm shadow-xl">
+        <div
+            className="w-full overflow-x-auto rounded-xl border border-white/10 bg-[#020617]/50 backdrop-blur-sm shadow-xl">
             <table className="w-full text-left border-collapse">
                 <thead>
                 <tr className="bg-white/5 border-b border-white/10 text-gray-400 text-sm uppercase tracking-wider">
@@ -74,7 +75,7 @@ const DiscountsTable: React.FC<DiscountsTableProps> = ({ discounts, onDelete, di
                                     onClick={() => onDelete(discount.id)}
                                     className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
                                 >
-                                    <DeleteIcon />
+                                    <DeleteIcon/>
                                 </button>
                             </td>
                         </tr>

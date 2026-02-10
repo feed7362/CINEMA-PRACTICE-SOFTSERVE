@@ -11,36 +11,35 @@ using Backend.Services.Specifications;
 namespace Backend.Services.Services;
 
 public class TicketService(
-        IRepository<Ticket> ticketRepository,
-        IMapper mapper
-    ) : ITicketService
+    IRepository<Ticket> ticketRepository,
+    IMapper mapper
+) : ITicketService
 {
     public async Task<TicketResponseDto?> GetTicketByIdAsync(
-            int ticketId, 
-            int userId
-        )
+        int ticketId,
+        int userId
+    )
     {
         var ticket = await ticketRepository.GetFirstBySpecAsync(
-                new TicketByIdAndUserIdSpec(ticketId, userId)
-            );
+            new TicketByIdAndUserIdSpec(ticketId, userId)
+        );
 
-        if (ticket == null)
-            throw new EntityNotFoundException("Квиток", ticketId);
-
-        return mapper.Map<TicketResponseDto>(ticket);
+        return ticket == null
+            ? throw new EntityNotFoundException("Квиток", ticketId)
+            : mapper.Map<TicketResponseDto>(ticket);
     }
 
     public async Task<PagedResponse<TicketResponseDto>> GetUserTicketsAsync(
-            int userId, 
-            int page = 1, 
-            int pageSize = 10
-        )
+        int userId,
+        int page = 1,
+        int pageSize = 10
+    )
     {
         var countSpec = new Specification<Ticket>();
         countSpec.Query.Where(t => t.Booking.ApplicationUserId == userId);
         var totalCount = await ticketRepository.CountAsync(countSpec);
 
-        
+
         var pagedSpec = new TicketsByUserIdPagedSpec(userId, page, pageSize);
         var tickets = await ticketRepository.GetListBySpecAsync(pagedSpec);
 
@@ -48,10 +47,10 @@ public class TicketService(
         var items = mapper.Map<List<TicketResponseDto>>(tickets);
 
         return new PagedResponse<TicketResponseDto>(
-                items, 
-                totalCount, 
-                page, 
-                pageSize
-            );
+            items,
+            totalCount,
+            page,
+            pageSize
+        );
     }
 }

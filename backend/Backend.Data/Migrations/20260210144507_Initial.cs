@@ -511,7 +511,7 @@ namespace Backend.Data.Migrations
                     SeatId = table.Column<int>(type: "integer", nullable: false),
                     BookingId = table.Column<int>(type: "integer", nullable: false),
                     PriceId = table.Column<int>(type: "integer", nullable: false),
-                    DiscountId = table.Column<int>(type: "integer", nullable: false),
+                    DiscountId = table.Column<int>(type: "integer", nullable: true),
                     PurchaseTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP AT TIME ZONE 'UTC'"),
                     FinalPrice = table.Column<decimal>(type: "numeric(10,2)", nullable: false)
                 },

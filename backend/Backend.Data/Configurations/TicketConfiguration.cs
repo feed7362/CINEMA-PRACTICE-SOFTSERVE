@@ -23,7 +23,7 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
             .IsRequired();
 
         builder.Property(t => t.DiscountId)
-            .IsRequired();
+            .IsRequired(false);
 
         builder.Property(t => t.PurchaseTime)
             .IsRequired()

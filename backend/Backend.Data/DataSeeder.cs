@@ -39,7 +39,7 @@ public static class DataSeeder
                 .GetRequiredService<ILogger<ApplicationContext>>();
 
             logger.LogError(ex, "An error occurred during migration " +
-                "or seeding.");
+                                "or seeding.");
 
             throw;
         }
@@ -60,8 +60,9 @@ public static class DataSeeder
         {
             if (!await roleManager.RoleExistsAsync(roleName))
             {
-                await roleManager.CreateAsync(new IdentityRole<int> { 
-                    Name = roleName 
+                await roleManager.CreateAsync(new IdentityRole<int>
+                {
+                    Name = roleName
                 });
             }
         }
@@ -80,29 +81,32 @@ public static class DataSeeder
             var result = await userManager
                 .CreateAsync(admin, "Admin123!");
 
-            if (result.Succeeded) await userManager
+            if (result.Succeeded)
+                await userManager
                     .AddToRoleAsync(admin, "Admin");
         }
 
-        var demoUsers = new[] { 
-            "alice@test.com", 
-            "bob@test.com", 
-            "charlie@test.com" 
+        var demoUsers = new[]
+        {
+            "alice@test.com",
+            "bob@test.com",
+            "charlie@test.com"
         };
 
         foreach (var email in demoUsers)
         {
             if (await userManager.FindByEmailAsync(email) != null) continue;
             var user = new ApplicationUser
-                { 
-                    UserName = email,
-                    Email = email, 
-                    EmailConfirmed = true, 
-                    CreatedAt = DateTime.UtcNow 
-                };
+            {
+                UserName = email,
+                Email = email,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.UtcNow
+            };
 
             var result = await userManager.CreateAsync(user, "User123!");
-            if (result.Succeeded) await userManager
+            if (result.Succeeded)
+                await userManager
                     .AddToRoleAsync(user, "Customer");
         }
 
@@ -475,29 +479,31 @@ public static class DataSeeder
             var pricesToAdd = new List<Price>();
             foreach (var session in sessionsToAdd)
             {
-                decimal basePrice = session.StartTime.Hour < 12 
-                    ? 150 
+                decimal basePrice = session.StartTime.Hour < 12
+                    ? 150
                     : (session.StartTime.Hour < 18 ? 200 : 250);
 
-                if (session.Hall.Format == HallFormat.IMAX) 
+                if (session.Hall.Format == HallFormat.IMAX)
                     basePrice += 100;
 
-                pricesToAdd.Add(new Price { 
-                    SessionId = session.Id, 
-                    SeatType = SeatType.Regular, 
-                    Value = basePrice 
+                pricesToAdd.Add(new Price
+                {
+                    SessionId = session.Id,
+                    SeatType = SeatType.Regular,
+                    Value = basePrice
                 });
                 pricesToAdd.Add(new Price
-                    { 
-                        SessionId = session.Id, 
-                        SeatType = SeatType.Vip, 
-                        Value = basePrice + 50 
-                    });
-                pricesToAdd.Add(new Price { 
-                        SessionId = session.Id, 
-                        SeatType = SeatType.Vip, 
-                        Value = basePrice + 120 
-                    });
+                {
+                    SessionId = session.Id,
+                    SeatType = SeatType.Vip,
+                    Value = basePrice + 50
+                });
+                pricesToAdd.Add(new Price
+                {
+                    SessionId = session.Id,
+                    SeatType = SeatType.Vip,
+                    Value = basePrice + 120
+                });
             }
 
             await context.Prices.AddRangeAsync(pricesToAdd);
@@ -513,14 +519,6 @@ public static class DataSeeder
             context.Set<Discount>().AddRange(
                 new Discount
                 {
-                    Type = DiscountType.REGULAR,
-                    Percentage = 0,
-                    Code = "REGULAR",
-                    IsActive = true,
-                    ExpiryDate = DateTime.UtcNow.AddYears(1)
-                },
-                new Discount
-                {
                     Type = DiscountType.STUDENT,
                     Percentage = 20,
                     Code = "STUDENT25",
@@ -530,16 +528,24 @@ public static class DataSeeder
                 new Discount
                 {
                     Type = DiscountType.MILITARY,
-                    Percentage = 30,
+                    Percentage = 35,
                     Code = "MILITARY25",
                     IsActive = true,
                     ExpiryDate = DateTime.UtcNow.AddYears(1)
                 },
                 new Discount
                 {
-                    Type = DiscountType.PROMOCODE,
-                    Code = "WELCOME25",
-                    Percentage = 25,
+                    Type = DiscountType.BIRTHDAY,
+                    Code = "BIRTHDAY25",
+                    Percentage = 30,
+                    IsActive = true,
+                    ExpiryDate = DateTime.UtcNow.AddYears(1)
+                },
+                new Discount
+                {
+                    Type = DiscountType.CHILDREN,
+                    Code = "CHILDREN25",
+                    Percentage = 15,
                     IsActive = true,
                     ExpiryDate = DateTime.UtcNow.AddYears(1)
                 }
@@ -557,8 +563,9 @@ public static class DataSeeder
                 .GetUsersInRoleAsync("Customer");
             var admin = await userManager
                 .FindByEmailAsync(adminEmail);
-            var allUsers = new List<ApplicationUser>(customers) { 
-                admin! 
+            var allUsers = new List<ApplicationUser>(customers)
+            {
+                admin!
             };
 
             var sessions = await context.Sessions
@@ -566,10 +573,6 @@ public static class DataSeeder
                 .Include(s => s.Hall).ThenInclude(h => h.Seats)
                 .Where(s => s.StartTime < DateTime.UtcNow.AddDays(2))
                 .ToListAsync();
-
-            var regularDiscount = await context
-                .Set<Discount>()
-                .FirstAsync(d => d.Type == DiscountType.REGULAR);
 
             var random = new Random();
             var bookingsToAdd = new List<Booking>();
@@ -607,7 +610,7 @@ public static class DataSeeder
                     {
                         SeatId = seat.Id,
                         PriceId = price.Id,
-                        DiscountId = regularDiscount.Id,
+                        DiscountId = null,
                         FinalPrice = price.Value,
                         PurchaseTime = DateTime.UtcNow
                     });
@@ -642,27 +645,27 @@ public static class DataSeeder
             context.MovieActors.AddRange(a.Select(x => new MovieActor { MovieId = m.Id, ActorId = GetA(x) }));
 
         AddMg(movies[0], "Біографія", "Драма");
-        AddMa(movies[0], "Cillian Murphy", 
-            "Robert Downey Jr.", 
-            "Matt Damon", 
+        AddMa(movies[0], "Cillian Murphy",
+            "Robert Downey Jr.",
+            "Matt Damon",
             "Emily Blunt"
-            );
+        );
 
-        AddMg(movies[1], 
-            "Наукова фантастика", 
+        AddMg(movies[1],
+            "Наукова фантастика",
             "Пригоди");
-        AddMa(movies[1], 
-            "Timothée Chalamet", 
-            "Zendaya", 
+        AddMa(movies[1],
+            "Timothée Chalamet",
+            "Zendaya",
             "Rebecca Ferguson"
-            );
+        );
 
-        AddMg(movies[2], 
-            "Наукова фантастика", 
+        AddMg(movies[2],
+            "Наукова фантастика",
             "Драма");
-        AddMa(movies[2], 
-            "Matthew McConaughey", 
-            "Anne Hathaway", 
+        AddMa(movies[2],
+            "Matthew McConaughey",
+            "Anne Hathaway",
             "Jessica Chastain");
 
         AddMg(movies[3], "Драма", "Кримінал", "Трилер");
