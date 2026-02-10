@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMovieSessions } from '@/hooks/useMovieSessions';
+import { useMovieSessions } from '@/hooks/movies/useMovieSessions';
 import CloseIcon from '@/assets/icons/CloseIcon';
 import { SessionFilter } from '@/components/session/SessionFilter';
 import { SessionList } from '@/components/session/SessionList';

@@ -4,7 +4,8 @@ import MoviePreviewCard from '@/components/movie/MoviePreviewCard';
 import MovieSchedule from '@/components/movie/MovieSchedule';
 import MovieTrailer from '@/components/movie/MovieTrailer';
 import MovieRecommendations from '@/components/movie/MovieRecommendations';
-import type { IMovie, IMovieScheduleItem } from '@/types/movie';
+import type { IMovieBase } from '@/types/common';
+import type { IMovieScheduleItem } from '@/types/session';
 
 const MOCK_MOVIE_CARD = {
 	id: '1',
@@ -52,24 +53,23 @@ const MOCK_SCHEDULE: IMovieScheduleItem[] = [
 	},
 ];
 
-// ВИПРАВЛЕНО: Залишено тільки поля, які гарантовано є в IMovie (id, title, poster, ageRating)
-const MOCK_RECOMMENDATIONS: IMovie[] = [
+const MOCK_RECOMMENDATIONS: IMovieBase[] = [
 	{ 
 		id: '10', 
 		title: 'Оппенгеймер', 
-		poster: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg', 
+		imageUrl: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg', 
 		ageRating: '16+', 
 	},
 	{ 
 		id: '11', 
 		title: 'Барбі', 
-		poster: 'https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg', 
+		imageUrl: 'https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg', 
 		ageRating: '12+', 
 	},
 	{ 
 		id: '12', 
 		title: 'Аватар 2', 
-		poster: 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg', 
+		imageUrl: 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg', 
 		ageRating: '12+', 
 	},
 ];
@@ -96,19 +96,17 @@ const MoviesDemo: React.FC = () => {
             
 					<div className="flex flex-col gap-4">
 						<span className="text-sm font-bold text-gray-500 uppercase">Standard Card (With Sessions)</span>
-						{/* @ts-ignore */}
 						<MovieCard movie={MOCK_MOVIE_CARD} isBlurred={false} />
 					</div>
 
 					<div className="flex flex-col gap-4">
 						<span className="text-sm font-bold text-gray-500 uppercase">Standard Card (No Sessions)</span>
-						{/* @ts-ignore */}
 						<MovieCard movie={MOCK_NO_SESSIONS_MOVIE} isBlurred={false} />
 					</div>
 
 					<div className="flex flex-col gap-4">
 						<span className="text-sm font-bold text-gray-500 uppercase">Preview Card (Soon)</span>
-						<MoviePreviewCard {...MOCK_PREVIEW} isBlurred={false} />
+						<MoviePreviewCard movie={MOCK_PREVIEW} isBlurred={false} />
 					</div>
 
 				</div>

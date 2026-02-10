@@ -3,7 +3,7 @@ import BackgroundEffects from '@/components/ui/BackgroundEffects';
 import DeleteModal from '@/components/ui/DeleteModal';
 import MoviesTable from '@/components/editmovie/MoviesTable.tsx';
 import FullScreenLoader from '@/components/loader/FullScreenLoader';
-import { useMoviesList } from '@/hooks/useMoviesList';
+import { useMoviesList } from '@/hooks/movies/useMoviesList';
 
 const EditMoviesList: React.FC = () => {
 	const {

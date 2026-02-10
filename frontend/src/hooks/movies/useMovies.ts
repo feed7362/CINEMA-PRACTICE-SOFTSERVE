@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { movieApi } from '@/api/movieApi';
-import type { IMovie } from '@/types/movie';
+import type { IMovieBase } from '@/types/common';
 
 interface UseMoviesProps {
 	GenreIds?: number[];
@@ -9,7 +9,7 @@ interface UseMoviesProps {
 }
 
 export const useMovies = (queryParams?: UseMoviesProps) => {
-	const [movies, setMovies] = useState<IMovie[]>([]);
+	const [movies, setMovies] = useState<IMovieBase[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 

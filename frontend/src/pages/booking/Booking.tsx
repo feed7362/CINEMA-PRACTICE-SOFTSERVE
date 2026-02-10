@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import BaseButton from '@/components/ui/BaseButton';
 import LoadingSpinner from '@/components/loader/LoadingSpinner';
-import { useBooking } from '@/hooks/useBooking';
+import { useBooking } from '@/hooks/booking/useBooking';
 import type { Seat } from '@/types/booking';
 
 const Booking: React.FC = () => {

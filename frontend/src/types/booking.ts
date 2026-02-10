@@ -11,42 +11,42 @@ export interface Seat {
 }
 
 export interface TicketDetail {
-    id: number;
-    rowNumber: number;
-    seatNumber: number;
-    seatType: SeatType;
-    finalPrice: number;
-    discountType?: string;
+	id: number;
+	rowNumber: number;
+	seatNumber: number;
+	seatType: SeatType;
+	finalPrice: number;
+	discountType?: string;
 }
 
 export interface LockBookingPayload {
-    sessionId: number;
-    seatIds: number[];
-    promocode?: string;
+	sessionId: number;
+	seatIds: number[];
+	promocode?: string;
 }
 
 export interface LockBookingResponse {
-    id: number;
-    hall?: string;
-    seats?: Seat[];
-    totalAmount: number;
-    clientSecret: string;
-    expirationTime: string;
-    status: BookingStatus;
-    paymentIntentId: string;
-    appliedPromoCode?: string;
+	id: number;
+	hall?: string;
+	seats?: Seat[];
+	totalAmount: number;
+	clientSecret: string;
+	expirationTime: string;
+	status: BookingStatus;
+	paymentIntentId: string;
+	appliedPromoCode?: string;
 }
 
 export interface BookingResponse {
-    id: number;
-    applicationUserId: number;
-    sessionId: number;
-    bookingTime: string;
-    expirationTime: string;
-    status: BookingStatus;
-    clientSecret: string;
-    paymentIntentId: string;
-    totalAmount: number;
+	id: number;
+	applicationUserId: number;
+	sessionId: number;
+	bookingTime: string;
+	expirationTime: string;
+	status: BookingStatus;
+	clientSecret: string;
+	paymentIntentId: string;
+	totalAmount: number;
 }
 
 export interface BookingSummary {
@@ -60,31 +60,26 @@ export interface BookingSummary {
 	posterUrl?: string;
 }
 
-export interface BookingDetails extends BookingSummary {
-	tickets: TicketDetail[];
-	hallName?: string;
-}
-    
 export interface SessionShort {
-    id: number;
-    movieTitle: string;
-    hallName: string;
-    startTime: string;
+	id: number;
+	movieTitle: string;
+	hallName: string;
+	startTime: string;
 }
 
 export interface BookingDetails {
-    id: number;
-    bookingTime: string;
-    expirationTime: string;
-    status: string;
-    totalPrice: number;
-    session: SessionShort;
-    tickets: TicketDetail[];
+	id: number;
+	bookingTime: string;
+	expirationTime: string;
+	status: BookingStatus;
+	totalPrice: number;
+	session: SessionShort;
+	tickets: TicketDetail[];
 }
 
 export interface PagedResponse<T> {
-    items: T[];
-    totalCount: number;
-    page: number;
-    pageSize: number;
+	items: T[];
+	totalCount: number;
+	page: number;
+	pageSize: number;
 }

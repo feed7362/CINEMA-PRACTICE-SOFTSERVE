@@ -3,7 +3,7 @@ import { FormProvider } from 'react-hook-form';
 import BackgroundEffects from '@/components/ui/BackgroundEffects';
 import MovieFormFields from '@/components/forms/MovieFormFields';
 import FullScreenLoader from '@/components/loader/FullScreenLoader';
-import { useMovieForm } from '@/hooks/useMovieForm';
+import { useMovieForm } from '@/hooks/movies/useMovieForm';
 import LoaderIcon from '@/assets/icons/LoaderIcon';
 
 const AddMovie: React.FC = () => {

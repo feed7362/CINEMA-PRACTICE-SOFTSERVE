@@ -3,7 +3,7 @@ import BackgroundEffects from '@/components/ui/BackgroundEffects';
 import DeleteModal from '@/components/ui/DeleteModal';
 import HallModal from '@/components/halls/HallModal';
 import HallsTable from '@/components/halls/HallsTable';
-import { useHalls } from '@/hooks/useHalls';
+import { useHalls } from '@/hooks/halls/useHalls';
 
 const Halls: React.FC = () => {
 	const {

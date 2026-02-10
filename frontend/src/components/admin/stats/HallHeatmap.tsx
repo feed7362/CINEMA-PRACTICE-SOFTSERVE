@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHallHeatmap } from '@/hooks/useHallHeatmap';
+import { useHallHeatmap } from '@/hooks/halls/useHallHeatmap';
 import { getSeatColorClass } from '@/utils/heatmapUtils';
 import { HeatmapLegend } from '@/components/heatmap/HeatmapLegend';
 import { SeatTooltip } from '@/components/heatmap/SeatTooltip';

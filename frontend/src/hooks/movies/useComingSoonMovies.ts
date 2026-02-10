@@ -14,6 +14,7 @@ export const useComingSoonMovies = () => {
 				const data = await movieApi.getComingSoon();
 				setMovies(data);
 			} catch (err) {
+				console.log(err);
 				setError('Не вдалося завантажити фільми');
 			} finally {
 				setLoading(false);

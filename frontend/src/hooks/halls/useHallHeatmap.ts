@@ -34,6 +34,7 @@ export const useHallHeatmap = () => {
 				const data = await statsApi.getHallHeatmap(Number(selectedHallId));
 				setHeatmapData(data);
 			} catch (e) {
+				console.error(e);
 				setHeatmapData([]);
 			} finally {
 				setIsLoading(false);

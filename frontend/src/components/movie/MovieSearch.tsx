@@ -20,11 +20,12 @@ const MovieSearch: React.FC<MovieSearchProps> = ({
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+				setSearchTerm('');
 			}
 		};
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, []);
+	}, [setSearchTerm]);
 
 	return (
 		<div ref={containerRef} className="relative w-full lg:w-96 z-50">
