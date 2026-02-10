@@ -6,7 +6,7 @@ import logo from '@/assets/images/logo.png';
 import { useAuth } from '@/context/AuthContext';
 
 const Header: React.FC = () => {
-	const { isAdmin, token } = useAuth(); 
+	const { isAdmin, token } = useAuth();
 
 	const baseLinkStyles = 'transition-colors duration-200 text-2xl font-normal';
 
@@ -15,7 +15,7 @@ const Header: React.FC = () => {
 
 	const adminLinkClasses = ({ isActive }: { isActive: boolean }) =>
 		`${baseLinkStyles} ml-4 ${isActive ? 'text-blue-400' : 'text-blue-600 hover:text-blue-400'}`;
-
+	
 	return (
 		<header className="w-full bg-[#020617] border-b border-white/5 py-4 px-6 sticky top-0 z-50 backdrop-blur-md">
 			<div className="max-w-360 mx-auto flex items-center justify-between">

@@ -29,18 +29,28 @@ internal static class AdminLogEndpoints
             string? email = null,
             string? path = null) 
         
-        => Results.Ok(await service.GetErrorLogsAsync(page, pageSize, email, path)))
+        => Results.Ok(await service.GetErrorLogsAsync(
+            page, 
+            pageSize, 
+            email, 
+            path)
+        ))
             
             .WithName("GetErrorLogs")
-            .WithSummary("Retrieve error logs with optional filtering by email or request path");
+            .WithSummary("Retrieve error logs with optional filtering " +
+            "by email or request path");
 
-        group.MapGet("/errors/{id:int}", async (int id, IAdminLogService service) =>
+        group.MapGet("/errors/{id:int}", async (
+            int id, 
+            IAdminLogService service
+        ) =>
         {
             var error = await service.GetErrorDetailAsync(id);
-            return error is null ? Results.NotFound() : Results.Ok(error);
+            return Results.Ok(error);
         })
             .WithName("GetErrorLogById")
             .WithSummary("Get error log details")
-            .WithDescription("Returns the full details of a specific error log, including the stack trace for debugging purposes.");
+            .WithDescription("Returns the full details of a specific error " +
+            "log, including the stack trace for debugging purposes.");
     }
 }

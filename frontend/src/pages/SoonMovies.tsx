@@ -1,6 +1,6 @@
 import React from 'react';
 import MoviePreviewCard from '@/components/movie/MoviePreviewCard';
-import { useComingSoonMovies } from '@/hooks/useComingSoonMovies';
+import { useComingSoonMovies } from '@/hooks/movies/useComingSoonMovies';
 import FullScreenLoader from '@/components/loader/FullScreenLoader';
 
 const SoonMovies: React.FC = () => {

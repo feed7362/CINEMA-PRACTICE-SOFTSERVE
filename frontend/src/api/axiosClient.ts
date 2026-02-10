@@ -26,7 +26,7 @@ axiosClient.interceptors.response.use(
       
 			localStorage.removeItem('token');
       
-			window.location.href = '/auth'; 
+			window.location.href = '/login'; 
 		}
 		return Promise.reject(error);
 	},

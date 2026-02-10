@@ -1,79 +1,70 @@
 import React from 'react';
-import LoadingSpinner from '@/components/loader/LoadingSpinner';
-import { formatCurrency } from '@/utils/formatters';
 
 interface StatsCardsProps {
-	revenue: number;
-	ticketsCount: number;
-	isLoading: boolean;
-	onRevenueClick?: () => void;
+    revenue: number;
+    ticketsCount: number;
+    isLoading: boolean;
+    onRevenueClick: () => void;
+    onTicketsClick: () => void;
 }
 
-const RevenueBgIcon = () => (
-	<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
-		<line x1="12" y1="1" x2="12" y2="23"></line>
-		<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-	</svg>
-);
+const StatsCards: React.FC<StatsCardsProps> = ({ 
+    revenue, 
+    ticketsCount, 
+    isLoading, 
+    onRevenueClick,
+    onTicketsClick 
+}) => {
+    const formatCurrency = (val: number) => 
+        new Intl.NumberFormat('uk-UA', { style: 'currency', currency: 'UAH', maximumFractionDigits: 0 }).format(val);
 
-const RevenueSmallIcon = () => (
-	<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-0 group-hover:opacity-100 transition-opacity">
-		<circle cx="11" cy="11" r="8"></circle>
-		<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-		<line x1="11" y1="8" x2="11" y2="14"></line>
-		<line x1="8" y1="11" x2="14" y2="11"></line>
-	</svg>
-);
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div 
+                onClick={onRevenueClick}
+                className="bg-[#051329]/60 backdrop-blur-md border border-white/10 rounded-2xl p-6 relative overflow-hidden group cursor-pointer hover:border-blue-500/50 transition-all duration-300"
+            >
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <svg className="w-24 h-24 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p className="text-zinc-400 font-medium mb-1">Загальний дохід</p>
+                    {isLoading ? (
+                        <div className="h-10 w-32 bg-white/10 rounded animate-pulse" />
+                    ) : (
+                        <h3 className="text-4xl font-bold text-white group-hover:text-blue-400 transition-colors">
+                            {formatCurrency(revenue)}
+                        </h3>
+                    )}
+                    <p className="text-xs text-zinc-500 mt-2">Натисніть для деталізації</p>
+                </div>
+            </div>
 
-const TicketsBgIcon = () => (
-	<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400">
-		<path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/>
-		<path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/>
-	</svg>
-);
-
-const StatsCards: React.FC<StatsCardsProps> = ({ revenue, ticketsCount, isLoading, onRevenueClick }) => {
-	if (isLoading) {
-		return <div className="flex justify-center py-10 w-full"><LoadingSpinner /></div>;
-	}
-
-	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-			<div 
-				onClick={onRevenueClick}
-				className="bg-linear-to-br from-emerald-900/40 to-emerald-800/20 border border-emerald-500/30 p-8 rounded-2xl relative overflow-hidden group cursor-pointer transition-all hover:scale-[1.01] hover:shadow-lg hover:shadow-emerald-900/20"
-			>
-				<div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-					<RevenueBgIcon />
-				</div>
-                
-				<h3 className="text-zinc-400 font-medium mb-2 uppercase tracking-wider text-sm flex items-center gap-2">
-					Загальний дохід
-					<RevenueSmallIcon />
-				</h3>
-				<p className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg">
-					{formatCurrency(revenue)}
-				</p>
-				<div className="mt-4 text-emerald-400/80 text-sm font-medium">
-					Натисніть для деталізації
-				</div>
-			</div>
-
-			<div className="bg-linear-to-br from-blue-900/40 to-blue-800/20 border border-blue-500/30 p-8 rounded-2xl relative overflow-hidden">
-				<div className="absolute top-0 right-0 p-4 opacity-10">
-					<TicketsBgIcon />
-				</div>
-                
-				<h3 className="text-zinc-400 font-medium mb-2 uppercase tracking-wider text-sm">Всього продано квитків</h3>
-				<p className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg">
-					{ticketsCount} <span className="text-2xl text-zinc-500 font-normal">шт.</span>
-				</p>
-				<div className="mt-4 text-blue-400/80 text-sm font-medium">
-					За обраний період
-				</div>
-			</div>
-		</div>
-	);
+            <div 
+                onClick={onTicketsClick} 
+                className="bg-[#051329]/60 backdrop-blur-md border border-white/10 rounded-2xl p-6 relative overflow-hidden group cursor-pointer hover:border-emerald-500/50 transition-all duration-300"
+            >
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <svg className="w-24 h-24 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                    </svg>
+                </div>
+                <div>
+                    <p className="text-zinc-400 font-medium mb-1">Продано квитків</p>
+                    {isLoading ? (
+                        <div className="h-10 w-24 bg-white/10 rounded animate-pulse" />
+                    ) : (
+                        <h3 className="text-4xl font-bold text-white group-hover:text-emerald-400 transition-colors">
+                            {ticketsCount}
+                        </h3>
+                    )}
+                     <p className="text-xs text-zinc-500 mt-2">Аналіз знижок та продажів</p>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default StatsCards;

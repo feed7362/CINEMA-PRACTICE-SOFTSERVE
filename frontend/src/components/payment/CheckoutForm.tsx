@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import { useNavigate } from 'react-router-dom';
-import api from '@/api/axiosClient.ts';
 import { parseBackendError } from '@/utils/errorUtils.ts';
+import { bookingApi } from '@/api/bookingApi.ts';
 
 interface CheckoutFormProps {
 	bookingId: number;
@@ -57,36 +57,30 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ bookingId, expirationTime }
 			setMessage(errorMap[error.type] || error.message || 'Сталася помилка при оплаті.');
 			setIsProcessing(false);
 		} else if (paymentIntent?.status === 'succeeded') {
-
 			try {
-				const response = await api.post('/booking/confirm', {
-					bookingId: bookingId,
-					paymentIntentId: paymentIntent.id,
+				await bookingApi.confirm(bookingId, paymentIntent.id);
+
+				navigate('/tickets/success', {
+					state: {
+						id: bookingId,
+						expirationTime,
+					},
 				});
 
-				// temporary for now remake when will be profile and 
-				if (response.status === 200) {
-					navigate('/tickets/success', {
-						state: {
-							id: bookingId,
-							expirationTime,
-						},
-					});
-				}
 			} catch (err: any) {
 				const backendMessage = parseBackendError(err.response?.data);
-				setMessage(backendMessage);
+				setMessage(`Оплата пройшла, але виникла помилка: ${backendMessage}. Зверніться до підтримки.`);
 			} finally {
 				setIsProcessing(false);
 			}
 		}
-	};
+	}; 
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-6">
 			<div
 				className={`text-center py-2 rounded bg-white/5 border 
-                border-white/10 font-mono text-sm ${timeLeft === 'EXPIRED' ? 'text-red-500' : 'text-amber-500'}`}>
+            border-white/10 font-mono text-sm ${timeLeft === 'EXPIRED' ? 'text-red-500' : 'text-amber-500'}`}>
 				{timeLeft === 'EXPIRED'
 					? 'Час бронювання вичерпано!'
 					: `Залишилося часу: ${timeLeft}`
@@ -94,6 +88,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ bookingId, expirationTime }
 			</div>
 
 			<div className="bg-gray-900 p-4 rounded-md">
+				{/* This is where the card inputs will appear */}
 				<PaymentElement/>
 			</div>
 
@@ -109,7 +104,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ bookingId, expirationTime }
 			</button>
 
 			{message && (
-				<div className="p-3 bg-red-500/10 border border-red-500/50 rounded text-red-500 text-xs text-center">
+				<div
+					className="p-3 bg-red-500/10 border border-red-500/50 rounded text-red-500 text-xs text-center">
 					{message}
 				</div>
 			)}

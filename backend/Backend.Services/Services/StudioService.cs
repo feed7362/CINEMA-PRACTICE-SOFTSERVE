@@ -1,38 +1,40 @@
-using Backend.Data;
+using AutoMapper;
+using Backend.Domain.Entities;
+using Backend.Domain.Interfaces;
+using Backend.Services.DTOs;
 using Backend.Services.DTOs.Studio;
 using Backend.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Backend.Services.Specifications;
 
 namespace Backend.Services.Services;
 
-public class StudioService : IStudioService
+public class StudioService(
+    IRepository<Studio> repository,
+    IMapper mapper
+) : IStudioService
 {
-    private readonly ApplicationContext _context;
-
-    public StudioService(ApplicationContext context)
+    public async Task<PagedResponse<ReadStudioDto>> GetAllStudiosAsync(
+        StudioFilterDto filter
+    )
     {
-        _context = context;
-    }
+        var filterSpec = new StudiosByFilterSpec(filter.SearchTerm);
+        var totalCount = await repository.CountAsync(filterSpec);
 
-    public async Task<IEnumerable<ReadStudioDto>> GetAllStudiosAsync(StudioFilterDto filter)
-    {
-        var query = _context.Studios.AsNoTracking().AsQueryable();
+        var pagedSpec = new StudiosByFilterPagedSpec(
+            filter.SearchTerm,
+            filter.PageNumber,
+            filter.PageSize
+        );
 
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            query = query.Where(s => s.Name.Contains(filter.SearchTerm));
-        }
+        var studios = await repository.GetListBySpecAsync(pagedSpec);
 
-        var studios = await query
-            .Skip((filter.PageNumber - 1) * filter.PageSize)
-            .Take(filter.PageSize)
-            .Select(s => new ReadStudioDto
-            {
-                Id = s.Id,
-                Name = s.Name
-            })
-            .ToListAsync();
+        var items = mapper.Map<List<ReadStudioDto>>(studios);
 
-        return studios;
+        return new PagedResponse<ReadStudioDto>(
+            items,
+            totalCount,
+            filter.PageNumber ?? 1,
+            filter.PageSize ?? 10
+        );
     }
 }

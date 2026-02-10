@@ -7,7 +7,7 @@ import LoadingSpinner from '@/components/loader/LoadingSpinner';
 import BaseButton from '@/components/ui/BaseButton';
 import { getMe, getMyBookings, refundBooking } from '@/api/profileApi';
 import type { BookingSummary } from '@/types/booking';
-import { isAdmin } from '@/utils/authUtils';
+import { useAuth } from '@/context/AuthContext';
 
 const Profile: React.FC = () => {
 	const navigate = useNavigate();
@@ -17,6 +17,7 @@ const Profile: React.FC = () => {
 	const [refundId, setRefundId] = useState<number | null>(null);
 	const [isRefunding, setIsRefunding] = useState(false);
 	const [feedback, setFeedback] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+	const { isAdmin, logout  } = useAuth();
 
 	useEffect(() => {
 		loadProfile();
@@ -43,8 +44,8 @@ const Profile: React.FC = () => {
 	};
 
 	const handleLogout = () => {
-		localStorage.removeItem('token');
-		navigate('/auth');
+		logout();
+		navigate('/login');
 	};
 
 	const { activeBookings, historyBookings } = useMemo(() => {
@@ -93,7 +94,6 @@ const Profile: React.FC = () => {
 		}
 	};
 
-	const isUserAdmin = useMemo(() => isAdmin(), []);
 
 	if (loading) return <LoadingSpinner />;
 	if (!user) return <div className="text-white p-10 text-center">Не вдалося завантажити профіль</div>;
@@ -116,7 +116,7 @@ const Profile: React.FC = () => {
 						onLogout={handleLogout}
 					/>
 
-					{isUserAdmin && (
+					{isAdmin  && (
 						<div className="flex justify-end">
 							<Link to="/admin">
 								<BaseButton className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-900/20 border border-emerald-500/30 transition-all">

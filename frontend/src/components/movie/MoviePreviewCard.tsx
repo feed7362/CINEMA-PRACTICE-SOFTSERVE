@@ -1,15 +1,24 @@
 import React from 'react';
 import { useMovieNavigation } from '@/hooks/movies/useMovieNavigation';
-import type { MoviePreviewProps } from '@/types/movie';
 import { PLACEHOLDER_IMAGE } from '@/constants';
 
+export interface IMoviePreview {
+	id: number | string;
+	title: string;
+	imageUrl?: string;
+	ageRating?: string | number;
+	releaseDate?: string;
+	rating?: number | string;
+}
+
 interface MoviePreviewCardProps {
-	movie: MoviePreviewProps;
+	movie: IMoviePreview;
 	isBlurred?: boolean;
 }
 
 const MoviePreviewCard: React.FC<MoviePreviewCardProps> = ({ movie, isBlurred }) => {
 	const { id, title, imageUrl, ageRating, releaseDate, rating } = movie;
+    
 	const { goToMovieDetails } = useMovieNavigation(Number(id));
 	const posterSrc = imageUrl && imageUrl.trim() !== '' ? imageUrl : PLACEHOLDER_IMAGE;
 
@@ -31,29 +40,23 @@ const MoviePreviewCard: React.FC<MoviePreviewCardProps> = ({ movie, isBlurred })
 					}}
 				/>
 
-
 				{rating && (
-					<div
-						className="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-[5px] text-[#FCC434] text-[12px] font-bold z-20 flex items-center gap-1">
+					<div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-[5px] text-[#FCC434] text-[12px] font-bold z-20 flex items-center gap-1">
 						<span>★</span>
 						<span>{rating}</span>
 					</div>
 				)}
 
-				<div
-					className="absolute top-2 right-2 bg-[#D9D9D9]/90 backdrop-blur-sm px-1.5 py-0.5 rounded-[5px] text-black text-[12px] font-bold z-20 min-w-7 text-center">
+				<div className="absolute top-2 right-2 bg-[#D9D9D9]/90 backdrop-blur-sm px-1.5 py-0.5 rounded-[5px] text-black text-[12px] font-bold z-20 min-w-7 text-center">
 					{ageRating}
 				</div>
 
-				<div
-					className="absolute inset-0 bg-zinc-900/80 flex flex-col justify-end items-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-
+				<div className="absolute inset-0 bg-zinc-900/80 flex flex-col justify-end items-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
 					<span className="text-white text-[20px] font-bold mb-3 drop-shadow-lg w-full text-center">
 						Прем'єра
 					</span>
 
-					<div
-						className="w-full bg-[#0545BB] text-white p-3 rounded-xl shadow-md border border-white/10 flex items-center justify-center">
+					<div className="w-full bg-[#0545BB] text-white p-3 rounded-xl shadow-md border border-white/10 flex items-center justify-center">
 						<span className="text-[16px] font-black tracking-wide">
 							{releaseDate || 'Скоро'}
 						</span>

@@ -1,106 +1,200 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { statsApi } from '@/api/statsApi';
-import { usePopularMovies } from '@/hooks/movies/usePopularMovies';
-import type { PopularMoviesParams, IStatsMovie } from '@/types/admin';
+import type { PopularMoviesParams, IStatsMovie, ISoldTicket, IDiscountStats } from '@/types/admin';
 
 export const useStatisticsPage = () => {
-	const [dateRange, setDateRange] = useState({
-		from: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-		to: new Date().toISOString().split('T')[0],
-	});
+    const [dateRange, setDateRange] = useState({
+        from: '', 
+        to: '',
+    });
 
-	const [generalData, setGeneralData] = useState({ revenue: 0, totalTickets: 0 });
-	const [isGeneralLoading, setIsGeneralLoading] = useState(false);
+    const [localFilters, setLocalFilters] = useState<PopularMoviesParams>({
+        Amount: 5,
+        MinImdbRating: 0,
+        DateFrom: '',
+        DateTo: '',
+    });
 
-	useEffect(() => {
-		const loadGeneralStats = async () => {
-			setIsGeneralLoading(true);
-			try {
-				const revenuePromise = statsApi.getRevenue(dateRange.from, dateRange.to);
-				const allMoviesPromise = statsApi.getPopularMovies({
-					DateFrom: dateRange.from,
-					DateTo: dateRange.to,
-					Amount: 10000, 
-				});
+    const [allTickets, setAllTickets] = useState<ISoldTicket[]>([]); 
+    const [availableDiscounts, setAvailableDiscounts] = useState<IDiscountStats[]>([]);
+    const [moviesMetadata, setMoviesMetadata] = useState<IStatsMovie[]>([]); 
+    const [serverRevenue, setServerRevenue] = useState<number>(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isTicketsModalOpen, setIsTicketsModalOpen] = useState(false);
+    const [isRevenueModalOpen, setIsRevenueModalOpen] = useState(false);
 
-				const [revRes, moviesRes] = await Promise.all([revenuePromise, allMoviesPromise]);
-				const totalTicketsCount = moviesRes.reduce((sum, movie) => sum + movie.ticketsSold, 0);
+    useEffect(() => {
+        const loadAllData = async () => {
+            if (!dateRange.from || !dateRange.to) {
+                setAllTickets([]);
+                setServerRevenue(0);
+                setMoviesMetadata([]);
+                return;
+            }
 
-				setGeneralData({
-					revenue: revRes.totalRevenue || 0,
-					totalTickets: totalTicketsCount,
-				});
+            setIsLoading(true);
+            try {
+                const [moviesMetaRes, discountsRes, revenueRes] = await Promise.all([
+                    statsApi.getPopularMovies({ Amount: 1000 }), 
+                    statsApi.getDiscountStats(dateRange.from, dateRange.to).catch(() => []),
+                    statsApi.getRevenue(dateRange.from, dateRange.to).catch(() => ({ totalRevenue: 0 }))
+                ]);
+
+                setMoviesMetadata(moviesMetaRes);
+                setAvailableDiscounts(discountsRes);
+                setServerRevenue(revenueRes.totalRevenue || 0);
+
+                const fetchedTickets: any[] = [];
+                let currentPage = 1;
+                let hasMore = true;
                 
-				setLocalFilters((prev) => ({ 
-					...prev, 
-					DateFrom: dateRange.from, 
-					DateTo: dateRange.to, 
-				}));
+                const fromDate = new Date(dateRange.from); fromDate.setHours(0, 0, 0, 0);
+                const toDate = new Date(dateRange.to); toDate.setHours(23, 59, 59, 999);
+                const fromTime = fromDate.getTime();
+                const toTime = toDate.getTime();
+
+                while (hasMore) {
+                    const response: any = await statsApi.getTicketsReport(currentPage, 100);
+                    let items: any[] = [];
+                    
+                    if (response.items && Array.isArray(response.items)) items = response.items;
+                    else if (Array.isArray(response)) items = response;
+
+                    if (items.length === 0) {
+                        hasMore = false;
+                        break;
+                    }
+
+                    const relevant = items.filter((item: any) => {
+                        const tTime = new Date(item.startTime).getTime();
+                        return tTime >= fromTime && tTime <= toTime;
+                    });
+
+                    fetchedTickets.push(...relevant);
+
+                    if (response.totalPages && currentPage >= response.totalPages) hasMore = false;
+                    else if (items.length < 100) hasMore = false;
+                    else if (currentPage > 100) hasMore = false; 
+                    else currentPage++;
+                }
+
+                const finalTickets: ISoldTicket[] = fetchedTickets.map((item: any) => ({
+                    id: item.ticketId || item.id,
+                    movieTitle: item.movieTitle,
+                    hallName: item.hallName,
+                    seatNumber: `R${item.rowNumber} S${item.seatNumber}`,
+                    price: item.price || 0,
+                    discountCode: item.discountType || null,
+                    discountAmount: 0,
+                    soldAt: item.startTime
+                }));
+
+                setAllTickets(finalTickets);
                 
-			} catch (e) {
-				console.error('Failed to load general stats', e);
-			} finally {
-				setIsGeneralLoading(false);
-			}
-		};
-		loadGeneralStats();
-	}, [dateRange]);
+                setLocalFilters((prev) => ({ 
+                    ...prev, 
+                    DateFrom: dateRange.from, 
+                    DateTo: dateRange.to 
+                }));
 
-	const [localFilters, setLocalFilters] = useState<PopularMoviesParams>({
-		Amount: 5,
-		MinImdbRating: 0,
-		DateFrom: dateRange.from,
-		DateTo: dateRange.to,
-	});
+            } catch (error) {
+                console.error("Failed to load data", error);
+                setAllTickets([]);
+                setServerRevenue(0);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-	const { movies, filters: activeFilters, isLoading: isTableLoading, setFilters } = usePopularMovies({
-		DateFrom: dateRange.from,
-		DateTo: dateRange.to,
-		Amount: 5,
-	});
+        loadAllData();
+    }, [dateRange]);
+    
+    const totalTicketsCount = allTickets.length;
+    const totalRevenue = serverRevenue;
 
-	const handleFormReport = () => {
-		setFilters((prev) => ({ ...prev, ...localFilters }));
-	};
+    const aggregatedMovies = useMemo(() => {
+        if (allTickets.length === 0) return [];
 
-	const handleLocalFilterChange = (newFilters: Partial<PopularMoviesParams>) => {
-		setLocalFilters((prev) => ({ ...prev, ...newFilters }));
-	};
+        const statsMap: Record<string, { count: number }> = {};
 
-	// 4. Модалка деталей доходу
-	const [isRevenueModalOpen, setIsRevenueModalOpen] = useState(false);
-	const [revenueMovies, setRevenueMovies] = useState<IStatsMovie[]>([]);
-	const [isRevenueLoading, setIsRevenueLoading] = useState(false);
+        allTickets.forEach(t => {
+            const title = t.movieTitle; 
+            if (!statsMap[title]) statsMap[title] = { count: 0 };
+            statsMap[title].count += 1;
+        });
 
-	const handleOpenRevenueDetails = async () => {
-		setIsRevenueModalOpen(true);
-		setIsRevenueLoading(true);
-		try {
-			const allMoviesData = await statsApi.getPopularMovies({
-				DateFrom: dateRange.from,
-				DateTo: dateRange.to,
-				Amount: 10000,
-			});
-			const sorted = allMoviesData.sort((a, b) => b.revenue - a.revenue);
-			setRevenueMovies(sorted);
-		} catch (e) {
-			console.error(e);
-		} finally {
-			setIsRevenueLoading(false);
-		}
-	};
+        const tableData: IStatsMovie[] = Object.entries(statsMap).map(([title, stats]) => {
+            const meta = moviesMetadata.find(m => m.title === title) || {};
 
-	return {
-		dateRange, setDateRange,
-		generalData, isGeneralLoading,
-		localFilters, handleLocalFilterChange, handleFormReport,
-		movies, isTableLoading,
-		revenueModal: {
-			isOpen: isRevenueModalOpen,
-			setIsOpen: setIsRevenueModalOpen,
-			data: revenueMovies,
-			isLoading: isRevenueLoading,
-			open: handleOpenRevenueDetails,
-		},
-	};
+            return {
+                id: (meta as any).id || 0,
+                title: title,
+                ticketsSold: stats.count,
+                revenue: 0,
+                posterUrl: (meta as any).posterUrl || null,
+                genres: (meta as any).genres || "Невідомо",
+                rating: (meta as any).rating || 0,
+                imdbRating: (meta as any).imdbRating || 0,
+                releaseYear: (meta as any).releaseYear || new Date().getFullYear(),
+                director: (meta as any).director || "—",
+                country: (meta as any).country || "Unknown",
+                ageRating: (meta as any).ageRating || "PG-13"
+            };
+        });
+
+        let result = tableData.sort((a, b) => b.ticketsSold - a.ticketsSold);
+
+        const minRating = localFilters.MinImdbRating || 0;
+        if (minRating > 0) {
+            result = result.filter(m => m.imdbRating >= minRating);
+        }
+        
+        return result.slice(0, localFilters.Amount);
+
+    }, [allTickets, moviesMetadata, localFilters]);
+    
+    const handleLocalFilterChange = (newFilters: Partial<PopularMoviesParams>) => {
+        setLocalFilters((prev) => ({ ...prev, ...newFilters }));
+    };
+
+    const handleFormReport = () => {
+        console.log("Filters applied:", localFilters);
+    };
+
+    return {
+        dateRange, setDateRange,
+        
+        generalData: { 
+            revenue: totalRevenue, 
+            totalTickets: totalTicketsCount 
+        }, 
+        isGeneralLoading: isLoading,
+
+        localFilters, 
+        handleLocalFilterChange, 
+        handleFormReport,
+
+        movies: aggregatedMovies, 
+        isTableLoading: isLoading,
+
+        revenueModal: {
+            isOpen: isRevenueModalOpen,
+            setIsOpen: setIsRevenueModalOpen,
+            data: aggregatedMovies,
+            isLoading: false,
+            open: () => {
+                if (totalRevenue > 0 || totalTicketsCount > 0) setIsRevenueModalOpen(true);
+            },
+        },
+        ticketsModal: {
+            isOpen: isTicketsModalOpen,
+            setIsOpen: setIsTicketsModalOpen,
+            data: allTickets,
+            discountsList: availableDiscounts,
+            isLoading: false,
+            open: () => {
+                if (totalRevenue > 0 || totalTicketsCount > 0) setIsTicketsModalOpen(true);
+            },
+        },
+    };
 };

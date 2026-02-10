@@ -36,4 +36,10 @@ export const ADMIN_DASHBOARD_CARDS: AdminDashboardCard[] = [
 		buttonText: 'Переглянути', 
 		link: '/admin/sessions', 
 	},
+	{
+		title: 'Промокоди і знижки',
+		description: 'Керування знижками',
+		buttonText: 'Переглянути',
+		link: '/admin/discounts',
+	},
 ];

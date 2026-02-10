@@ -1,16 +1,15 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { isAdmin, getUserRole } from '@/utils/authUtils';
+import { useAuth } from '@/context/AuthContext';
 
 const ProtectedRoute: React.FC = () => {
-	const role = getUserRole();
-	const userIsAdmin = isAdmin();
+	const { token, isAdmin } = useAuth();
 
-	if (!role) {
-		return <Navigate to="/auth" replace />;
+	if (!token) {
+		return <Navigate to="/login" replace />;
 	}
 
-	if (!userIsAdmin) {
+	if (!isAdmin) {
 		return <Navigate to="/forbidden" replace />;
 	}
 

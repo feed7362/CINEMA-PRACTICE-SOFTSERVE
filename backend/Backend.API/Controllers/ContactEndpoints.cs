@@ -1,3 +1,4 @@
+using AutoMapper;
 using Backend.Domain.Entities;
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs.Contact;
@@ -13,19 +14,16 @@ public static class ContactEndpoints
 
         group.MapPost("/", async (
             [FromBody] CreateContactDto dto, 
-            IRepository<ContactMessage> repository) =>
+            IRepository<ContactMessage> repository,
+            IMapper mapper) =>
         {
-            var message = new ContactMessage
-            {
-                Name = dto.Name,
-                Email = dto.Email,
-                Message = dto.Message,
-                CreatedAt = DateTime.UtcNow
-            };
+            var message = mapper.Map<ContactMessage>(dto);
 
             await repository.AddAsync(message);
 
-            return Results.Ok(new { message = "Повідомлення успішно відправлено" });
+            return Results.Ok(new { 
+                message = "Повідомлення успішно відправлено" 
+            });
         });
     }
 }

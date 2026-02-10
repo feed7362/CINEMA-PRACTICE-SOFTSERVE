@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { movieApi } from '@/api/movieApi';
-import type { IMovie } from '@/types/movie';
+import type { IMovieBase } from '@/types/common';
 
-// Цей хук вміє тільки одне: взяти параметри -> повернути список фільмів
 export const useMoviesQuery = (filters: any) => {
-	const [movies, setMovies] = useState<IMovie[]>([]);
+	const [movies, setMovies] = useState<IMovieBase[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -15,13 +14,14 @@ export const useMoviesQuery = (filters: any) => {
 				const data = await movieApi.getNowPlaying(filters);
 				setMovies(data);
 			} catch (err) {
+				console.log(err);
 				setError('Failed to fetch movies');
 			} finally {
 				setLoading(false);
 			}
 		};
 		fetch();
-	}, [JSON.stringify(filters)]); // реагує на зміну фільтрів
+	}, [JSON.stringify(filters)]);
 
 	return { movies, loading, error };
 };

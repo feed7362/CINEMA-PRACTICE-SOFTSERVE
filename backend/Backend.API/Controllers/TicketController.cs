@@ -18,7 +18,9 @@ internal static class TicketEndpoints
             int pageSize = 10) =>
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            return Results.Ok(await service.GetUserTicketsAsync(userId, page, pageSize));
+            return Results.Ok(
+                await service.GetUserTicketsAsync(userId, page, pageSize)
+            );
         })
             .RequireAuthorization(p => p.RequireRole("Admin"));
 
@@ -29,7 +31,8 @@ internal static class TicketEndpoints
         {
             var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var ticket = await service.GetTicketByIdAsync(id, userId);
-            return ticket is null ? Results.NotFound() : Results.Ok(ticket);
+
+            return Results.Ok(ticket);
         });
 
     }

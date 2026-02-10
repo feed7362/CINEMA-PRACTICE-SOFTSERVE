@@ -2,26 +2,27 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import Home from '@/pages/Home';
-import Auth from '@/pages/Auth';
+import Auth from '@/pages/auth/Auth';
 import MovieDetails from '@/pages/MovieDetails';
 import MovieSchedule from '@/pages/MovieSchedule';
 import Profile from '@/pages/Profile';
 import Shares from '@/pages/Shares';
-import SignUp from '@/pages/SignUp';
+import SignUp from '@/pages/auth/SignUp';
 import SoonMovies from '@/pages/SoonMovies';
 import Contacts from '@/pages/Contacts';
-import Booking from '@/pages/Booking';
-import Checkout from '@/pages/Checkout';
-import TicketSuccess from '@/pages/TicketSuccess';
+import Booking from '@/pages/booking/Booking';
+import Checkout from '@/pages/booking/Checkout';
+import TicketSuccess from '@/pages/booking/TicketSuccess';
 import AdminPanel from '@/pages/admin/AdminPanel';
-import Forbidden from '@/pages/Forbidden';
+import Forbidden from '@/pages/auth/Forbidden';
 import AddMovie from '@/pages/admin/AddMovie';
 import EditMoviesList from '@/pages/admin/EditMoviesList';
 import Sessions from '@/pages/admin/Sessions';
 import Statistics from '@/pages/admin/Statistics';
-import Halls from '@/pages/Halls';
+import Halls from '@/pages/admin/EditHalls';
 
 import ProtectedRoute from '@/components/ProtectedRoute';
+import EditDiscountsList from '@/pages/admin/EditDiscountsList.tsx';
 
 const AppRoutes: React.FC = () => {
 
@@ -51,6 +52,7 @@ const AppRoutes: React.FC = () => {
 				<Route path="/admin/editMoviesList" element={<EditMoviesList/>} />
 				<Route path="/admin/sessions" element={<Sessions/>} />
 				<Route path="/admin/halls" element={<Halls/>} />
+				<Route path="/admin/discounts" element={<EditDiscountsList/>} />
 			</Route>
 
 			<Route path="/forbidden" element={<Forbidden />} />

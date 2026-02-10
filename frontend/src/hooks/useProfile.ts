@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { getMe, getMyBookings } from '@/api/profileApi';
 import type { BookingSummary } from '@/types/booking'; 
 import type { UserProfile } from '@/types/user';
+import { useAuth } from '@/context/AuthContext';
 
 export const useProfile = () => {
 	const navigate = useNavigate();
 	const [user, setUser] = useState<UserProfile | null>(null);
 	const [bookings, setBookings] = useState<BookingSummary[]>([]);
 	const [loading, setLoading] = useState(true);
+	const { logout  } = useAuth();
 
 	useEffect(() => {
 		loadData();
@@ -35,8 +37,8 @@ export const useProfile = () => {
 	};
 
 	const handleLogout = () => {
-		localStorage.removeItem('token');
-		navigate('/auth');
+	logout();
+	navigate('/login');
 	};
 
 	const removeBookingFromState = (id: number) => {

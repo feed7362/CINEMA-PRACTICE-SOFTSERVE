@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { isAdmin as checkIsAdmin } from '@/utils/authUtils';
+import React, {createContext, useContext, useState, useMemo, type ReactNode, useEffect} from 'react';
+import {getUserRole, isAdmin as checkIsAdmin} from '@/utils/authUtils';
 
 interface AuthContextType {
 	token: string | null;
@@ -12,13 +12,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-	const [isAdmin, setIsAdmin] = useState<boolean>(false);
-
+	const isAdmin = useMemo(() => {
+		return checkIsAdmin(token);
+	}, [token]);
 	useEffect(() => {
 		if (token) {
-			setIsAdmin(checkIsAdmin()); 
-		} else {
-			setIsAdmin(false);
+			console.log('DECODED ROLE:', getUserRole(token));
 		}
 	}, [token]);
 

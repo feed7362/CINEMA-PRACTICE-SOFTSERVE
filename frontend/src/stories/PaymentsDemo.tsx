@@ -11,7 +11,7 @@ const MOCK_SEATS = Array.from({ length: 40 }, (_, i) => ({
 const PaymentsDemo: React.FC = () => {
 	const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
   
-	const [timerState, setTimerState] = useState<'active' | 'expired'>('active');
+	const [timerState] = useState<'active' | 'expired'>('active');
 	const [timeLeft, setTimeLeft] = useState(900); // 15 minutes
 	const [isProcessing, setIsProcessing] = useState(false);
 
@@ -55,7 +55,7 @@ const PaymentsDemo: React.FC = () => {
 				<div className="flex flex-col items-center max-w-2xl mx-auto">
 					{/* Screen */}
 					<div className="relative mb-12 w-full">
-						<div className="h-12 w-full bg-linear-to-b from-[#0753E0]/20 to-transparent transform perspective-[500px] rotate-x-[30deg] rounded-t-[50%] blur-sm"></div>
+						<div className="h-12 w-full bg-linear-to-b from-[#0753E0]/20 to-transparent transform perspective-normal rotate-x-30 rounded-t-[50%] blur-sm"></div>
 						<div className="absolute top-0 w-full h-1 bg-linear-to-r from-transparent via-[#0753E0] to-transparent shadow-[0_0_20px_rgba(7,83,224,0.8)] rounded-full"></div>
 						<p className="text-center text-[10px] text-[#0753E0] mt-4 tracking-[0.5em] uppercase font-bold opacity-70">Екран</p>
 					</div>

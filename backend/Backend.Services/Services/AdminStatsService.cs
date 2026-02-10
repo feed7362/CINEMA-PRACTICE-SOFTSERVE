@@ -1,14 +1,18 @@
+using AutoMapper;
 using Backend.Domain.Entities;
+using Backend.Domain.Exceptions;
 using Backend.Domain.Interfaces;
 using Backend.Services.DTOs.Admin;
 using Backend.Services.Interfaces;
 using Backend.Services.Specifications;
+using static Backend.Services.Specifications.TicketsByPerformanceSpec;
 
 namespace Backend.Services.Services;
 
 public class AdminStatsService(
-    IRepository<Ticket> ticketRepository,
-    IRepository<Session> sessionRepository) : IAdminStatsService
+        IRepository<Ticket> ticketRepository,
+        IRepository<Session> sessionRepository
+    ) : IAdminStatsService
 {
     private static DateTime? Normalize(DateTime? date)
     {
@@ -18,104 +22,113 @@ public class AdminStatsService(
             : date.Value.ToUniversalTime();
     }
 
-    public async Task<decimal> GetTotalRevenueAsync(DateTime from, DateTime? to)
+    public async Task<decimal> GetTotalRevenueAsync(
+            DateTime from,
+            DateTime? to
+        )
     {
-        var utcFrom = Normalize(from)!.Value;
-        var utcTo = Normalize(to);
-        var actualToDate = utcTo ?? utcFrom.AddDays(1).AddTicks(-1);
+        var filter = new AdminStatsFilterDto { 
+            DateFrom = Normalize(from), 
+            DateTo = Normalize(to) 
+        };
 
-        var filter = new AdminStatsFilterDto { DateFrom = utcFrom, DateTo = actualToDate };
-        var spec = new AdminStatsSpecification(filter); // ID не передаємо
+        var prices = await ticketRepository.GetListBySpecAsync(
+                new TicketRevenueSpec(filter)
+            );
 
-        var tickets = await ticketRepository.GetListBySpecAsync(spec);
-        return tickets.Sum(t => t.FinalPrice);
+        return prices.Sum();
     }
 
     public async Task<double> GetSessionOccupancyAsync(int sessionId)
     {
-        // Передаємо пустий фільтр, але заповнюємо sessionId в конструкторі
-        var spec = new AdminStatsSpecification(new AdminStatsFilterDto(), sessionId: sessionId);
+
+        var sessionWithHall = await sessionRepository
+            .GetFirstBySpecAsync(new SessionsByIdsSpec([sessionId]))
+            ?? throw new EntityNotFoundException("Сеанс", sessionId);
+
+
+        var spec = new TicketsByPerformanceSpec(
+                new AdminStatsFilterDto(), 
+                sessionId: sessionId
+            );
         var ticketsSold = await ticketRepository.CountAsync(spec);
 
-        var sessionWithHall = await sessionRepository.GetFirstBySpecAsync(new SessionsByIdsSpec([sessionId]));
-        var capacity = sessionWithHall?.Hall.Capacity ?? 0;
-
+        var capacity = sessionWithHall.Hall.Capacity;
         return capacity > 0 ? (double)ticketsSold / capacity * 100 : 0;
     }
 
-    public async Task<int> GetSpecialTicketsCountAsync(int? movieId, DateTime? from, DateTime? to)
+    public async Task<int> GetSpecialTicketsCountAsync(
+            int? movieId, 
+            DateTime? from, 
+            DateTime? to
+        )
     {
-        var utcFrom = Normalize(from);
-        var utcTo = Normalize(to);
-        var filter = new AdminStatsFilterDto { DateFrom = utcFrom, DateTo = utcTo };
+        var filter = new AdminStatsFilterDto
+        {
+            DateFrom = Normalize(from),
+            DateTo = Normalize(to)
+        };
 
-        // Передаємо movieId в конструктор
-        var spec = new AdminStatsSpecification(filter, movieId: movieId);
-
-        var tickets = await ticketRepository.GetListBySpecAsync(spec);
-        return tickets.Count(t => t.Discount is { Percentage: > 0 });
+        var spec = new DiscountedTicketsSpec(filter, movieId);
+        return await ticketRepository.CountAsync(spec);
     }
 
     public async Task<List<SeatHeatmapDto>> GetHallHeatmapAsync(int hallId)
     {
-        // Передаємо hallId в конструктор
-        var spec = new AdminStatsSpecification(new AdminStatsFilterDto(), hallId: hallId);
+        var seats = await ticketRepository.GetListBySpecAsync(
+                new ConfirmedHallSeatsSpec(hallId)
+            );
 
-        var tickets = await ticketRepository.GetListBySpecAsync(spec);
+        if (!seats.Any()) return [];
 
-        var rawStats = tickets
-            .GroupBy(t => new { t.Seat.RowNumber, t.Seat.SeatNumber })
-            .Select(g => new { Row = g.Key.RowNumber, Number = g.Key.SeatNumber, Count = g.Count() })
+        var stats = seats
+            .GroupBy(s => s)
+            .Select(g => new { 
+                Row = g.Key.Row, 
+                Number = g.Key.Number, 
+                Count = g.Count() 
+            })
             .ToList();
 
-        var averageSales = rawStats.Count != 0 ? rawStats.Average(x => x.Count) : 0;
+        var average = stats.Average(x => x.Count);
 
-        return rawStats.Select(seat =>
-        {
-            var color = seat.Count >= averageSales ? "Red" : "Blue";
-            return new SeatHeatmapDto(seat.Row, seat.Number, seat.Count, color);
-        }).ToList();
+
+        return stats.Select(s => new SeatHeatmapDto(
+            s.Row,
+            s.Number,
+            s.Count,
+            s.Count >= average ? "Red" : "Blue"
+        )).ToList();
     }
 
-    public async Task<List<PopularMovieDto>> GetFilteredPopularMoviesAsync(AdminStatsFilterDto filter)
+    public async Task<List<PopularMovieDto>> GetFilteredPopularMoviesAsync(
+            AdminStatsFilterDto filter
+        )
     {
-        var spec = new AdminStatsSpecification(filter);
-        var tickets = await ticketRepository.GetListBySpecAsync(spec);
+        var data = await ticketRepository.GetListBySpecAsync(
+                new MovieSalesAnalysisSpec(filter)
+            );
 
-        var query = tickets
-            .GroupBy(t => new
-            {
-                TitleUKR = t.Booking.Session.Movie.TitleUkr,
-                Genre = t.Booking.Session.Movie.MovieGenres.Select(mg => mg.Genre.Name).FirstOrDefault() ?? "Unknown",
-                t.Booking.Session.Movie.Director,
-                t.Booking.Session.Movie.Country,
-                ReleaseYear = t.Booking.Session.Movie.ReleaseDate.Year,
-                IMDB = t.Booking.Session.Movie.ImdbRating,
-                Age = t.Booking.Session.Movie.AgeRating
-            })
-            .Select(g =>
-            {
+        var result = data
+            .GroupBy(d => d.Title)
+            .Select(g => {
+                var first = g.First();
                 return new PopularMovieDto(
-                    g.Key.TitleUKR,
-                    g.Key.Genre,
-                    g.Key.Director ?? throw new InvalidOperationException(),
-                    g.Key.Country ?? throw new InvalidOperationException(),
-                    g.Key.ReleaseYear,
-                    g.Key.IMDB ?? 0,
-                    g.Key.Age.ToString(),
-                    g.Count(),
-                    g.Sum(t => t.FinalPrice)
+                    Title: g.Key,
+                    Genre: first.Genre,
+                    Director: first.Director,
+                    Country: first.Country,
+                    ReleaseYear: first.ReleaseYear,
+                    ImdbRating: first.ImdbRating,
+                    AgeRating: first.AgeRating,
+                    TicketsSold: g.Count(),
+                    Revenue: g.Sum(x => x.Price)
                 );
             });
 
-        if (filter.MinImdbRating.HasValue)
-            query = query.Where(x => x.ImdbRating >= filter.MinImdbRating.Value);
-
-        var takeCount = filter.Amount is > 0 ? filter.Amount.Value : 3;
-
-        return query
+        return result
             .OrderByDescending(x => x.TicketsSold)
-            .Take(takeCount)
+            .Take(filter.Amount ?? 5)
             .ToList();
     }
 }

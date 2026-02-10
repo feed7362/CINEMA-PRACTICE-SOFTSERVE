@@ -35,8 +35,14 @@ public class SeatConfiguration : IEntityTypeConfiguration<Seat>
 
         builder.ToTable(t =>
         {
-            t.HasCheckConstraint("CK_Seat_RowNumber", "\"RowNumber\" >= 1 AND \"RowNumber\" <= 100");
-            t.HasCheckConstraint("CK_Seat_SeatNumber", "\"SeatNumber\" >= 1 AND \"SeatNumber\" <= 100");
+            t.HasCheckConstraint(
+                "CK_Seat_RowNumber", 
+                "\"RowNumber\" >= 1 AND \"RowNumber\" <= 100"
+            );
+            t.HasCheckConstraint(
+                "CK_Seat_SeatNumber", 
+                "\"SeatNumber\" >= 1 AND \"SeatNumber\" <= 100"
+            );
         });
     }
 }

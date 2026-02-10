@@ -14,17 +14,29 @@ interface UseRecaptchaProps {
 
 export const useRecaptcha = ({ siteKey, elementId }: UseRecaptchaProps) => {
 	const [token, setToken] = useState<string | null>(null);
-	const [isSdkReady, setIsSdkReady] = useState(false);
+    
+	// 1. Lazy Init: Перевіряємо наявність скрипта одразу при створенні стейту.
+	// Це головна перевірка, яка замінює той проблемний код.
+	const [isSdkReady, setIsSdkReady] = useState<boolean>(() => {
+		return typeof window !== 'undefined' && 
+               !!window.grecaptcha && 
+               typeof window.grecaptcha.render === 'function';
+	});
+
 	const widgetId = useRef<number | null>(null);
 	const isRendered = useRef(false);
 
 	useEffect(() => {
-		if (window.grecaptcha && typeof window.grecaptcha.render === 'function') {
-			setIsSdkReady(true);
-			return;
-		}
+		if (isSdkReady) return;
+
+		// --- ВИДАЛЕНО ПРОБЛЕМНИЙ БЛОК ---
+		// Ми прибрали синхронну перевірку window.grecaptcha тут,
+		// бо вона вже виконана в useState, а для "довантаження" є інтервал нижче.
+		// ---------------------------------
 
 		const scriptId = 'recaptcha-script';
+        
+		// Варіант 1: Скрипт вже є в DOM (вантажиться), чекаємо його таймером
 		if (document.getElementById(scriptId)) {
 			const interval = setInterval(() => {
 				if (window.grecaptcha && typeof window.grecaptcha.render === 'function') {
@@ -35,6 +47,7 @@ export const useRecaptcha = ({ siteKey, elementId }: UseRecaptchaProps) => {
 			return () => clearInterval(interval);
 		}
 
+		// Варіант 2: Скрипта немає, додаємо його
 		window.onRecaptchaLoad = () => {
 			setIsSdkReady(true);
 		};
@@ -48,10 +61,9 @@ export const useRecaptcha = ({ siteKey, elementId }: UseRecaptchaProps) => {
 		document.body.appendChild(script);
 
 		return () => {
-			window.onRecaptchaLoad = () => {
-			};
+			window.onRecaptchaLoad = () => {};
 		};
-	}, []);
+	}, [isSdkReady]);
 
 	useEffect(() => {
 		if (!isSdkReady || !window.grecaptcha || typeof window.grecaptcha.render !== 'function') return;
@@ -60,7 +72,6 @@ export const useRecaptcha = ({ siteKey, elementId }: UseRecaptchaProps) => {
 
 		if (container && !isRendered.current) {
 			container.innerHTML = '';
-
 			try {
 				widgetId.current = window.grecaptcha.render(elementId, {
 					sitekey: siteKey,

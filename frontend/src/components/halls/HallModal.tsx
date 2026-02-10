@@ -1,7 +1,7 @@
 import React from 'react';
 import AdminInput from '../admin/AdminInput';
 import type { HallModalProps } from '@/types/hall';
-import { useHallForm } from '@/hooks/useHallForm';
+import { useHallForm } from '@/hooks/halls/useHallForm';
 import HallFormatSelector from '@/utils/HallFormatSelector';
 import PremiumRowSelector from '@/utils/PremiumRowSelector';
 

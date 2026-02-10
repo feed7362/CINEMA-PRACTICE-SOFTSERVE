@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMovieSearch } from '@/hooks/useMovieSearch';
+import { useMovieSearch } from '@/hooks/movies/useMovieSearch';
 import type { IStatsMovie } from '@/types/admin';
 
 import SearchIcon from '@/assets/icons/SearchIcon';
