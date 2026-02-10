@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { hallApi } from '@/api/hallApi';
-import type { Hall } from '../types/hall';
+import type { Hall } from '@/types/hall';
 import { HALL_FORMAT_MAP } from '@/utils/formatters.ts';
 
 export const useHalls = () => {
