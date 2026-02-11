@@ -72,24 +72,24 @@ export interface IFilterItem {
 }
 
 export interface ISoldTicket {
-    id: number;
-    movieTitle: string;
-    seatNumber: string;
-    price: number;
-    discountCode?: number | null;
-    discountAmount: number;
-    soldAt: string;
+	id: number;
+	movieTitle: string;
+	seatNumber: string;
+	price: number;
+	discountCode?: number | null;
+	discountAmount: number;
+	soldAt: string;
 }
 
 export interface IDiscountSummary {
-    code: string;
-    count: number;
+	code: string;
+	count: number;
 }
 
 export interface IDiscountStats {
-    id?: number;
-    name?: string;
-    promotionName?: string;
-    code?: string;
-    count?: number;
+	id?: number;
+	name?: string;
+	promotionName?: string;
+	code?: string;
+	count?: number;
 }

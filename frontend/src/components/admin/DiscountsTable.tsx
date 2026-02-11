@@ -1,6 +1,6 @@
 import React from 'react';
 import DeleteIcon from '@/assets/icons/DeleteIcon';
-import type {IDiscount} from '@/api/discountApi';
+import type { IDiscount } from '@/api/discountApi';
 
 interface DiscountsTableProps {
 	discounts: IDiscount[];
@@ -8,7 +8,7 @@ interface DiscountsTableProps {
 	discountTypeLabels: Record<number, string>;
 }
 
-const DiscountsTable: React.FC<DiscountsTableProps> = ({discounts, onDelete, discountTypeLabels}) => {
+const DiscountsTable: React.FC<DiscountsTableProps> = ({ discounts, onDelete, discountTypeLabels }) => {
 
 
 	const getStatus = (expiryDate: string) => {

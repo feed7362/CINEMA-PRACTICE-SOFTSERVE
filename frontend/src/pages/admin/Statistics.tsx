@@ -10,71 +10,71 @@ import { StatisticsHeader } from '@/components/admin/stats/sections/StatisticsHe
 import { DetailedStatsSection } from '@/components/admin/stats/sections/DetailedStatsSection';
 
 const Statistics: React.FC = () => {
-    const {
-        dateRange, setDateRange,
-        generalData, isGeneralLoading,
-        localFilters, handleLocalFilterChange, handleFormReport,
-        movies, isTableLoading,
-        revenueModal,
-        ticketsModal,
-    } = useStatisticsPage();
+	const {
+		dateRange, setDateRange,
+		generalData, isGeneralLoading,
+		localFilters, handleLocalFilterChange, handleFormReport,
+		movies, isTableLoading,
+		revenueModal,
+		ticketsModal,
+	} = useStatisticsPage();
 
-    return (
-        <div className="min-h-screen bg-main-dark text-white relative overflow-hidden flex flex-col font-sans">
-            <BackgroundEffects />
+	return (
+		<div className="min-h-screen bg-main-dark text-white relative overflow-hidden flex flex-col font-sans">
+			<BackgroundEffects />
 
-            <div className="grow flex flex-col items-center relative z-10 px-4 py-8">
-                <div className="w-full max-w-7xl">
+			<div className="grow flex flex-col items-center relative z-10 px-4 py-8">
+				<div className="w-full max-w-7xl">
                     
-                    <StatisticsHeader 
-                        dateRange={dateRange} 
-                        setDateRange={setDateRange} 
-                    />
+					<StatisticsHeader 
+						dateRange={dateRange} 
+						setDateRange={setDateRange} 
+					/>
 
-                    <StatsCards 
-                        revenue={generalData.revenue} 
-                        ticketsCount={generalData.totalTickets} 
-                        isLoading={isGeneralLoading}
-                        onRevenueClick={revenueModal.open}
-                        onTicketsClick={ticketsModal.open}
-                    />
+					<StatsCards 
+						revenue={generalData.revenue} 
+						ticketsCount={generalData.totalTickets} 
+						isLoading={isGeneralLoading}
+						onRevenueClick={revenueModal.open}
+						onTicketsClick={ticketsModal.open}
+					/>
 
-                    <DetailedStatsSection 
-                        localFilters={localFilters}
-                        onFilterChange={handleLocalFilterChange}
-                        onSearch={handleFormReport}
-                        movies={movies}
-                        isLoading={isTableLoading}
-                    />
+					<DetailedStatsSection 
+						localFilters={localFilters}
+						onFilterChange={handleLocalFilterChange}
+						onSearch={handleFormReport}
+						movies={movies}
+						isLoading={isTableLoading}
+					/>
 
-                     <div className="my-8">
-                        <MovieAnalyticsBlock />
-                    </div>
+					<div className="my-8">
+						<MovieAnalyticsBlock />
+					</div>
 
-                     <div className="my-8">
-                        <HallHeatmap />
-                    </div>
-                </div>
-            </div>
+					<div className="my-8">
+						<HallHeatmap />
+					</div>
+				</div>
+			</div>
 
-            <RevenueDetailsModal 
-                isOpen={revenueModal.isOpen}
-                onClose={() => revenueModal.setIsOpen(false)}
-                movies={revenueModal.data}
-                isLoading={revenueModal.isLoading}
-                dateRange={dateRange}
-            />
+			<RevenueDetailsModal 
+				isOpen={revenueModal.isOpen}
+				onClose={() => revenueModal.setIsOpen(false)}
+				movies={revenueModal.data}
+				isLoading={revenueModal.isLoading}
+				dateRange={dateRange}
+			/>
 
-            <TicketsStatsModal 
-                isOpen={ticketsModal.isOpen}
-                onClose={() => ticketsModal.setIsOpen(false)}
-                tickets={ticketsModal.data}
-                discountsList={ticketsModal.discountsList}
-                isLoading={ticketsModal.isLoading}
-                dateRange={dateRange}
-            />
-        </div>
-    );
+			<TicketsStatsModal 
+				isOpen={ticketsModal.isOpen}
+				onClose={() => ticketsModal.setIsOpen(false)}
+				tickets={ticketsModal.data}
+				discountsList={ticketsModal.discountsList}
+				isLoading={ticketsModal.isLoading}
+				dateRange={dateRange}
+			/>
+		</div>
+	);
 };
 
 export default Statistics;

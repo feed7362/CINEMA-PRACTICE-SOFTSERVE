@@ -37,8 +37,8 @@ export const useProfile = () => {
 	};
 
 	const handleLogout = () => {
-	logout();
-	navigate('/login');
+		logout();
+		navigate('/login');
 	};
 
 	const removeBookingFromState = (id: number) => {

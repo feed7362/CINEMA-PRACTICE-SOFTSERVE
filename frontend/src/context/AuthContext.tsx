@@ -1,5 +1,5 @@
-import React, {createContext, useContext, useState, useMemo, type ReactNode, useEffect} from 'react';
-import {getUserRole, isAdmin as checkIsAdmin} from '@/utils/authUtils';
+import React, { createContext, useContext, useState, useMemo, type ReactNode, useEffect } from 'react';
+import { getUserRole, isAdmin as checkIsAdmin } from '@/utils/authUtils';
 
 interface AuthContextType {
 	token: string | null;
