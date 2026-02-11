@@ -1,29 +1,66 @@
-Проєкт побудований на React + TypeScript з використанням Vite для блискавичної збірки.
+# Cinema Frontend — React
 
-Технологічний стек
-Frontend: React 18, TypeScript.
+A high-performance, responsive user interface built with **React** and **Vite**, designed for an optimal ticket-buying experience.
 
-Styling: Tailwind CSS.
+---
 
-Routing: React Router Dom.
+## Tech Stack
 
-Icons: Custom SVG components.
+- **UI Library:** React
+- **Build Tool:** Vite
+- **Styling:** Tailwind CSS
+- **API Layer:** Axios
+- **State Management:** Context API, React Hooks
 
-Build Tool: Vite.
+---
 
-Архітектура проєкту
-Проєкт використовує модульну структуру для легкої підтримки та масштабування:
+## Key Features
 
-src/api — конфігурація запитів до бекенду.
+- **Interactive Cinema Hall:** Dynamic SVG/Canvas-based seat selector reflecting real-time availability.
+- **Admin Dashboard:** Visualization of sales data, occupancy rates, and movie performance.
+- **Personalized Experience:** “For You” section powered by the backend recommendation engine.
+- **Payment Flow:** Stripe Elements integration for secure, PCI-compliant payments.
 
-src/assets — статичні ресурси (іконки, постери).
+---
 
-src/components — UI-компоненти (UI Kit, Movie, Layout).
+## Folder Structure
 
-src/constants — статичні дані та моки (навігація, фільми).
+High-level overview of the frontend project layout:
 
-src/hooks — кастомні React-хуки для бізнес-логіки (наприклад, useMovieNavigation).
+```text
+frontend/
+├─ .storybook/            # Storybook configuration (component docs & UI dev)
+├─ src/
+│  ├─ api/                # API clients (Axios setup + feature APIs)
+│  ├─ assets/             # Static assets (icons, images)
+│  ├─ components/         # Reusable UI components
+│  ├─ constants/          # Application constants
+│  ├─ context/            # React Context providers (e.g. auth)
+│  ├─ data/               # Local/static data
+│  ├─ hooks/              # Custom React hooks
+│  ├─ pages/              # Route-level pages
+│  ├─ routes/             # Router configuration
+│  ├─ stories/            # Storybook stories
+│  ├─ types/              # TypeScript types and models
+│  ├─ utils/              # Helper utilities
+│  ├─ App.tsx             # App shell (layout + providers)
+│  ├─ main.tsx            # Application entry point
+│  └─ index.css           # Global styles (Tailwind + base styles)
+├─ .env.example           # Example environment variables
+├─ index.html             # Vite HTML entry
+├─ vite.config.ts         # Vite configuration
+└─ package.json           # Scripts and dependencies
+````
 
-src/pages — основні сторінки додатку.
+---
 
-src/types — глобальні інтерфейси TypeScript.
+## Environment Configuration
+
+Create a `.env` file based on `.env.example` and configure the following variables:
+
+```env
+VITE_BACKEND_URL=http://localhost:5122/api
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_51Lxxxxxx
+VITE_CAPTCHA_SITE_KEY=6LxxxxxxAAAAAMxxxxxxxxxxbOj5a3uBi4_XOW
+VITE_GOOGLE_OAUTH=256773970062-xxxxxxxxxx.apps.googleusercontent.com
+```
